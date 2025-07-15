@@ -1,0 +1,23 @@
+# ninja log v6
+1	260	1752477251834042538	CachyOsTools_autogen/timestamp	968af99f2f325510
+1	260	1752477251834042538	CachyOsTools_autogen/mocs_compilation.cpp	968af99f2f325510
+1	260	1752477251834042538	/home/xetal/CachyOsTools/build/Desktop-Release/CachyOsTools_autogen/timestamp	968af99f2f325510
+1	260	1752477251834042538	/home/xetal/CachyOsTools/build/Desktop-Release/CachyOsTools_autogen/mocs_compilation.cpp	968af99f2f325510
+261	1405	1752477251844434017	CMakeFiles/CachyOsTools.dir/main.cpp.o	33c226821df24205
+261	1571	1752477251844231385	CMakeFiles/CachyOsTools.dir/CachyOsTools_autogen/mocs_compilation.cpp.o	878f1a1aef877357
+261	3565	1752477251844567823	CMakeFiles/CachyOsTools.dir/mainwindow.cpp.o	6dde2f5cfc9b6aa3
+3565	3753	1752477255148113240	CachyOsTools	4910f527092fea3
+4	42	1752490329963648873	CachyOsTools_autogen/timestamp	968af99f2f325510
+4	42	1752490329963648873	CachyOsTools_autogen/mocs_compilation.cpp	968af99f2f325510
+4	42	1752490329963648873	/home/xetal/CachyOsTools/build/Desktop-Release/CachyOsTools_autogen/timestamp	968af99f2f325510
+4	42	1752490329963648873	/home/xetal/CachyOsTools/build/Desktop-Release/CachyOsTools_autogen/mocs_compilation.cpp	968af99f2f325510
+42	3734	1752490330001648736	CMakeFiles/CachyOsTools.dir/mainwindow.cpp.o	6dde2f5cfc9b6aa3
+3734	3924	1752490333693635410	CachyOsTools	4910f527092fea3
+4	287	1752490797550636167	CachyOsTools_autogen/timestamp	968af99f2f325510
+4	287	1752490797550636167	CachyOsTools_autogen/mocs_compilation.cpp	968af99f2f325510
+4	287	1752490797550636167	/home/xetal/CachyOsTools/build/Desktop-Release/CachyOsTools_autogen/timestamp	968af99f2f325510
+4	287	1752490797550636167	/home/xetal/CachyOsTools/build/Desktop-Release/CachyOsTools_autogen/mocs_compilation.cpp	968af99f2f325510
+287	1577	1752490797560072110	CMakeFiles/CachyOsTools.dir/main.cpp.o	33c226821df24205
+287	1916	1752490797559766027	CMakeFiles/CachyOsTools.dir/CachyOsTools_autogen/mocs_compilation.cpp.o	878f1a1aef877357
+287	4341	1752490797560206298	CMakeFiles/CachyOsTools.dir/mainwindow.cpp.o	6dde2f5cfc9b6aa3
+4341	4528	1752490801612616560	CachyOsTools	4910f527092fea3

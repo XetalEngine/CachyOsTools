@@ -1,0 +1,9 @@
+/home/xetal/CachyOsTools/build/Desktop-Debug/CMakeFiles/CachyOsTools.dir
+/home/xetal/CachyOsTools/build/Desktop-Debug/CMakeFiles/edit_cache.dir
+/home/xetal/CachyOsTools/build/Desktop-Debug/CMakeFiles/rebuild_cache.dir
+/home/xetal/CachyOsTools/build/Desktop-Debug/CMakeFiles/list_install_components.dir
+/home/xetal/CachyOsTools/build/Desktop-Debug/CMakeFiles/install.dir
+/home/xetal/CachyOsTools/build/Desktop-Debug/CMakeFiles/install/local.dir
+/home/xetal/CachyOsTools/build/Desktop-Debug/CMakeFiles/install/strip.dir
+/home/xetal/CachyOsTools/build/Desktop-Debug/CMakeFiles/CachyOsTools_autogen_timestamp_deps.dir
+/home/xetal/CachyOsTools/build/Desktop-Debug/CMakeFiles/CachyOsTools_autogen.dir

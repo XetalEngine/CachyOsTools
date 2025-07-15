@@ -1,0 +1,1455 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1000</width>
+    <height>700</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>CachyOS Tools</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>8</number>
+      </property>
+      <widget class="QWidget" name="driveToolsTab">
+       <attribute name="title">
+        <string>Drive Tools</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="font">
+           <font>
+            <pointsize>12</pointsize>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Available Drives</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTableWidget" name="drivesTable">
+          <property name="alternatingRowColors">
+           <bool>true</bool>
+          </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+          </property>
+          <property name="sortingEnabled">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <widget class="QPushButton" name="refreshButton">
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>35</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>🔄 Refresh</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="mountButton">
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>35</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>📁 Mount</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="forceMountButton">
+            <property name="minimumSize">
+             <size>
+              <width>120</width>
+              <height>35</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>⚡ Force Mount</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="unmountButton">
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>35</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>📤 Unmount</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="mount777Button">
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>35</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Mount 777</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="takeOwnershipButton">
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>35</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Take Ownership</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Orientation::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QTextEdit" name="logOutput">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>150</height>
+           </size>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+          <property name="placeholderText">
+           <string>Command output will appear here...</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="shellToolsTab">
+       <attribute name="title">
+        <string>Shell Tools</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_shell">
+        <item>
+         <widget class="QLabel" name="shellLabel">
+          <property name="font">
+           <font>
+            <pointsize>11</pointsize>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Detected Shell: </string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTableWidget" name="aliasTable">
+          <property name="alternatingRowColors">
+           <bool>true</bool>
+          </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+          </property>
+          <property name="sortingEnabled">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="aliasButtonLayout">
+          <item>
+           <widget class="QPushButton" name="addAliasButton">
+            <property name="text">
+             <string>Add Alias</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="editAliasButton">
+            <property name="text">
+             <string>Edit Alias</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="removeAliasButton">
+            <property name="text">
+             <string>Remove Alias</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="reloadAliasButton">
+            <property name="text">
+             <string>Reload</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="servicesTab">
+       <attribute name="title">
+        <string>Services/Startup</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_services">
+        <item>
+         <layout class="QHBoxLayout" name="servicesTopLayout">
+          <item>
+           <widget class="QLineEdit" name="serviceSearchBar">
+            <property name="placeholderText">
+             <string>Search services...</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="userServicesToggle">
+            <property name="text">
+             <string>Show User Services</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QTableWidget" name="servicesTable">
+          <property name="alternatingRowColors">
+           <bool>true</bool>
+          </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+          </property>
+          <property name="sortingEnabled">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="servicesButtonLayout">
+          <item>
+           <widget class="QPushButton" name="startServiceButton">
+            <property name="text">
+             <string>Start</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="stopServiceButton">
+            <property name="text">
+             <string>Stop</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="restartServiceButton">
+            <property name="text">
+             <string>Restart</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="enableServiceButton">
+            <property name="text">
+             <string>Enable</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="disableServiceButton">
+            <property name="text">
+             <string>Disable</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tweaksTab">
+       <attribute name="title">
+        <string>Tweaks</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_tweaks">
+        <item>
+         <widget class="QLabel" name="tweaksWarningLabel">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="styleSheet">
+           <string>color: #d32f2f; padding: 4px; border: 1px solid #f44336; border-radius: 2px;</string>
+          </property>
+          <property name="text">
+           <string>The values below do not represent the current state of the option. They are not populated based on the current system settings. Please verify the current state by editing the config file.</string>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QGridLayout" name="tweaksGridLayout">
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="zramToggle">
+            <property name="text">
+             <string>Enable zram (compressed RAM swap)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QPushButton" name="zramConfigButton">
+            <property name="text">
+             <string>Edit Config</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QComboBox" name="cpuGovernorCombo">
+            <item>
+             <property name="text">
+              <string>performance</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>powersave</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QPushButton" name="cpuGovernorConfigButton">
+            <property name="text">
+             <string>Edit Config</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="ipv6Toggle">
+            <property name="text">
+             <string>Enable IPv6 system-wide</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QPushButton" name="ipv6ConfigButton">
+            <property name="text">
+             <string>Edit Config</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QCheckBox" name="trimToggle">
+            <property name="text">
+             <string>Enable TRIM for SSDs</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QPushButton" name="trimConfigButton">
+            <property name="text">
+             <string>Edit Config</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QCheckBox" name="tmpfsToggle">
+            <property name="text">
+             <string>Mount /tmp as tmpfs (RAM disk)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QPushButton" name="tmpfsConfigButton">
+            <property name="text">
+             <string>Edit Config</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QPushButton" name="dnsConfigButton">
+            <property name="text">
+             <string>Edit DNS Config</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0">
+           <widget class="QCheckBox" name="showHiddenFilesToggle">
+            <property name="text">
+             <string>Show hidden files by default in file managers</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="1">
+           <widget class="QPushButton" name="showHiddenFilesConfigButton">
+            <property name="text">
+             <string>Edit Config</string>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="0">
+           <widget class="QCheckBox" name="mitigationsToggle">
+            <property name="text">
+             <string>Enable Spectre/Meltdown mitigations (for security)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="1">
+           <widget class="QPushButton" name="mitigationsConfigButton">
+            <property name="text">
+             <string>Edit Config</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="configTab">
+       <attribute name="title">
+        <string>System Config</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_config">
+        <item>
+         <layout class="QHBoxLayout" name="configTopLayout">
+          <item>
+           <widget class="QLabel" name="configLabel">
+            <property name="text">
+             <string>Text Editor:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="editorComboBox">
+            <property name="currentText">
+             <string>nano</string>
+            </property>
+            <item>
+             <property name="text">
+              <string>nano</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>kate</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>mousepad</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>geany</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item>
+           <spacer name="configSpacer">
+            <property name="orientation">
+             <enum>Qt::Orientation::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QTableWidget" name="configTable">
+          <property name="alternatingRowColors">
+           <bool>true</bool>
+          </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+          </property>
+          <property name="sortingEnabled">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="logsTab">
+       <attribute name="title">
+        <string>System Logs</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_logs">
+        <item>
+         <layout class="QHBoxLayout" name="logsTopLayout">
+          <item>
+           <widget class="QLabel" name="logFileLabel">
+            <property name="text">
+             <string>Log File:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="logFileComboBox"/>
+          </item>
+          <item>
+           <widget class="QPushButton" name="refreshLogsButton">
+            <property name="text">
+             <string>🔄 Refresh</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="clearLogButton">
+            <property name="text">
+             <string>🗑️ Clear Log</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="logsFilterLayout">
+          <item>
+           <widget class="QLabel" name="filterLabel">
+            <property name="text">
+             <string>Filter:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="logFilterEdit">
+            <property name="placeholderText">
+             <string>Search in log content...</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="linesLabel">
+            <property name="text">
+             <string>Lines:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="logLinesSpinBox">
+            <property name="suffix">
+             <string> lines</string>
+            </property>
+            <property name="minimum">
+             <number>10</number>
+            </property>
+            <property name="maximum">
+             <number>10000</number>
+            </property>
+            <property name="value">
+             <number>100</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="tailLogCheckBox">
+            <property name="text">
+             <string>Follow (tail)</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="applyFilterButton">
+            <property name="text">
+             <string>Apply</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QTextEdit" name="logContentTextEdit">
+          <property name="font">
+           <font>
+            <family>Monospace</family>
+            <pointsize>9</pointsize>
+           </font>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+          <property name="placeholderText">
+           <string>Log content will appear here...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="logsBottomLayout">
+          <item>
+           <widget class="QLabel" name="logStatusLabel">
+            <property name="text">
+             <string>Ready</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="logsBottomSpacer">
+            <property name="orientation">
+             <enum>Qt::Orientation::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="copyLogButton">
+            <property name="text">
+             <string>📋 Copy</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="saveLogButton">
+            <property name="text">
+             <string>💾 Save</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="backupTab">
+       <attribute name="title">
+        <string>Backup</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_backup">
+        <item>
+         <widget class="QSplitter" name="backupSplitter">
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+          <widget class="QWidget" name="backupSourceWidget">
+           <layout class="QVBoxLayout" name="verticalLayout_source">
+            <item>
+             <widget class="QLabel" name="sourceLabel">
+              <property name="text">
+               <string>System Backup Source:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="sourcePathLabel">
+              <property name="text">
+               <string>Source Path:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTreeView" name="sourcePathTree"/>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="backupDestWidget">
+           <layout class="QVBoxLayout" name="verticalLayout_dest">
+            <item>
+             <widget class="QLabel" name="destLabel">
+              <property name="text">
+               <string>Destination Drive:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="destDriveCombo"/>
+            </item>
+            <item>
+             <widget class="QLabel" name="destPathLabel">
+              <property name="text">
+               <string>Destination Folder:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTreeView" name="destPathTree"/>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="backupBottomLayout">
+          <item>
+           <widget class="QLabel" name="backupSummaryLabel">
+            <property name="text">
+             <string>Select source and destination to begin backup.</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="startBackupButton">
+            <property name="text">
+             <string>Start Backup</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QProgressBar" name="backupProgressBar">
+          <property name="minimum">
+           <number>0</number>
+          </property>
+          <property name="maximum">
+           <number>100</number>
+          </property>
+          <property name="value">
+           <number>0</number>
+          </property>
+          <property name="textVisible">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="backupPathSummaryLabel">
+          <property name="text">
+           <string>Source: -\nDestination: -</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="restoreTab">
+       <attribute name="title">
+        <string>Restore</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_restore">
+        <item>
+         <widget class="QSplitter" name="restoreSplitter">
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+          <widget class="QWidget" name="restoreSourceWidget">
+           <layout class="QVBoxLayout" name="verticalLayout_restore_source">
+            <item>
+             <widget class="QLabel" name="restoreSourceLabel">
+              <property name="text">
+               <string>Backup Source:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="restoreSourceDriveCombo"/>
+            </item>
+            <item>
+             <widget class="QLabel" name="restoreSourcePathLabel">
+              <property name="text">
+               <string>Backup Path:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTreeView" name="restoreSourcePathTree"/>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="restoreDestWidget">
+           <layout class="QVBoxLayout" name="verticalLayout_restore_dest">
+            <item>
+             <widget class="QLabel" name="restoreDestLabel">
+              <property name="text">
+               <string>Restore Destination:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="restoreDestDriveCombo"/>
+            </item>
+            <item>
+             <widget class="QLabel" name="restoreDestPathLabel">
+              <property name="text">
+               <string>Destination Path:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTreeView" name="restoreDestPathTree"/>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="restoreBottomLayout">
+          <item>
+           <widget class="QLabel" name="restoreSummaryLabel">
+            <property name="text">
+             <string>Select backup source and restore destination.</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="startRestoreButton">
+            <property name="text">
+             <string>Start Restore</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QProgressBar" name="restoreProgressBar">
+          <property name="minimum">
+           <number>0</number>
+          </property>
+          <property name="maximum">
+           <number>100</number>
+          </property>
+          <property name="value">
+           <number>0</number>
+          </property>
+          <property name="textVisible">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="restorePathSummaryLabel">
+          <property name="text">
+           <string>Source: -\nDestination: -</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="isoCreatorTab">
+       <attribute name="title">
+        <string>System ISO Creator</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_iso">
+        <item>
+         <widget class="QScrollArea" name="isoScrollArea">
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="isoScrollContent">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>944</width>
+             <height>1495</height>
+            </rect>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_iso_content">
+            <item>
+             <widget class="QGroupBox" name="isoBasicGroup">
+              <property name="title">
+               <string>Basic ISO Settings</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_basic">
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_iso_name">
+                 <item>
+                  <widget class="QLabel" name="isoNameLabel">
+                   <property name="text">
+                    <string>ISO Name:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLineEdit" name="isoNameEdit">
+                   <property name="placeholderText">
+                    <string>cachyos-custom-2024-01-01</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_iso_output">
+                 <item>
+                  <widget class="QLabel" name="isoOutputLabel">
+                   <property name="text">
+                    <string>Output Directory:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLineEdit" name="isoOutputEdit">
+                   <property name="placeholderText">
+                    <string>/home/user/Downloads</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="isoOutputBrowseButton">
+                   <property name="text">
+                    <string>Browse</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="isoKernelGroup">
+              <property name="title">
+               <string>Kernel Selection</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_kernel">
+               <item>
+                <widget class="QCheckBox" name="includeLinuxKernelCheck">
+                 <property name="text">
+                  <string>Include Linux Kernel (default)</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="includeLinuxLtsKernelCheck">
+                 <property name="text">
+                  <string>Include Linux LTS Kernel</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="includeLinuxZenKernelCheck">
+                 <property name="text">
+                  <string>Include Linux Zen Kernel</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="includeLinuxHardenedKernelCheck">
+                 <property name="text">
+                  <string>Include Linux Hardened Kernel</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="includeCachyosKernelCheck">
+                 <property name="text">
+                  <string>Include CachyOS Kernel (optimized)</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="isoDriversGroup">
+              <property name="title">
+               <string>Driver Inclusion</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_drivers">
+               <item>
+                <widget class="QCheckBox" name="includeAllWifiDriversCheck">
+                 <property name="text">
+                  <string>Include ALL WiFi Drivers</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="includeAllFirmwareCheck">
+                 <property name="text">
+                  <string>Include ALL Firmware</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="includeNvidiaDriversCheck">
+                 <property name="text">
+                  <string>Include NVIDIA Drivers</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="includeAmdDriversCheck">
+                 <property name="text">
+                  <string>Include AMD Drivers</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="includeIntelDriversCheck">
+                 <property name="text">
+                  <string>Include Intel Drivers</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="includeBluetoothDriversCheck">
+                 <property name="text">
+                  <string>Include Bluetooth Drivers</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="includeAudioDriversCheck">
+                 <property name="text">
+                  <string>Include Audio Drivers</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="isoSoftwareGroup">
+              <property name="title">
+               <string>Software &amp; Tools</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_software">
+               <item>
+                <widget class="QCheckBox" name="includeCalamareInstallerCheck">
+                 <property name="text">
+                  <string>Include Calamares Installer</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="includeSystemToolsCheck">
+                 <property name="text">
+                  <string>Include System Tools (htop, neofetch, etc.)</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="includeNetworkToolsCheck">
+                 <property name="text">
+                  <string>Include Network Tools</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="includeMediaCodecsCheck">
+                 <property name="text">
+                  <string>Include Media Codecs</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="includeOfficeSuiteCheck">
+                 <property name="text">
+                  <string>Include Office Suite (LibreOffice)</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="includeWebBrowserCheck">
+                 <property name="text">
+                  <string>Include Web Browser (Firefox/Chromium)</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="isoDesktopGroup">
+              <property name="title">
+               <string>Desktop Environment</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_desktop">
+               <item>
+                <widget class="QCheckBox" name="includeKdePlasmaCheck">
+                 <property name="text">
+                  <string>Include KDE Plasma</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="includeGnomeCheck">
+                 <property name="text">
+                  <string>Include GNOME</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="includeXfceCheck">
+                 <property name="text">
+                  <string>Include XFCE</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="includeI3wmCheck">
+                 <property name="text">
+                  <string>Include i3 Window Manager</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="includeSwayCheck">
+                 <property name="text">
+                  <string>Include Sway (Wayland)</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="isoAdvancedGroup">
+              <property name="title">
+               <string>Advanced Options</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_advanced">
+               <item>
+                <widget class="QCheckBox" name="includeCustomConfigsCheck">
+                 <property name="text">
+                  <string>Include Custom System Configurations</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="includeUserDataCheck">
+                 <property name="text">
+                  <string>Include User Data (Documents, Downloads, etc.)</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="includeDevelopmentToolsCheck">
+                 <property name="text">
+                  <string>Include Development Tools</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="includeGamingToolsCheck">
+                 <property name="text">
+                  <string>Include Gaming Tools (Steam, Wine, etc.)</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="includeVirtualizationCheck">
+                 <property name="text">
+                  <string>Include Virtualization Tools (QEMU, VirtualBox)</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_compression">
+                 <item>
+                  <widget class="QLabel" name="compressionLabel">
+                   <property name="text">
+                    <string>Compression Level:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="compressionCombo">
+                   <item>
+                    <property name="text">
+                     <string>None</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Fast (gzip)</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Best (xz)</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_arch">
+                 <item>
+                  <widget class="QLabel" name="archLabel">
+                   <property name="text">
+                    <string>Target Architecture:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="archCombo">
+                   <item>
+                    <property name="text">
+                     <string>x86_64</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>aarch64 (ARM64)</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Multi-arch (x86_64 + aarch64)</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="isoSecurityGroup">
+              <property name="title">
+               <string>Security &amp; Privacy</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_security">
+               <item>
+                <widget class="QCheckBox" name="includeSecurityToolsCheck">
+                 <property name="text">
+                  <string>Include Security Tools</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="includeEncryptionToolsCheck">
+                 <property name="text">
+                  <string>Include Encryption Tools</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="includeFirewallCheck">
+                 <property name="text">
+                  <string>Include Firewall Configuration</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="includeVpnToolsCheck">
+                 <property name="text">
+                  <string>Include VPN Tools</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_iso_buttons">
+              <item>
+               <widget class="QPushButton" name="createIsoButton">
+                <property name="minimumSize">
+                 <size>
+                  <width>150</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>12</pointsize>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>🚀 Create ISO</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="estimateSizeButton">
+                <property name="minimumSize">
+                 <size>
+                  <width>120</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>📊 Estimate Size</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="loadPresetButton">
+                <property name="minimumSize">
+                 <size>
+                  <width>120</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>📂 Load Preset</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="savePresetButton">
+                <property name="minimumSize">
+                 <size>
+                  <width>120</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>💾 Save Preset</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_iso">
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QProgressBar" name="isoProgressBar">
+              <property name="minimum">
+               <number>0</number>
+              </property>
+              <property name="maximum">
+               <number>100</number>
+              </property>
+              <property name="value">
+               <number>0</number>
+              </property>
+              <property name="textVisible">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="isoStatusLabel">
+              <property name="text">
+               <string>Ready to create custom ISO. Configure your options above.</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignmentFlag::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1000</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
