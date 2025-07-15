@@ -30,6 +30,9 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     
+    //hellow world 
+    qDebug() << "Hello World";
+
     // Set window title
     setWindowTitle("CachyOS Tools - Linux System Manager");
     
