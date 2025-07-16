@@ -4,6 +4,10 @@ build-*/
 out/
 cmake-build-*/
 
+# Qt Creator IDE files
+CMakeLists.txt.user
+CMakeLists.txt.user.*
+
 # CMake generated files
 CMakeCache.txt
 CMakeFiles/
