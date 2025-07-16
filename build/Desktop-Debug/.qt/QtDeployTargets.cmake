@@ -1,2 +1,0 @@
-set(__QT_DEPLOY_TARGET_CachyOsTools_FILE /home/xetal/Desktop/CachyOsTools/CachyOsTools/build/Desktop-Debug/CachyOsTools)
-set(__QT_DEPLOY_TARGET_CachyOsTools_TYPE EXECUTABLE)

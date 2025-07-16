@@ -1,9 +1,0 @@
-# ninja log v6
-2	337	1752635496870978067	CachyOsTools_autogen/timestamp	477c7499546e2073
-2	337	1752635496870978067	CachyOsTools_autogen/mocs_compilation.cpp	477c7499546e2073
-2	337	1752635496870978067	/home/xetal/Desktop/CachyOsTools/CachyOsTools/build/Desktop-Debug/CachyOsTools_autogen/timestamp	477c7499546e2073
-2	337	1752635496870978067	/home/xetal/Desktop/CachyOsTools/CachyOsTools/build/Desktop-Debug/CachyOsTools_autogen/mocs_compilation.cpp	477c7499546e2073
-338	1972	1752635496881745761	CMakeFiles/CachyOsTools.dir/main.cpp.o	7849b24015c06e5c
-338	2061	1752635496880978024	CMakeFiles/CachyOsTools.dir/CachyOsTools_autogen/mocs_compilation.cpp.o	6ed6faee7f3c1542
-338	3716	1752635496881886433	CMakeFiles/CachyOsTools.dir/mainwindow.cpp.o	21eaeb1a60f7be65
-3716	3945	1752635500258963420	CachyOsTools	b7aec507a6f22d44
