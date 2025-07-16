@@ -471,6 +471,34 @@
             </property>
            </widget>
           </item>
+          <item row="9" column="0">
+           <widget class="QPushButton" name="ptraceToggle">
+            <property name="text">
+             <string>ptrace for non-root users</string>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="1">
+           <widget class="QPushButton" name="ptraceConfigButton">
+            <property name="text">
+             <string>Edit /etc/sysctl.d/10-ptrace.conf</string>
+            </property>
+           </widget>
+          </item>
+          <item row="10" column="0">
+           <widget class="QPushButton" name="hidepidToggle">
+            <property name="text">
+             <string>hidepid for /proc security</string>
+            </property>
+           </widget>
+          </item>
+          <item row="10" column="1">
+           <widget class="QPushButton" name="hidepidConfigButton">
+            <property name="text">
+             <string>Edit /etc/fstab</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
 

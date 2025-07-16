@@ -115,6 +115,10 @@ private slots:
     void on_performanceHacksToggle_clicked();
     void on_performanceHacksConfigButton1_clicked();
     void on_performanceHacksConfigButton2_clicked();
+    void on_ptraceToggle_clicked();
+    void on_ptraceConfigButton_clicked();
+    void on_hidepidToggle_clicked();
+    void on_hidepidConfigButton_clicked();
     // Backup tab slots
     void on_destDriveCombo_currentIndexChanged(int index);
     void on_restoreSourceDriveCombo_currentIndexChanged(int index);

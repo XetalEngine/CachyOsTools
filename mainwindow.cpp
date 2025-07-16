@@ -127,6 +127,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->showHiddenFilesToggle, &QPushButton::clicked, this, &MainWindow::on_showHiddenFilesToggle_clicked);
     connect(ui->mitigationsToggle, &QPushButton::clicked, this, &MainWindow::on_mitigationsToggle_clicked);
     connect(ui->performanceHacksToggle, &QPushButton::clicked, this, &MainWindow::on_performanceHacksToggle_clicked);
+    connect(ui->ptraceToggle, &QPushButton::clicked, this, &MainWindow::on_ptraceToggle_clicked);
+    connect(ui->hidepidToggle, &QPushButton::clicked, this, &MainWindow::on_hidepidToggle_clicked);
     connect(ui->cpuGovernorToggle, &QPushButton::clicked, this, &MainWindow::on_cpuGovernorToggle_clicked);
 
     // Tweaks tab connections (ensure only one connection per button)
@@ -140,6 +142,8 @@ MainWindow::MainWindow(QWidget *parent)
     disconnect(ui->mitigationsConfigButton, nullptr, nullptr, nullptr);
     disconnect(ui->performanceHacksConfigButton1, nullptr, nullptr, nullptr);
     disconnect(ui->performanceHacksConfigButton2, nullptr, nullptr, nullptr);
+    disconnect(ui->ptraceConfigButton, nullptr, nullptr, nullptr);
+    disconnect(ui->hidepidConfigButton, nullptr, nullptr, nullptr);
     connect(ui->zramConfigButton, &QPushButton::clicked, this, &MainWindow::on_zramConfigButton_clicked);
     connect(ui->cpuGovernorConfigButton, &QPushButton::clicked, this, &MainWindow::on_cpuGovernorConfigButton_clicked);
     connect(ui->ipv6ConfigButton, &QPushButton::clicked, this, &MainWindow::on_ipv6ConfigButton_clicked);
@@ -150,6 +154,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->mitigationsConfigButton, &QPushButton::clicked, this, &MainWindow::on_mitigationsConfigButton_clicked);
     connect(ui->performanceHacksConfigButton1, &QPushButton::clicked, this, &MainWindow::on_performanceHacksConfigButton1_clicked);
     connect(ui->performanceHacksConfigButton2, &QPushButton::clicked, this, &MainWindow::on_performanceHacksConfigButton2_clicked);
+    connect(ui->ptraceConfigButton, &QPushButton::clicked, this, &MainWindow::on_ptraceConfigButton_clicked);
+    connect(ui->hidepidConfigButton, &QPushButton::clicked, this, &MainWindow::on_hidepidConfigButton_clicked);
     
     // Tweak state process removed - now using instruction dialogs
     
@@ -1618,6 +1624,133 @@ void MainWindow::on_mitigationsConfigButton_clicked() {
     proc.start("grep", QStringList() << "-q" << "mitigations=off" << "/etc/default/grub");
     QString status = (proc.exitCode() == 0) ? "disabled" : "enabled";
     openConfigInNano("/etc/default/grub");
+}
+
+void MainWindow::on_ptraceToggle_clicked() {
+    QString instructions = R"(
+# ptrace Configuration Instructions
+# ===============================
+# 
+# ptrace is a system call used by debuggers and some security tools to trace processes.
+# By default, non-root users cannot use ptrace on processes they don't own.
+# 
+# To ENABLE ptrace for non-root users (allows debugging and security tools):
+# Click the "Edit Config" button to create/modify the config file
+# Copy this content to /etc/sysctl.d/10-ptrace.conf:
+
+kernel.yama.ptrace_scope = 0
+
+# Then run this command to apply the changes:
+# sudo sysctl -p /etc/sysctl.d/10-ptrace.conf
+# 
+# To DISABLE ptrace for non-root users (more secure, prevents debugging):
+# Click the "Edit Config" button to create/modify the config file
+# Copy this content to /etc/sysctl.d/10-ptrace.conf:
+
+kernel.yama.ptrace_scope = 1
+
+# Then run this command to apply the changes:
+# sudo sysctl -p /etc/sysctl.d/10-ptrace.conf
+# 
+# ptrace_scope values:
+# 0 - No restrictions (any process can ptrace any other process)
+# 1 - Restricted ptrace (only parent processes can ptrace their children)
+# 2 - Admin-only ptrace (only root can use ptrace)
+# 3 - No ptrace (ptrace is completely disabled)
+# 
+# To check current ptrace scope:
+# sysctl kernel.yama.ptrace_scope
+# 
+# Note: Some debugging tools, security scanners, and development tools require ptrace access.
+# Disabling ptrace can break these tools but improves security.
+)";
+    
+    showTweakInstructions("ptrace Configuration", instructions);
+}
+
+void MainWindow::on_ptraceConfigButton_clicked() {
+    // Check current ptrace scope
+    QProcess proc;
+    proc.start("sysctl", QStringList() << "-n" << "kernel.yama.ptrace_scope");
+    proc.waitForFinished();
+    QString currentScope = QString::fromUtf8(proc.readAllStandardOutput()).trimmed();
+    QString status;
+    switch (currentScope.toInt()) {
+        case 0: status = "unrestricted"; break;
+        case 1: status = "restricted"; break;
+        case 2: status = "admin-only"; break;
+        case 3: status = "disabled"; break;
+        default: status = "unknown"; break;
+    }
+    openConfigInNano("/etc/sysctl.d/10-ptrace.conf");
+}
+
+void MainWindow::on_hidepidToggle_clicked() {
+    QString instructions = R"(
+# hidepid Configuration Instructions
+# ================================
+# 
+# hidepid is a mount option for /proc that controls process visibility.
+# It prevents users from seeing processes they don't own, improving security.
+# 
+# To ENABLE hidepid (more secure, hides other users' processes):
+# Click the "Edit Config" button to create/modify the config file
+# Find the /proc line in /etc/fstab and add hidepid=2:
+# 
+# proc /proc proc defaults,hidepid=2 0 0
+# 
+# Then remount /proc to apply changes:
+# sudo mount -o remount /proc
+# 
+# To DISABLE hidepid (less secure, shows all processes):
+# Click the "Edit Config" button to create/modify the config file
+# Find the /proc line in /etc/fstab and remove hidepid=2:
+# 
+# proc /proc proc defaults 0 0
+# 
+# Then remount /proc to apply changes:
+# sudo mount -o remount /proc
+# 
+# hidepid values:
+# 0 - No hiding (default, all processes visible)
+# 1 - Hide processes from other users (processes not owned by current user)
+# 2 - Hide processes from other users and hide /proc/PID directories
+# 
+# To check current hidepid setting:
+# mount | grep proc
+# 
+# To test if hidepid is working:
+# ls /proc | grep -E '^[0-9]+$' | head -5
+# 
+# Note: Some system monitoring tools and debugging utilities may not work
+# properly with hidepid enabled. This is a security vs functionality trade-off.
+# 
+# Security benefits:
+# - Prevents process enumeration attacks
+# - Hides sensitive process information
+# - Reduces information leakage
+)";
+    
+    showTweakInstructions("hidepid Configuration", instructions);
+}
+
+void MainWindow::on_hidepidConfigButton_clicked() {
+    // Check current hidepid setting
+    QProcess proc;
+    proc.start("mount", QStringList());
+    proc.waitForFinished();
+    QString mountOutput = QString::fromUtf8(proc.readAllStandardOutput());
+    QString status = "not set";
+    
+    if (mountOutput.contains("hidepid=1")) {
+        status = "hidepid=1 (hide other users' processes)";
+    } else if (mountOutput.contains("hidepid=2")) {
+        status = "hidepid=2 (hide other users' processes and directories)";
+    } else if (mountOutput.contains("proc")) {
+        status = "hidepid=0 (no hiding, all processes visible)";
+    }
+    
+    openConfigInNano("/etc/fstab");
 }
 
 // Tweaks tab state checking functions removed - now using instruction dialogs instead
