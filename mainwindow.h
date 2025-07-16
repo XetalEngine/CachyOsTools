@@ -96,21 +96,25 @@ private slots:
     void refreshServices();
     void handleServiceAction(const QString &action);
     // Tweaks tab slots
-    void on_zramToggle_toggled(bool checked);
+    void on_zramToggle_clicked();
     void on_zramConfigButton_clicked();
-    void on_cpuGovernorCombo_currentIndexChanged(int index);
+    void on_cpuGovernorToggle_clicked();
     void on_cpuGovernorConfigButton_clicked();
-    void on_ipv6Toggle_toggled(bool checked);
+    void on_ipv6Toggle_clicked();
     void on_ipv6ConfigButton_clicked();
-    void on_trimToggle_toggled(bool checked);
+    void on_trimToggle_clicked();
     void on_trimConfigButton_clicked();
-    void on_tmpfsToggle_toggled(bool checked);
+    void on_tmpfsToggle_clicked();
     void on_tmpfsConfigButton_clicked();
+    void on_dnsToggle_clicked();
     void on_dnsConfigButton_clicked();
-    void on_showHiddenFilesToggle_toggled(bool checked);
+    void on_showHiddenFilesToggle_clicked();
     void on_showHiddenFilesConfigButton_clicked();
-    void on_mitigationsToggle_toggled(bool checked);
+    void on_mitigationsToggle_clicked();
     void on_mitigationsConfigButton_clicked();
+    void on_performanceHacksToggle_clicked();
+    void on_performanceHacksConfigButton1_clicked();
+    void on_performanceHacksConfigButton2_clicked();
     // Backup tab slots
     void on_destDriveCombo_currentIndexChanged(int index);
     void on_restoreSourceDriveCombo_currentIndexChanged(int index);
@@ -138,6 +142,7 @@ private:
     void setupDriveTable();
     void populateDriveTable();
     void logMessage(const QString &message);
+    void showTweakInstructions(const QString &title, const QString &instructions);
     void executeCommand(const QString &command, const QStringList &arguments = QStringList());
     QString getSelectedDrive();
     void updateButtonStates();
@@ -168,7 +173,6 @@ private:
     // Log file management
     QList<LogFileEntry> logFileList;
     QProcess *logProcess;
-    QProcess *tweakStateProcess;
     void setupLogFiles();
     void populateLogComboBox();
     void loadLogContent();
