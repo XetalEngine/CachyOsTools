@@ -1,5 +1,11 @@
 # CachyOsTools - Linux System Manager
 
+<div align="center">
+  <img src="images/logo.png" alt="CachyOsTools Logo" width="400">
+  <br>
+  <em>A comprehensive Qt-based GUI application for managing CachyOS and other Linux systems</em>
+</div>
+
 A comprehensive Qt-based GUI application for managing CachyOS and other Linux systems. This tool provides an intuitive interface for common system administration tasks, making it easier for users to manage their Linux systems without extensive command-line knowledge.
 
 ## 📋 Prerequisites
