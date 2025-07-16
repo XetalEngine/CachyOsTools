@@ -1,7 +1,7 @@
 # CachyOsTools - Linux System Manager
 
 <div align="center">
-  <img src="images/logo.png" alt="CachyOsTools Logo" width="400">
+  <img src="images/logo.png" alt="CachyOsTools Logo">
   <br>
   <em>A comprehensive Qt-based GUI application for managing CachyOS and other Linux systems</em>
 </div>
