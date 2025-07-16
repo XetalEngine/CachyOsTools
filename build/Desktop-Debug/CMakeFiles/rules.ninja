@@ -17,7 +17,7 @@
 rule CXX_COMPILER__CachyOsTools_unscanned_Debug
   depfile = $DEP_FILE
   deps = gcc
-  command = ${LAUNCHER}${CODE_CHECK}/bin/g++ $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
+  command = ${LAUNCHER}${CODE_CHECK}/usr/bin/c++ $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
   description = Building CXX object $out
 
 
@@ -27,7 +27,7 @@ rule CXX_COMPILER__CachyOsTools_unscanned_Debug
 rule CXX_EXECUTABLE_LINKER__CachyOsTools_Debug
   depfile = $DEP_FILE
   deps = gcc
-  command = $PRE_LINK && /bin/g++ $FLAGS $LINK_FLAGS $in -o $TARGET_FILE $LINK_PATH $LINK_LIBRARIES && $POST_BUILD
+  command = $PRE_LINK && /usr/bin/c++ $FLAGS $LINK_FLAGS $in -o $TARGET_FILE $LINK_PATH $LINK_LIBRARIES && $POST_BUILD
   description = Linking CXX executable $TARGET_FILE
   restat = $RESTAT
 
@@ -44,7 +44,7 @@ rule CUSTOM_COMMAND
 # Rule for re-running cmake.
 
 rule RERUN_CMAKE
-  command = /usr/bin/cmake --regenerate-during-build -S/home/xetal/CachyOsTools -B/home/xetal/CachyOsTools/build/Desktop-Debug
+  command = /usr/bin/cmake --regenerate-during-build -S/home/xetal/Desktop/CachyOsTools/CachyOsTools -B/home/xetal/Desktop/CachyOsTools/CachyOsTools/build/Desktop-Debug
   description = Re-running CMake...
   generator = 1
 

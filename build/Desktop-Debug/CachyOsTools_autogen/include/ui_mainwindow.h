@@ -274,7 +274,7 @@ public:
         drivesTable = new QTableWidget(driveToolsTab);
         drivesTable->setObjectName("drivesTable");
         drivesTable->setAlternatingRowColors(true);
-        drivesTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+        drivesTable->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
         drivesTable->setSortingEnabled(true);
 
         verticalLayout_2->addWidget(drivesTable);
@@ -348,7 +348,7 @@ public:
         aliasTable = new QTableWidget(shellToolsTab);
         aliasTable->setObjectName("aliasTable");
         aliasTable->setAlternatingRowColors(true);
-        aliasTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+        aliasTable->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
         aliasTable->setSortingEnabled(true);
 
         verticalLayout_shell->addWidget(aliasTable);
@@ -401,7 +401,7 @@ public:
         servicesTable = new QTableWidget(servicesTab);
         servicesTable->setObjectName("servicesTable");
         servicesTable->setAlternatingRowColors(true);
-        servicesTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+        servicesTable->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
         servicesTable->setSortingEnabled(true);
 
         verticalLayout_services->addWidget(servicesTable);
@@ -443,14 +443,12 @@ public:
         verticalLayout_tweaks->setObjectName("verticalLayout_tweaks");
         tweaksWarningLabel = new QLabel(tweaksTab);
         tweaksWarningLabel->setObjectName("tweaksWarningLabel");
-        tweaksWarningLabel->setWordWrap(true);
         QSizePolicy sizePolicy(QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(tweaksWarningLabel->sizePolicy().hasHeightForWidth());
         tweaksWarningLabel->setSizePolicy(sizePolicy);
-        tweaksWarningLabel->setMinimumHeight(20);
-        tweaksWarningLabel->setMaximumHeight(50);
+        tweaksWarningLabel->setWordWrap(true);
 
         verticalLayout_tweaks->addWidget(tweaksWarningLabel);
 
@@ -567,7 +565,7 @@ public:
         configTable = new QTableWidget(configTab);
         configTable->setObjectName("configTable");
         configTable->setAlternatingRowColors(true);
-        configTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+        configTable->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
         configTable->setSortingEnabled(true);
 
         verticalLayout_config->addWidget(configTable);
@@ -586,7 +584,6 @@ public:
 
         logFileComboBox = new QComboBox(logsTab);
         logFileComboBox->setObjectName("logFileComboBox");
-        logFileComboBox->setMinimumWidth(300);
 
         logsTopLayout->addWidget(logFileComboBox);
 
@@ -644,11 +641,11 @@ public:
 
         logContentTextEdit = new QTextEdit(logsTab);
         logContentTextEdit->setObjectName("logContentTextEdit");
-        logContentTextEdit->setReadOnly(true);
         QFont font2;
         font2.setFamilies({QString::fromUtf8("Monospace")});
         font2.setPointSize(9);
         logContentTextEdit->setFont(font2);
+        logContentTextEdit->setReadOnly(true);
 
         verticalLayout_logs->addWidget(logContentTextEdit);
 
@@ -683,7 +680,7 @@ public:
         verticalLayout_backup->setObjectName("verticalLayout_backup");
         backupSplitter = new QSplitter(backupTab);
         backupSplitter->setObjectName("backupSplitter");
-        backupSplitter->setOrientation(Qt::Horizontal);
+        backupSplitter->setOrientation(Qt::Orientation::Horizontal);
         backupSourceWidget = new QWidget(backupSplitter);
         backupSourceWidget->setObjectName("backupSourceWidget");
         verticalLayout_source = new QVBoxLayout(backupSourceWidget);
@@ -770,7 +767,7 @@ public:
         verticalLayout_restore->setObjectName("verticalLayout_restore");
         restoreSplitter = new QSplitter(restoreTab);
         restoreSplitter->setObjectName("restoreSplitter");
-        restoreSplitter->setOrientation(Qt::Horizontal);
+        restoreSplitter->setOrientation(Qt::Orientation::Horizontal);
         restoreSourceWidget = new QWidget(restoreSplitter);
         restoreSourceWidget->setObjectName("restoreSourceWidget");
         verticalLayout_restore_source = new QVBoxLayout(restoreSourceWidget);
@@ -865,6 +862,7 @@ public:
         isoScrollArea->setWidgetResizable(true);
         isoScrollContent = new QWidget();
         isoScrollContent->setObjectName("isoScrollContent");
+        isoScrollContent->setGeometry(QRect(0, 0, 944, 1495));
         verticalLayout_iso_content = new QVBoxLayout(isoScrollContent);
         verticalLayout_iso_content->setObjectName("verticalLayout_iso_content");
         isoBasicGroup = new QGroupBox(isoScrollContent);
@@ -1200,7 +1198,7 @@ public:
 
         isoStatusLabel = new QLabel(isoScrollContent);
         isoStatusLabel->setObjectName("isoStatusLabel");
-        isoStatusLabel->setAlignment(Qt::AlignCenter);
+        isoStatusLabel->setAlignment(Qt::AlignmentFlag::AlignCenter);
 
         verticalLayout_iso_content->addWidget(isoStatusLabel);
 
@@ -1232,7 +1230,7 @@ public:
 
         retranslateUi(MainWindow);
 
-        tabWidget->setCurrentIndex(0);
+        tabWidget->setCurrentIndex(8);
 
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -1266,8 +1264,8 @@ public:
         enableServiceButton->setText(QCoreApplication::translate("MainWindow", "Enable", nullptr));
         disableServiceButton->setText(QCoreApplication::translate("MainWindow", "Disable", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(servicesTab), QCoreApplication::translate("MainWindow", "Services/Startup", nullptr));
-        tweaksWarningLabel->setText(QCoreApplication::translate("MainWindow", "The values below do not represent the current state of the option. They are not populated based on the current system settings. Please verify the current state by editing the config file.", nullptr));
         tweaksWarningLabel->setStyleSheet(QCoreApplication::translate("MainWindow", "color: #d32f2f; padding: 4px; border: 1px solid #f44336; border-radius: 2px;", nullptr));
+        tweaksWarningLabel->setText(QCoreApplication::translate("MainWindow", "The values below do not represent the current state of the option. They are not populated based on the current system settings. Please verify the current state by editing the config file.", nullptr));
         zramToggle->setText(QCoreApplication::translate("MainWindow", "Enable zram (compressed RAM swap)", nullptr));
         zramConfigButton->setText(QCoreApplication::translate("MainWindow", "Edit Config", nullptr));
         cpuGovernorCombo->setItemText(0, QCoreApplication::translate("MainWindow", "performance", nullptr));

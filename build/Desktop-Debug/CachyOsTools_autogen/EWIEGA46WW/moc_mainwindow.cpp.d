@@ -1,5 +1,5 @@
-/home/xetal/CachyOsTools/build/Desktop-Debug/CachyOsTools_autogen/EWIEGA46WW/moc_mainwindow.cpp: /home/xetal/CachyOsTools/mainwindow.h \
-  /home/xetal/CachyOsTools/build/Desktop-Debug/CachyOsTools_autogen/moc_predefs.h \
+/home/xetal/Desktop/CachyOsTools/CachyOsTools/build/Desktop-Debug/CachyOsTools_autogen/EWIEGA46WW/moc_mainwindow.cpp: /home/xetal/Desktop/CachyOsTools/CachyOsTools/mainwindow.h \
+  /home/xetal/Desktop/CachyOsTools/CachyOsTools/build/Desktop-Debug/CachyOsTools_autogen/moc_predefs.h \
   /usr/include/alloca.h \
   /usr/include/asm-generic/bitsperlong.h \
   /usr/include/asm-generic/errno-base.h \
