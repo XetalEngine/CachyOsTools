@@ -271,6 +271,7 @@ void MainWindow::on_mountButton_clicked()
         return;
     }
     logMessage("📁 Mounting " + selectedDrive);
+    logMessage("⏳ Waiting for sudo password in terminal...");
     executeCommand("udisksctl", QStringList() << "mount" << "-b" << selectedDrive);
 }
 
@@ -282,6 +283,7 @@ void MainWindow::on_forceMountButton_clicked()
         return;
     }
     logMessage("⚡ Force mounting " + selectedDrive);
+    logMessage("⏳ Waiting for sudo password in terminal...");
     executeCommand("udisksctl", QStringList() << "mount" << "-o" << "force" << "-b" << selectedDrive);
 }
 
@@ -293,6 +295,7 @@ void MainWindow::on_unmountButton_clicked()
         return;
     }
     logMessage("📤 Unmounting " + selectedDrive);
+    logMessage("⏳ Waiting for sudo password in terminal...");
     executeCommand("udisksctl", QStringList() << "unmount" << "-b" << selectedDrive);
 }
 
@@ -1756,6 +1759,8 @@ void MainWindow::on_startBackupButton_clicked() {
         cmd += " && echo 'System backup completed. To restore: 1) Install Arch on target, 2) Boot live environment, 3) Mount target system, 4) Run restore command.'";
     }
     
+    logMessage("💾 Starting system backup...");
+    logMessage("⏳ Waiting for sudo password in terminal...");
     // Launch in a terminal for password entry
     QStringList terminals = {"konsole", "gnome-terminal", "xterm", "alacritty", "kitty"};
     bool launched = false;
@@ -1905,6 +1910,8 @@ void MainWindow::on_mount777Button_clicked()
     } else {
         fullCmd = makeDirCmd + " && " + mountCmd;
     }
+    logMessage("🔧 Mounting with 777 permissions for " + selectedDrive);
+    logMessage("⏳ Waiting for sudo password in terminal...");
     // Launch in a terminal for password entry
     QStringList terminals = {"konsole", "gnome-terminal", "xterm", "alacritty", "kitty"};
     bool launched = false;
@@ -1991,6 +1998,8 @@ void MainWindow::on_startRestoreButton_clicked()
         cmd += " && echo 'You may need to reboot and check for hardware-specific drivers.'";
     }
     
+    logMessage("🔄 Starting system restore...");
+    logMessage("⏳ Waiting for sudo password in terminal...");
     // Launch in terminal
     QStringList terminals = {"konsole", "gnome-terminal", "xterm", "alacritty", "kitty"};
     bool launched = false;
@@ -2028,6 +2037,7 @@ void MainWindow::on_takeOwnershipButton_clicked()
     logMessage(QString("Taking ownership of %1 as user %2...").arg(mountPoint, user));
     if (QMessageBox::question(this, "Take Ownership", "This will recursively change the owner and permissions of all files on the drive to your user (chown -R and chmod -R 777). Continue?", QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
         return;
+    logMessage("⏳ Waiting for sudo password in terminal...");
     QString chownCmd = QString("sudo chown -R %1:%1 '%2' && sudo chmod -R 777 '%2'; echo; echo 'Press Enter to close...'; read").arg(user, mountPoint);
     QStringList terminals = {"konsole", "gnome-terminal", "xterm", "alacritty", "kitty"};
     bool launched = false;

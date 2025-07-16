@@ -1,6 +1,6 @@
 # CachyOsTools - Linux System Manager
 
-> **⚠️ Important Note:** This has only been tested on CachyOS with X11 + KDE. Not all features are working as expected. I might have added some config file paths from my Manjaro system that don't exist on CachyOS. Feel free to fork it and add nice stuff to it.
+> **⚠️ Important Note:** This has only been tested on CachyOS with X11 + KDE. Not all features are working as expected. I might have added some config file paths from my Manjaro system that don't exist on CachyOS. Feel free to fork it improve it :D.
 
 <div align="center">
   <img src="images/logo.png" alt="CachyOsTools Logo">
