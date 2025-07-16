@@ -312,6 +312,37 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_tweaks">
         <item>
+         <layout class="QHBoxLayout" name="tweaksHeaderLayout">
+          <item>
+           <widget class="QLabel" name="tweaksTitleLabel">
+            <property name="text">
+             <string>System Tweaks and Optimizations</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="tweaksHeaderSpacer">
+            <property name="orientation">
+             <enum>Qt::Orientation::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="openBackupFolderButton">
+            <property name="text">
+             <string>Open Config Backups</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
          <widget class="QLabel" name="tweaksWarningLabel">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -322,17 +353,24 @@
           <property name="maximumSize">
            <size>
             <width>16777215</width>
-            <height>40</height>
+            <height>50</height>
            </size>
-          </property>
-          <property name="styleSheet">
-           <string>color: #d32f2f; padding: 2px; border: 1px solid #f44336; border-radius: 2px;</string>
           </property>
           <property name="text">
            <string>Click any option to see detailed instructions for manual configuration. This approach is safer as it doesn't automatically modify system files.</string>
           </property>
           <property name="wordWrap">
            <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QFrame" name="tweaksSeparator">
+          <property name="frameShape">
+           <enum>QFrame::HLine</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Sunken</enum>
           </property>
          </widget>
         </item>
@@ -346,6 +384,16 @@
            </widget>
           </item>
           <item row="0" column="1">
+           <widget class="QPushButton" name="zramBackupButton">
+            <property name="text">
+             <string>Backup</string>
+            </property>
+            <property name="toolTip">
+             <string>Backup config file</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
            <widget class="QPushButton" name="zramConfigButton">
             <property name="text">
              <string>Edit /etc/systemd/zram-generator.conf</string>
@@ -360,6 +408,16 @@
            </widget>
           </item>
           <item row="1" column="1">
+           <widget class="QPushButton" name="cpuGovernorBackupButton">
+            <property name="text">
+             <string>Backup</string>
+            </property>
+            <property name="toolTip">
+             <string>Backup config file</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
            <widget class="QPushButton" name="cpuGovernorConfigButton">
             <property name="text">
              <string>Edit /etc/default/cpupower</string>
@@ -374,6 +432,16 @@
            </widget>
           </item>
           <item row="2" column="1">
+           <widget class="QPushButton" name="ipv6BackupButton">
+            <property name="text">
+             <string>Backup</string>
+            </property>
+            <property name="toolTip">
+             <string>Backup config file</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
            <widget class="QPushButton" name="ipv6ConfigButton">
             <property name="text">
              <string>Edit /etc/sysctl.d/40-ipv6.conf</string>
@@ -388,6 +456,16 @@
            </widget>
           </item>
           <item row="3" column="1">
+           <widget class="QPushButton" name="trimBackupButton">
+            <property name="text">
+             <string>Backup</string>
+            </property>
+            <property name="toolTip">
+             <string>Backup config file</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2">
            <widget class="QPushButton" name="trimConfigButton">
             <property name="text">
              <string>Edit /etc/fstab</string>
@@ -402,6 +480,16 @@
            </widget>
           </item>
           <item row="4" column="1">
+           <widget class="QPushButton" name="tmpfsBackupButton">
+            <property name="text">
+             <string>Backup</string>
+            </property>
+            <property name="toolTip">
+             <string>Backup config file</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="2">
            <widget class="QPushButton" name="tmpfsConfigButton">
             <property name="text">
              <string>Edit /etc/fstab</string>
@@ -416,6 +504,16 @@
            </widget>
           </item>
           <item row="5" column="1">
+           <widget class="QPushButton" name="dnsBackupButton">
+            <property name="text">
+             <string>Backup</string>
+            </property>
+            <property name="toolTip">
+             <string>Backup config file</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="2">
            <widget class="QPushButton" name="dnsConfigButton">
             <property name="text">
              <string>Edit /etc/resolv.conf</string>
@@ -430,6 +528,16 @@
            </widget>
           </item>
           <item row="6" column="1">
+           <widget class="QPushButton" name="showHiddenFilesBackupButton">
+            <property name="text">
+             <string>Backup</string>
+            </property>
+            <property name="toolTip">
+             <string>Backup config file</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="2">
            <widget class="QPushButton" name="showHiddenFilesConfigButton">
             <property name="text">
              <string>Edit ~/.config/dolphinrc</string>
@@ -444,6 +552,16 @@
            </widget>
           </item>
           <item row="7" column="1">
+           <widget class="QPushButton" name="mitigationsBackupButton">
+            <property name="text">
+             <string>Backup</string>
+            </property>
+            <property name="toolTip">
+             <string>Backup config file</string>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="2">
            <widget class="QPushButton" name="mitigationsConfigButton">
             <property name="text">
              <string>Edit /etc/default/grub</string>
@@ -458,13 +576,33 @@
            </widget>
           </item>
           <item row="8" column="1">
+           <widget class="QPushButton" name="performanceHacksBackupButton1">
+            <property name="text">
+             <string>Backup</string>
+            </property>
+            <property name="toolTip">
+             <string>Backup updatedb.conf</string>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="2">
            <widget class="QPushButton" name="performanceHacksConfigButton1">
             <property name="text">
              <string>Edit /etc/updatedb.conf</string>
             </property>
            </widget>
           </item>
-          <item row="8" column="2">
+          <item row="8" column="3">
+           <widget class="QPushButton" name="performanceHacksBackupButton2">
+            <property name="text">
+             <string>Backup</string>
+            </property>
+            <property name="toolTip">
+             <string>Backup mkinitcpio.conf</string>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="4">
            <widget class="QPushButton" name="performanceHacksConfigButton2">
             <property name="text">
              <string>Edit /etc/mkinitcpio.conf</string>
@@ -479,6 +617,16 @@
            </widget>
           </item>
           <item row="9" column="1">
+           <widget class="QPushButton" name="ptraceBackupButton">
+            <property name="text">
+             <string>Backup</string>
+            </property>
+            <property name="toolTip">
+             <string>Backup config file</string>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="2">
            <widget class="QPushButton" name="ptraceConfigButton">
             <property name="text">
              <string>Edit /etc/sysctl.d/10-ptrace.conf</string>
@@ -493,6 +641,16 @@
            </widget>
           </item>
           <item row="10" column="1">
+           <widget class="QPushButton" name="hidepidBackupButton">
+            <property name="text">
+             <string>Backup</string>
+            </property>
+            <property name="toolTip">
+             <string>Backup config file</string>
+            </property>
+           </widget>
+          </item>
+          <item row="10" column="2">
            <widget class="QPushButton" name="hidepidConfigButton">
             <property name="text">
              <string>Edit /etc/fstab</string>

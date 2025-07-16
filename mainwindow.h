@@ -119,6 +119,23 @@ private slots:
     void on_ptraceConfigButton_clicked();
     void on_hidepidToggle_clicked();
     void on_hidepidConfigButton_clicked();
+    void on_openBackupFolderButton_clicked();
+    void on_zramBackupButton_clicked();
+    void on_cpuGovernorBackupButton_clicked();
+    void on_ipv6BackupButton_clicked();
+    void on_trimBackupButton_clicked();
+    void on_tmpfsBackupButton_clicked();
+    void on_dnsBackupButton_clicked();
+    void on_showHiddenFilesBackupButton_clicked();
+    void on_mitigationsBackupButton_clicked();
+    void on_performanceHacksBackupButton1_clicked();
+    void on_performanceHacksBackupButton2_clicked();
+    void on_ptraceBackupButton_clicked();
+    void on_hidepidBackupButton_clicked();
+    
+    // Backup helper function
+    void backupConfigFile(const QString &filePath, const QString &description);
+    
     // Backup tab slots
     void on_destDriveCombo_currentIndexChanged(int index);
     void on_restoreSourceDriveCombo_currentIndexChanged(int index);
