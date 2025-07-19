@@ -1,0 +1,3 @@
+kprobe:kvm_vcpu_ioctl {
+    printf("Intercepted ioctl: %d\n", arg1);
+}
