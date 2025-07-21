@@ -212,8 +212,10 @@ class Settings(CiBuildSettingsManager, UpdateSettingsManager, SetupSettingsManag
             "SecurityPkg/DeviceSecurity/SpdmLib/libspdm", False))
         return rs
 
+##Xetal EDK2
     def GetName(self):
-        return "Edk2"
+        #return "Edk2"
+        return "Edk3"
 
     def GetDependencies(self):
         return [

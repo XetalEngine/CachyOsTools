@@ -1,4 +1,4 @@
-/** @file
+ /** @file
   This module produce main entry for BDS phase - BdsEntry.
   When this module was dispatched by DxeCore, gEfiBdsArchProtocolGuid will be installed
   which contains interface of BdsEntry.

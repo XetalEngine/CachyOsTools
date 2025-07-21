@@ -73,7 +73,8 @@ struct fw_cfg_file {
 #define FW_CFG_DMA_CTL_SELECT	0x08
 #define FW_CFG_DMA_CTL_WRITE	0x10
 
-#define FW_CFG_DMA_SIGNATURE    0x51454d5520434647ULL /* "QEMU CFG" */
+//#define FW_CFG_DMA_SIGNATURE    0x51454d5520434647ULL /* "QEMU CFG" */
+#define FW_CFG_DMA_SIGNATURE    0x4153532520444647ULL /* "QEMU CFG" */
 
 /* Control as first field allows for different structures selected by this
  * field, which might be useful in the future

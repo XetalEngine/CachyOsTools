@@ -278,13 +278,26 @@ class InfPomAlignment(ModuleObject):
         #
         # put all define statement into user-extension sections
         #
-        DefinesDictNew = GenModuleHeaderUserExt(DefineObj, ArchString)
+
+        #xetal EDK2
+        # DefinesDictNew = GenModuleHeaderUserExt(DefineObj, ArchString)
+        # if DefinesDictNew:
+        #     UserExtension = CommonObject.UserExtensionObject()
+        #     UserExtension.SetDefinesDict(DefinesDictNew)
+        #     UserExtension.SetIdentifier('DefineModifiers')
+        #     UserExtension.SetUserID('EDK2')
+        #     self.SetUserExtensionList(self.GetUserExtensionList() + [UserExtension])
+
+        DefinesDictNew = GenModuleHeaderUserExt(DefineObj, ArchString)  
         if DefinesDictNew:
             UserExtension = CommonObject.UserExtensionObject()
             UserExtension.SetDefinesDict(DefinesDictNew)
             UserExtension.SetIdentifier('DefineModifiers')
-            UserExtension.SetUserID('EDK2')
+            UserExtension.SetUserID('EDK3')
             self.SetUserExtensionList(self.GetUserExtensionList() + [UserExtension])
+
+
+
         #
         # Get all meta-file header information
         # the record is list of items formatted:
@@ -438,6 +451,7 @@ class InfPomAlignment(ModuleObject):
     # [<Family>:]<ToolFlag>=Flag
     #
     #
+    #Xetal EDK2
     def _GenBuildOptions(self):
         Logger.Debug(2, "Generate %s ..." % DT.TAB_BUILD_OPTIONS)
         #
@@ -459,7 +473,8 @@ class InfPomAlignment(ModuleObject):
             UserExtension = CommonObject.UserExtensionObject()
             UserExtension.SetBuildOptionDict(BuildOptionDict)
             UserExtension.SetIdentifier('BuildOptionModifiers')
-            UserExtension.SetUserID('EDK2')
+            #UserExtension.SetUserID('EDK2')
+            UserExtension.SetUserID('EDK3')
             self.SetUserExtensionList(self.GetUserExtensionList() + [UserExtension])
         else:
             #
@@ -881,7 +896,8 @@ class InfPomAlignment(ModuleObject):
             UserExtension = CommonObject.UserExtensionObject()
             UserExtension.SetBinariesDict(BinariesDict2)
             UserExtension.SetIdentifier('BinaryFileModifiers')
-            UserExtension.SetUserID('EDK2')
+            #UserExtension.SetUserID('EDK2')
+            UserExtension.SetUserID('EDK3')
             self.SetUserExtensionList(self.GetUserExtensionList() + [UserExtension])
 
     ## GenAsBuiltPcds

@@ -23,7 +23,7 @@
         }
     ],
     "features": [
-        "acpi-s3",
+        "acpi-x3",
         "amd-sev",
         "requires-smm",
         "secure-boot",

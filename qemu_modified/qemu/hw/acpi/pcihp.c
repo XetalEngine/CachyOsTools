@@ -710,7 +710,8 @@ bool build_append_notification_callback(Aml *parent_scope, const PCIBus *bus)
     GQueue *pcnt_bus_list = g_queue_new();
 
     QLIST_FOREACH(sec, &bus->child, sibling) {
-        Aml *br_scope = aml_scope("S%.02X", sec->parent_dev->devfn);
+        //Aml *br_scope = aml_scope("S%.02X", sec->parent_dev->devfn);
+        Aml *br_scope = aml_scope("X%.02X", sec->parent_dev->devfn);
         if (pci_bus_is_root(sec)) {
             continue;
         }
@@ -806,7 +807,8 @@ static void build_append_pcihp_notify_entry(Aml *method, int slot)
     int32_t devfn = PCI_DEVFN(slot, 0);
 
     if_ctx = aml_if(aml_and(aml_arg(0), aml_int(0x1U << slot), NULL));
-    aml_append(if_ctx, aml_notify(aml_name("S%.02X", devfn), aml_arg(1)));
+    //aml_append(if_ctx, aml_notify(aml_name("S%.02X", devfn), aml_arg(1)));
+    aml_append(if_ctx, aml_notify(aml_name("D%.02X", devfn), aml_arg(1)));
     aml_append(method, if_ctx);
 }
 
@@ -848,7 +850,7 @@ static bool is_devfn_ignored_hotplug(const int devfn, const PCIBus *bus)
     }
     return false;
 }
-
+//vmaware
 void build_append_pcihp_slots(Aml *parent_scope, PCIBus *bus)
 {
     int devfn;
@@ -870,8 +872,10 @@ void build_append_pcihp_slots(Aml *parent_scope, PCIBus *bus)
         }
 
         if (bus->devices[devfn]) {
+            //dev = aml_scope("S%.02X", devfn);
             dev = aml_scope("S%.02X", devfn);
         } else {
+            //dev = aml_device("S%.02X", devfn);
             dev = aml_device("S%.02X", devfn);
             aml_append(dev, aml_name_decl("_ADR", aml_int(adr)));
         }
@@ -899,9 +903,12 @@ void build_append_pcihp_slots(Aml *parent_scope, PCIBus *bus)
     aml_append(parent_scope, notify_method);
 }
 
+//Xetal mvaware
+
 void build_append_pci_bus_devices(Aml *parent_scope, PCIBus *bus)
 {
     int devfn;
+    //int test99 = 77;
     Aml *dev;
 
     for (devfn = 0; devfn < ARRAY_SIZE(bus->devices); devfn++) {
@@ -914,7 +921,9 @@ void build_append_pci_bus_devices(Aml *parent_scope, PCIBus *bus)
         }
 
         /* start to compose PCI device descriptor */
+        //dev = aml_device("S%.02X", devfn);
         dev = aml_device("S%.02X", devfn);
+        //aml_append(dev, aml_name_decl("_ADR", aml_int(adr)));
         aml_append(dev, aml_name_decl("_ADR", aml_int(adr)));
 
         call_dev_aml_func(DEVICE(bus->devices[devfn]), dev);

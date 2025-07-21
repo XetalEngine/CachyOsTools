@@ -1880,7 +1880,9 @@
 
   ## Null-terminated Unicode string of the firmware vendor name that is the default name filled into the EFI System Table.
   # @Prompt Firmware vendor.
-  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVendor|L"EDK II"|VOID*|0x00010050
+  #gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVendor|L"EDK II"|VOID*|0x00010050
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVendor|L"American Megatrends"|VOID*|0x00010050
+  
 
   ## Firmware revision that is the default revision filled into the EFI System Table.
   # @Prompt Firmware revision.

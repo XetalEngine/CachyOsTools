@@ -2544,7 +2544,8 @@ static void scsi_realize(SCSIDevice *dev, Error **errp)
         s->version = g_strdup(qemu_hw_version());
     }
     if (!s->vendor) {
-        s->vendor = g_strdup("QEMU");
+        //s->vendor = g_strdup("QEMU");
+        s->vendor = g_strdup("ASUS");
         //s->vendor = g_strdup("XETA");
     }
     if (s->serial && strlen(s->serial) > MAX_SERIAL_LEN) {

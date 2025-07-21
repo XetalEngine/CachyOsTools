@@ -64,6 +64,7 @@ static void riscv64_note_init(struct riscv64_note *note, DumpState *s,
     memcpy(note->name, name, namesz);
 }
 
+//Xetal Core
 int riscv_cpu_write_elf64_note(WriteCoreDumpFunction f, CPUState *cs,
                                int cpuid, DumpState *s)
 {
@@ -71,7 +72,8 @@ int riscv_cpu_write_elf64_note(WriteCoreDumpFunction f, CPUState *cs,
     RISCVCPU *cpu = RISCV_CPU(cs);
     CPURISCVState *env = &cpu->env;
     int ret, i = 0;
-    const char name[] = "CORE";
+    //const char name[] = "CORE";
+    const char name[] = "MSFT";
 
     riscv64_note_init(&note, s, name, sizeof(name),
                       NT_PRSTATUS, sizeof(note.prstatus));
@@ -133,6 +135,7 @@ static void riscv32_note_init(struct riscv32_note *note, DumpState *s,
     memcpy(note->name, name, namesz);
 }
 
+//Xetal Core
 int riscv_cpu_write_elf32_note(WriteCoreDumpFunction f, CPUState *cs,
                                int cpuid, DumpState *s)
 {
@@ -140,7 +143,8 @@ int riscv_cpu_write_elf32_note(WriteCoreDumpFunction f, CPUState *cs,
     RISCVCPU *cpu = RISCV_CPU(cs);
     CPURISCVState *env = &cpu->env;
     int ret, i;
-    const char name[] = "CORE";
+    //const char name[] = "CORE";
+    const char name[] = "MSFT";
 
     riscv32_note_init(&note, s, name, sizeof(name),
                       NT_PRSTATUS, sizeof(note.prstatus));

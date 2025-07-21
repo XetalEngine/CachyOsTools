@@ -266,14 +266,15 @@ static int s390x_write_elf64_notes(const char *note_name,
     return 0;
 }
 
-
+//Xetal Core
 int s390_cpu_write_elf64_note(WriteCoreDumpFunction f, CPUState *cs,
                               int cpuid, DumpState *s)
 {
     S390CPU *cpu = S390_CPU(cs);
     int r;
 
-    r = s390x_write_elf64_notes("CORE", f, cpu, cpuid, s, note_core);
+    //r = s390x_write_elf64_notes("CORE", f, cpu, cpuid, s, note_core);
+    r = s390x_write_elf64_notes("MSFT", f, cpu, cpuid, s, note_core);
     if (r) {
         return r;
     }

@@ -1019,7 +1019,8 @@ static void usb_audio_class_init(ObjectClass *klass, const void *data)
     dc->vmsd          = &vmstate_usb_audio;
     device_class_set_props(dc, usb_audio_properties);
     set_bit(DEVICE_CATEGORY_SOUND, dc->categories);
-    k->product_desc   = "QEMU USB Audio Interface";
+    //k->product_desc   = "QEMU USB Audio Interface";
+    k->product_desc   = "ASUS USB Audio Interface";
     k->realize        = usb_audio_realize;
     k->handle_reset   = usb_audio_handle_reset;
     k->handle_control = usb_audio_handle_control;

@@ -1723,6 +1723,7 @@ void acpi_table_begin(AcpiTable *desc, GArray *array)
     build_append_int_noprefix(array, desc->rev, 1); /* Revision */
     build_append_int_noprefix(array, 0, 1); /* Checksum */
     build_append_padded_str(array, desc->oem_id, 6, '\0'); /* OEMID */
+    
     /* OEM Table ID */
     build_append_padded_str(array, desc->oem_table_id, 8, '\0');
     build_append_int_noprefix(array, 1, 4); /* OEM Revision */
@@ -2307,7 +2308,22 @@ void build_fadt(GArray *tbl, BIOSLinker *linker, const AcpiFadtData *f,
         build_append_int_noprefix(tbl, f->iapc_boot_arch, 2);
     }
     build_append_int_noprefix(tbl, 0, 1); /* Reserved */
-    build_append_int_noprefix(tbl, f->flags, 4); /* Flags */
+    
+    //xetal acpi
+    //build_append_int_noprefix(tbl, f->flags, 4); /* Flags */
+
+    uint32_t spoofed_flags = f->flags;
+
+    spoofed_flags |= (1 << 10); // S1 supported
+    spoofed_flags |= (1 << 11); // S2 supported
+    spoofed_flags |= (1 << 12); // S3 supported
+    spoofed_flags |= (1 << 13); // S4 supported
+    spoofed_flags |= (1 << 5);  // Power Button
+    spoofed_flags |= (1 << 6);  // Sleep Button
+    spoofed_flags |= (1 << 16); // Reset register supported
+
+    build_append_int_noprefix(tbl, spoofed_flags, 4); /* Flags */
+    //Xetal VMAWARE
 
     if (f->rev == 1) {
         goto done;
