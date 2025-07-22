@@ -138,6 +138,32 @@ private slots:
     void on_ptraceBackupButton_clicked();
     void on_hidepidBackupButton_clicked();
     
+
+    // KVM VM tab slots
+    void on_multiGpuXorgToggle_clicked();
+    void on_multiGpuXorgConfigButton_clicked();
+    void on_multiGpuXorgBackupButton_clicked();
+    void on_grubConfigToggle_clicked();
+    void on_grubConfigButton_clicked();
+    void on_grubConfigBackupButton_clicked();
+    void on_verifyIommuToggle_clicked();
+    void on_verifyIommuConfigButton_clicked();
+    void on_verifyIommuBackupButton_clicked();
+    void on_isolateGpuToggle_clicked();
+    void on_isolateGpuConfigButton_clicked();
+    void on_isolateGpuBackupButton_clicked();
+    void on_bindGpuToggle_clicked();
+    void on_bindGpuConfigButton_clicked();
+    void on_bindGpuBackupButton_clicked();
+    void on_loadVfioToggle_clicked();
+    void on_loadVfioConfigButton_clicked();
+    void on_loadVfioBackupButton_clicked();
+    void on_hugePagesToggle_clicked();
+    void on_hugePagesConfigButton_clicked();
+    void on_hugePagesBackupButton_clicked();
+    void on_openKvmBackupFolderButton_clicked();
+
+
     // Backup helper function
     void backupConfigFile(const QString &filePath, const QString &description);
     

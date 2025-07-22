@@ -13,6 +13,7 @@
 #include "systembackup.h"
 #include "systemrestore.h"
 #include "current_system_iso_creator.h"
+#include "dual_gpu_kvm.h"
 
 void MainWindow::setNumlockSetting(bool enabled) {
     QString value = enabled ? "1" : "0";

@@ -722,9 +722,268 @@
           </item>
          </layout>
         </item>
-
        </layout>
       </widget>
+
+
+
+
+
+
+
+
+     
+      <widget class="QWidget" name="kvmTab">
+       <attribute name="title">
+        <string>DUAL GPU KVM</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_kvm">
+        <item>
+         <layout class="QHBoxLayout" name="kvmHeaderLayout">
+          <item>
+           <widget class="QLabel" name="kvmTitleLabel">
+            <property name="text">
+             <string>KVM Virtual Machine Setup and GPU Passthrough</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="kvmHeaderSpacer">
+            <property name="orientation">
+             <enum>Qt::Orientation::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="openKvmBackupFolderButton">
+            <property name="text">
+             <string>Open Config Backups</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QLabel" name="kvmWarningLabel">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Click any option to see detailed instructions for KVM setup and GPU passthrough configuration. This approach is safer as it doesn't automatically modify system files.</string>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QFrame" name="kvmSeparator">
+          <property name="frameShape">
+           <enum>QFrame::HLine</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Sunken</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QGridLayout" name="kvmGridLayout">
+          <item row="0" column="0">
+           <widget class="QPushButton" name="multiGpuXorgToggle">
+            <property name="text">
+             <string>✅ Step 1: Create multi-GPU Xorg config</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QPushButton" name="multiGpuXorgBackupButton">
+            <property name="text">
+             <string>Backup</string>
+            </property>
+            <property name="toolTip">
+             <string>Backup Xorg config file</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QPushButton" name="multiGpuXorgConfigButton">
+            <property name="text">
+             <string>Edit /etc/X11/xorg.conf.d/10-hybrid.conf</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QPushButton" name="grubConfigToggle">
+            <property name="text">
+             <string>✅ Step 2: Configure GRUB for IOMMU</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QPushButton" name="grubConfigBackupButton">
+            <property name="text">
+             <string>Backup</string>
+            </property>
+            <property name="toolTip">
+             <string>Backup GRUB config file</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QPushButton" name="grubConfigButton">
+            <property name="text">
+             <string>Edit /etc/default/grub</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QPushButton" name="verifyIommuToggle">
+            <property name="text">
+             <string>✅ Step 3: Verify IOMMU and GPU detection</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QPushButton" name="verifyIommuBackupButton">
+            <property name="text">
+             <string>Backup</string>
+            </property>
+            <property name="toolTip">
+             <string>Backup verification results</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QPushButton" name="verifyIommuConfigButton">
+            <property name="text">
+             <string>Run verification commands</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QPushButton" name="isolateGpuToggle">
+            <property name="text">
+             <string>✈️ Step 4: Isolate GPU from Host Using VFIO</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QPushButton" name="isolateGpuBackupButton">
+            <property name="text">
+             <string>Backup</string>
+            </property>
+            <property name="toolTip">
+             <string>Backup blacklist config</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2">
+           <widget class="QPushButton" name="isolateGpuConfigButton">
+            <property name="text">
+             <string>Edit /etc/modprobe.d/blacklist-nvidia.conf</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QPushButton" name="bindGpuToggle">
+            <property name="text">
+             <string>✈️ Step 5: Bind GPU to VFIO</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QPushButton" name="bindGpuBackupButton">
+            <property name="text">
+             <string>Backup</string>
+            </property>
+            <property name="toolTip">
+             <string>Backup VFIO config</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="2">
+           <widget class="QPushButton" name="bindGpuConfigButton">
+            <property name="text">
+             <string>Edit /etc/modprobe.d/vfio.conf</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QPushButton" name="loadVfioToggle">
+            <property name="text">
+             <string>✈️ Step 6: Ensure VFIO modules load early</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="QPushButton" name="loadVfioBackupButton">
+            <property name="text">
+             <string>Backup</string>
+            </property>
+            <property name="toolTip">
+             <string>Backup modules config</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="2">
+           <widget class="QPushButton" name="loadVfioConfigButton">
+            <property name="text">
+             <string>Edit /etc/modules-load.d/vfio.conf</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0">
+           <widget class="QPushButton" name="hugePagesToggle">
+            <property name="text">
+             <string>💾 Step 7: Configure Huge Pages</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="1">
+           <widget class="QPushButton" name="hugePagesBackupButton">
+            <property name="text">
+             <string>Backup</string>
+            </property>
+            <property name="toolTip">
+             <string>Backup huge pages config</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="2">
+           <widget class="QPushButton" name="hugePagesConfigButton">
+            <property name="text">
+             <string>Configure Huge Pages</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+
+
+
+
+
+
+
+
+
       <widget class="QWidget" name="configTab">
        <attribute name="title">
         <string>System Config</string>
