@@ -89,7 +89,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) , ui(new Ui::MainW
     connect(ui->saveLogButton, &QPushButton::clicked, this, &MainWindow::on_saveLogButton_clicked);
     connect(ui->logFileComboBox, &QComboBox::currentTextChanged, this, &MainWindow::on_logFileComboBox_currentTextChanged);
 
-    // Tweaks tab connections (ensure only one connection per button)
+    // Tweaks tab toggle button connections
     disconnect(ui->zramToggle, nullptr, nullptr, nullptr);
     disconnect(ui->ipv6Toggle, nullptr, nullptr, nullptr);
     disconnect(ui->trimToggle, nullptr, nullptr, nullptr);
@@ -97,6 +97,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) , ui(new Ui::MainW
     disconnect(ui->showHiddenFilesToggle, nullptr, nullptr, nullptr);
     disconnect(ui->mitigationsToggle, nullptr, nullptr, nullptr);
     disconnect(ui->performanceHacksToggle, nullptr, nullptr, nullptr);
+    disconnect(ui->ptraceToggle, nullptr, nullptr, nullptr);
+    disconnect(ui->hidepidToggle, nullptr, nullptr, nullptr);
+    disconnect(ui->cpuGovernorToggle, nullptr, nullptr, nullptr);
+    disconnect(ui->dnsToggle, nullptr, nullptr, nullptr);
+    
     connect(ui->zramToggle, &QPushButton::clicked, this, &MainWindow::on_zramToggle_clicked);
     connect(ui->ipv6Toggle, &QPushButton::clicked, this, &MainWindow::on_ipv6Toggle_clicked);
     connect(ui->trimToggle, &QPushButton::clicked, this, &MainWindow::on_trimToggle_clicked);
@@ -109,8 +114,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) , ui(new Ui::MainW
     connect(ui->hidepidToggle, &QPushButton::clicked, this, &MainWindow::on_hidepidToggle_clicked);
     connect(ui->cpuGovernorToggle, &QPushButton::clicked, this, &MainWindow::on_cpuGovernorToggle_clicked);
 
-
-    // Tweaks tab connections (ensure only one connection per button)
+    // Tweaks tab config button connections
     disconnect(ui->zramConfigButton, nullptr, nullptr, nullptr);
     disconnect(ui->cpuGovernorConfigButton, nullptr, nullptr, nullptr);
     disconnect(ui->ipv6ConfigButton, nullptr, nullptr, nullptr);
