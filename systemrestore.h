@@ -109,13 +109,26 @@ void MainWindow::populateRestoreDrives() {
         if (parts.isEmpty()) continue;
         QString mount = parts[0];
         QString label = (parts.size() > 1) ? parts[1] : mount;
-        if (mount.startsWith("/mnt") || mount.startsWith("/media") || mount.isEmpty()) continue;
-        drives.append(qMakePair(mount, label));
+        // Only include external mounted drives (not root filesystem, not system mounts)
+        if (!mount.isEmpty() && mount != "/" && 
+            (mount.startsWith("/run/media") || mount.startsWith("/mnt") || mount.startsWith("/media"))) {
+            drives.append(qMakePair(mount, label));
+        }
     }
+    
+    // Add drives to source combo (external drives only)
     for (const auto &d : drives) {
         ui->restoreSourceDriveCombo->addItem(d.first + " (" + d.second + ")", d.first);
+    }
+    
+    // Add ROOT as first option to destination combo
+    ui->restoreDestDriveCombo->addItem("ROOT (System)", "/");
+    
+    // Add external drives to destination combo
+    for (const auto &d : drives) {
         ui->restoreDestDriveCombo->addItem(d.first + " (" + d.second + ")", d.first);
     }
+    
     updateRestoreSourcePathTree();
     updateRestoreDestPathTree();
 }
@@ -167,6 +180,14 @@ bool MainWindow::validateRestoreSelection() {
     QString dst = getSelectedRestoreDestPath();
     if (src.isEmpty() || dst.isEmpty()) return false;
     if (src == dst) return false;
+    
+    // Allow ROOT (/) as destination for system restore
+    if (dst == "/") {
+        // For system restore, only check that source is not empty and different from destination
+        return !src.isEmpty() && src != dst;
+    }
+    
+    // For other destinations, use the original validation logic
     if (src.startsWith("/mnt") || src.startsWith("/media")) return false;
     if (dst.startsWith("/mnt") || dst.startsWith("/media")) return false;
     if (dst.startsWith(src)) return false;

@@ -204,8 +204,11 @@ void MainWindow::populateBackupDrives() {
         if (parts.isEmpty()) continue;
         QString mount = parts[0];
         QString label = (parts.size() > 1) ? parts[1] : mount;
-        if (mount.startsWith("/mnt") || mount.startsWith("/media") || mount.isEmpty()) continue;
-        drives.append(qMakePair(mount, label));
+        // Only include external mounted drives (not root filesystem, not system mounts)
+        if (!mount.isEmpty() && mount != "/" && 
+            (mount.startsWith("/run/media") || mount.startsWith("/mnt") || mount.startsWith("/media"))) {
+            drives.append(qMakePair(mount, label));
+        }
     }
     for (const auto &d : drives) {
         ui->destDriveCombo->addItem(d.first + " (" + d.second + ")", d.first);
