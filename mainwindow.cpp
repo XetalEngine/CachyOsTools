@@ -13,6 +13,7 @@
 #include "systembackup.h"
 #include "systemrestore.h"
 #include "current_system_iso_creator.h"
+#include "dual_gpu_kvm.h"
 
 void MainWindow::setNumlockSetting(bool enabled) {
     QString value = enabled ? "1" : "0";
@@ -29,4 +30,7 @@ void MainWindow::runSudoCommandInTerminal(const QString &cmd) {
     }
     QMessageBox::warning(this, "Terminal Not Found", "Could not find a suitable terminal emulator. Please install one of: konsole, gnome-terminal, xterm, alacritty, or kitty");
 }
+
+
+////// Functionality
 
