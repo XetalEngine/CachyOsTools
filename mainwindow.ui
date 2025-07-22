@@ -39,6 +39,69 @@
          </widget>
         </item>
         <item>
+         <layout class="QHBoxLayout" name="filterLayout">
+          <item>
+           <widget class="QCheckBox" name="diskFilterCheckBox">
+            <property name="text">
+             <string>Disk</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="partitionFilterCheckBox">
+            <property name="text">
+             <string>Partition</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="minSizeFilterCheckBox">
+            <property name="text">
+             <string>Min Size</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="minSizeSpinBox">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>999999</number>
+            </property>
+            <property name="value">
+             <number>500</number>
+            </property>
+            <property name="suffix">
+             <string> MB</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="filterSpacer">
+            <property name="orientation">
+             <enum>Qt::Orientation::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
          <widget class="QTableWidget" name="drivesTable">
           <property name="alternatingRowColors">
            <bool>true</bool>

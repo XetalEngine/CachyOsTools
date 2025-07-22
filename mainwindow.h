@@ -70,6 +70,11 @@ private slots:
     void on_unmountButton_clicked();
     void on_mount777Button_clicked();
     void on_takeOwnershipButton_clicked();
+    void on_diskFilterCheckBox_stateChanged(int state);
+    void on_partitionFilterCheckBox_stateChanged(int state);
+    void on_minSizeFilterCheckBox_stateChanged(int state);
+    void on_minSizeSpinBox_valueChanged(int value);
+    qint64 parseSizeToMB(const QString &sizeStr);
     void on_reloadAliasButton_clicked();
     void on_addAliasButton_clicked();
     void on_editAliasButton_clicked();

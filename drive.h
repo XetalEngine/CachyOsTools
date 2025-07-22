@@ -114,11 +114,58 @@ QList<DriveInfo> MainWindow::parseDriveList(const QString &output)
     return drives;
 }
 
+// Helper function to convert size string to MB
+qint64 MainWindow::parseSizeToMB(const QString &sizeStr)
+{
+    QString size = sizeStr.trimmed();
+    qint64 value = 0;
+    
+    if (size.endsWith("G", Qt::CaseInsensitive)) {
+        value = size.left(size.length() - 1).toDouble() * 1024;
+    } else if (size.endsWith("M", Qt::CaseInsensitive)) {
+        value = size.left(size.length() - 1).toDouble();
+    } else if (size.endsWith("K", Qt::CaseInsensitive)) {
+        value = size.left(size.length() - 1).toDouble() / 1024;
+    } else if (size.endsWith("B", Qt::CaseInsensitive)) {
+        value = size.left(size.length() - 1).toDouble() / (1024 * 1024);
+    } else {
+        // Try to parse as number (assume MB)
+        value = size.toDouble();
+    }
+    
+    return value;
+}
+
 void MainWindow::populateDriveTable()
 {
     ui->drivesTable->setRowCount(0);
     
+    bool showDisks = ui->diskFilterCheckBox->isChecked();
+    bool showPartitions = ui->partitionFilterCheckBox->isChecked();
+    bool useMinSizeFilter = ui->minSizeFilterCheckBox->isChecked();
+    qint64 minSizeMB = ui->minSizeSpinBox->value();
+    
     for (const DriveInfo &drive : drivesList) {
+        // Apply type filters
+        bool shouldShow = false;
+        if (drive.type == "disk" && showDisks) {
+            shouldShow = true;
+        } else if (drive.type == "part" && showPartitions) {
+            shouldShow = true;
+        }
+        
+        if (!shouldShow) {
+            continue;
+        }
+        
+        // Apply size filter
+        if (useMinSizeFilter) {
+            qint64 driveSizeMB = parseSizeToMB(drive.size);
+            if (driveSizeMB < minSizeMB) {
+                continue;
+            }
+        }
+        
         int row = ui->drivesTable->rowCount();
         ui->drivesTable->insertRow(row);
         // Device Name
@@ -149,8 +196,12 @@ QString MainWindow::getSelectedDrive()
     }
     
     int row = selectedItems.first()->row();
-    if (row >= 0 && row < drivesList.size()) {
-        return drivesList[row].device;
+    if (row >= 0 && row < ui->drivesTable->rowCount()) {
+        // Get the device path from the table directly
+        QTableWidgetItem *devicePathItem = ui->drivesTable->item(row, 1); // Column 1 is Device Path
+        if (devicePathItem) {
+            return devicePathItem->text();
+        }
     }
     
     return QString();
@@ -237,11 +288,18 @@ void MainWindow::on_mount777Button_clicked()
 
 void MainWindow::on_takeOwnershipButton_clicked()
 {
-    int row = ui->drivesTable->currentRow();
-    if (row < 0) {
+    QList<QTableWidgetItem*> selectedItems = ui->drivesTable->selectedItems();
+    if (selectedItems.isEmpty()) {
         QMessageBox::warning(this, "No Drive Selected", "Please select a drive to take ownership of.");
         return;
     }
+    
+    int row = selectedItems.first()->row();
+    if (row < 0 || row >= ui->drivesTable->rowCount()) {
+        QMessageBox::warning(this, "No Drive Selected", "Please select a drive to take ownership of.");
+        return;
+    }
+    
     QString mountPoint = ui->drivesTable->item(row, 5) ? ui->drivesTable->item(row, 5)->text() : ""; // Column 5 is Mount Point
     if (mountPoint.isEmpty() || mountPoint == "Unmounted") {
         QMessageBox::warning(this, "Not Mounted", "The selected drive is not mounted.");
@@ -266,6 +324,32 @@ void MainWindow::on_takeOwnershipButton_clicked()
     } else {
         logMessage("❌ Could not launch a terminal emulator for Take Ownership.");
         QMessageBox::warning(this, "Terminal Not Found", "Could not find a suitable terminal emulator. Please install one of: konsole, gnome-terminal, xterm, alacritty, or kitty");
+    }
+}
+
+void MainWindow::on_diskFilterCheckBox_stateChanged(int state)
+{
+    Q_UNUSED(state)
+    populateDriveTable();
+}
+
+void MainWindow::on_partitionFilterCheckBox_stateChanged(int state)
+{
+    Q_UNUSED(state)
+    populateDriveTable();
+}
+
+void MainWindow::on_minSizeFilterCheckBox_stateChanged(int state)
+{
+    Q_UNUSED(state)
+    populateDriveTable();
+}
+
+void MainWindow::on_minSizeSpinBox_valueChanged(int value)
+{
+    Q_UNUSED(value)
+    if (ui->minSizeFilterCheckBox->isChecked()) {
+        populateDriveTable();
     }
 }
 

@@ -38,6 +38,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) , ui(new Ui::MainW
     connect(ui->drivesTable->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &MainWindow::updateButtonStates);
     
+    // Connect drive filter checkboxes
+    connect(ui->diskFilterCheckBox, &QCheckBox::stateChanged, this, &MainWindow::on_diskFilterCheckBox_stateChanged);
+    connect(ui->partitionFilterCheckBox, &QCheckBox::stateChanged, this, &MainWindow::on_partitionFilterCheckBox_stateChanged);
+    connect(ui->minSizeFilterCheckBox, &QCheckBox::stateChanged, this, &MainWindow::on_minSizeFilterCheckBox_stateChanged);
+    connect(ui->minSizeSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &MainWindow::on_minSizeSpinBox_valueChanged);
+    
     // Shell/alias management setup
     shellConfigFiles["bash"] = {QString::fromUtf8(getenv("HOME")) + "/.bash_aliases", QString::fromUtf8(getenv("HOME")) + "/.bashrc", QString::fromUtf8(getenv("HOME")) + "/.bash_profile"};
     shellConfigFiles["zsh"] = {QString::fromUtf8(getenv("HOME")) + "/.zshrc"};
