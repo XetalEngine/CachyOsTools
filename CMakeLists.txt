@@ -17,6 +17,23 @@ set(PROJECT_SOURCES
         mainwindow.cpp
         mainwindow.h
         mainwindow.ui
+        # Header files containing implementations
+        dual_gpu_kvm.h
+        drive.h
+        mainwindow_d.h
+        systembackup.h
+        systemrestore.h
+        systemlogs.h
+        systemconfigs.h
+        tweaks.h
+        shell.h
+        executecommands.h
+        current_system_iso_creator.h
+        services.h
+        includes.h
+        # Additional files (currently empty but may be implemented)
+        drivetools.h
+        drivetools.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
