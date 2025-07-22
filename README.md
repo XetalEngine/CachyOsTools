@@ -6,6 +6,20 @@
   <em>A comprehensive system management tool for CachyOS (tested) and other Arch-based distributions.</em>
 </div>
 
+### 🎨 Logo Gallery
+
+<div align="center">
+  <img src="images/logo.png" alt="Logo 1" width="150" style="margin: 10px;">
+  <img src="images/logo2.png" alt="Logo 2" width="150" style="margin: 10px;">
+  <img src="images/logo3.png" alt="Logo 3" width="150" style="margin: 10px;">
+  <img src="images/logo4.png" alt="Logo 4" width="150" style="margin: 10px;">
+  <img src="images/logo5.png" alt="Logo 5" width="150" style="margin: 10px;">
+  <img src="images/logo6.png" alt="Logo 6" width="150" style="margin: 10px;">
+  <img src="images/logo7.png" alt="Logo 7" width="150" style="margin: 10px;">
+  <img src="images/logo8.png" alt="Logo 8" width="150" style="margin: 10px;">
+  <img src="images/logo9.png" alt="Logo 9" width="150" style="margin: 10px;">
+</div>
+
 ![CachyOsTools](https://img.shields.io/badge/CachyOsTools-System%20Manager-blue)
 ![Qt](https://img.shields.io/badge/Qt-6%20%7C%205-green)
 ![Arch](https://img.shields.io/badge/Arch-Based-Supported-orange)
