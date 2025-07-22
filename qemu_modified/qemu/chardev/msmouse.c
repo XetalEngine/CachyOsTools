@@ -172,7 +172,8 @@ static int msmouse_chr_write(struct Chardev *s, const uint8_t *buf, int len)
 }
 
 static const QemuInputHandler msmouse_handler = {
-    .name  = "QEMU Microsoft Mouse",
+    //.name  = "QEMU Microsoft Mouse",
+    .name  = "ASUS Microsoft Mouse",
     .mask  = INPUT_EVENT_MASK_BTN | INPUT_EVENT_MASK_REL,
     .event = msmouse_input_event,
     .sync  = msmouse_input_sync,

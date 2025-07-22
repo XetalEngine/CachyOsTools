@@ -106,13 +106,23 @@ SMBIOS_TABLE_TYPE1  gSmbiosType1Template = {
   5,    // SKUNumber String
   6,    // Family String
 };
+// CHAR8               *gSmbiosType1Strings[] = {
+//   "http://www.tianocore.org/edk2/",
+//   "EmulatorPkg",
+//   "1.0",
+//   "System Serial#",
+//   "System SKU#",
+//   "edk2",
+//   NULL
+// };
+//Xetal EDK
 CHAR8               *gSmbiosType1Strings[] = {
   "http://www.tianocore.org/edk2/",
   "EmulatorPkg",
   "1.0",
   "System Serial#",
   "System SKU#",
-  "edk2",
+  "AMI",
   NULL
 };
 

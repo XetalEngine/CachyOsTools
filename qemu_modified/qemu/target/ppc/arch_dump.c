@@ -300,16 +300,19 @@ static int ppc_write_all_elf_notes(const char *note_name,
     return 0;
 }
 
+//Xetal Core
 int ppc64_cpu_write_elf64_note(WriteCoreDumpFunction f, CPUState *cs,
                                int cpuid, DumpState *s)
 {
     PowerPCCPU *cpu = POWERPC_CPU(cs);
-    return ppc_write_all_elf_notes("CORE", f, cpu, cpuid, s);
+    //return ppc_write_all_elf_notes("CORE", f, cpu, cpuid, s);
+    return ppc_write_all_elf_notes("MSFT", f, cpu, cpuid, s);
 }
 
 int ppc32_cpu_write_elf32_note(WriteCoreDumpFunction f, CPUState *cs,
                                int cpuid, DumpState *s)
 {
     PowerPCCPU *cpu = POWERPC_CPU(cs);
-    return ppc_write_all_elf_notes("CORE", f, cpu, cpuid, s);
+    //return ppc_write_all_elf_notes("CORE", f, cpu, cpuid, s);
+    return ppc_write_all_elf_notes("MSFT", f, cpu, cpuid, s);
 }

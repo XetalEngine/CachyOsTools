@@ -103,9 +103,9 @@ const generic_fuzz_config predefined_configs[] = {
         // .name = "bochs-display",
         // .args = "-machine q35 -nodefaults -device bochs-display",
         // .objects = "bochs*",
-        .name = "xetalic-display",
-        .args = "-machine q35 -nodefaults -device xetalic-display",
-        .objects = "xetalic*",
+        .name = "asus-display",
+        .args = "-machine q35 -nodefaults -device asus-display",
+        .objects = "asus*",
     },{
         .name = "intel-hda",
         .args = "-machine q35 -nodefaults -device intel-hda,id=hda0 "
@@ -164,6 +164,7 @@ const generic_fuzz_config predefined_configs[] = {
         // .name = "pc-q35",
         // .args = "-machine q35",
         // .objects = "*",
+        //Xetal Q35
          .name = "xetal",
         .args = "-machine q35",
         .objects = "*",

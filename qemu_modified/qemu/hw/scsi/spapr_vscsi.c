@@ -713,8 +713,10 @@ static void vscsi_inquiry_no_target(VSCSIState *s, vscsi_req *req)
     resp_data[3] = 0x02;   /* Resp data format */
     resp_data[4] = 36 - 5; /* Additional length */
     resp_data[7] = 0x10;   /* Sync transfers */
-    memcpy(&resp_data[16], "QEMU EMPTY      ", 16);
-    memcpy(&resp_data[8], "QEMU    ", 8);
+    // memcpy(&resp_data[16], "QEMU EMPTY      ", 16);
+    // memcpy(&resp_data[8], "QEMU    ", 8);
+    memcpy(&resp_data[16], "ASUS EMPTY      ", 16);
+    memcpy(&resp_data[8], "ASUS    ", 8);
 
     req->writing = 0;
     vscsi_preprocess_desc(req);

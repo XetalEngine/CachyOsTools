@@ -1254,7 +1254,8 @@ main(int argc, char *argv[])
     QTAILQ_INIT(&g.reslist);
     QTAILQ_INIT(&g.fenceq);
 
-    context = g_option_context_new("QEMU vhost-user-gpu");
+    //context = g_option_context_new("QEMU vhost-user-gpu");
+    context = g_option_context_new("ASUS vhost-user-gpu");
     g_option_context_add_main_entries(context, entries, NULL);
     if (!g_option_context_parse(context, &argc, &argv, &error)) {
         g_printerr("Option parsing failed: %s\n", error->message);

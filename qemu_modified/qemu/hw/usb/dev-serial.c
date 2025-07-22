@@ -127,9 +127,9 @@ enum {
 
 
 static const USBDescStrings desc_strings = {
-    [STR_MANUFACTURER]    = "XETA",
-    [STR_PRODUCT_SERIAL]  = "XETA USB SERIAL",
-    [STR_PRODUCT_BRAILLE] = "XETA USB BAUM BRAILLE",
+    [STR_MANUFACTURER]    = "ASUS",
+    [STR_PRODUCT_SERIAL]  = "ASUS USB SERIAL",
+    [STR_PRODUCT_BRAILLE] = "ASUS USB BAUM BRAILLE",
     [STR_SERIALNUMBER]    = "1",
 };
 

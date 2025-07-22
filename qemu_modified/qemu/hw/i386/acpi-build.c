@@ -2083,6 +2083,13 @@ void acpi_build(AcpiBuildTables *tables, MachineState *machine)
         g_array_append_vals(tables_blob, u, len);
     }
 
+        /* Disable BGRT (UEFI Logo)*/
+    acpi_add_table(table_offsets, tables_blob);
+    AcpiTable table = { .sig = "BGRT", .rev = 1, .oem_id = x86ms->oem_id, .oem_table_id = x86ms->oem_table_id };
+    acpi_table_begin(&table, tables_blob);
+    build_append_int_noprefix(tables_blob,0x00000000,4);
+    acpi_table_end(tables->linker, &table);
+
     /* RSDT is pointed to by RSDP */
     rsdt = tables_blob->len;
     build_rsdt(tables_blob, tables->linker, table_offsets,

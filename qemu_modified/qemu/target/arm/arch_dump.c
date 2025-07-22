@@ -105,6 +105,7 @@ static void aarch64_note_init(struct aarch64_note *note, DumpState *s,
     memcpy(note->name, name, namesz);
 }
 
+//Xetal Core
 static int aarch64_write_elf64_prfpreg(WriteCoreDumpFunction f,
                                        CPUARMState *env, int cpuid,
                                        DumpState *s)
@@ -112,7 +113,8 @@ static int aarch64_write_elf64_prfpreg(WriteCoreDumpFunction f,
     struct aarch64_note note;
     int ret, i;
 
-    aarch64_note_init(&note, s, "CORE", 5, NT_PRFPREG, sizeof(note.vfp));
+    //aarch64_note_init(&note, s, "CORE", 5, NT_PRFPREG, sizeof(note.vfp));
+    aarch64_note_init(&note, s, "MSFT", 5, NT_PRFPREG, sizeof(note.vfp));
 
     for (i = 0; i < 32; ++i) {
         uint64_t *q = aa64_vfp_qreg(env, i);
@@ -231,6 +233,7 @@ static int aarch64_write_elf64_sve(WriteCoreDumpFunction f,
     return 0;
 }
 
+//Xetal Core
 int arm_cpu_write_elf64_note(WriteCoreDumpFunction f, CPUState *cs,
                              int cpuid, DumpState *s)
 {
@@ -240,7 +243,8 @@ int arm_cpu_write_elf64_note(WriteCoreDumpFunction f, CPUState *cs,
     uint64_t pstate, sp;
     int ret, i;
 
-    aarch64_note_init(&note, s, "CORE", 5, NT_PRSTATUS, sizeof(note.prstatus));
+    //aarch64_note_init(&note, s, "CORE", 5, NT_PRSTATUS, sizeof(note.prstatus));
+    aarch64_note_init(&note, s, "MSFT", 5, NT_PRSTATUS, sizeof(note.prstatus));
 
     note.prstatus.pr_pid = cpu_to_dump32(s, cpuid);
     note.prstatus.pr_fpvalid = cpu_to_dump32(s, 1);
@@ -356,6 +360,7 @@ static int arm_write_elf32_vfp(WriteCoreDumpFunction f, CPUARMState *env,
     return 0;
 }
 
+//Xetal Core
 int arm_cpu_write_elf32_note(WriteCoreDumpFunction f, CPUState *cs,
                              int cpuid, DumpState *s)
 {
@@ -365,7 +370,8 @@ int arm_cpu_write_elf32_note(WriteCoreDumpFunction f, CPUState *cs,
     int ret, i;
     bool fpvalid = cpu_isar_feature(aa32_vfp_simd, cpu);
 
-    arm_note_init(&note, s, "CORE", 5, NT_PRSTATUS, sizeof(note.prstatus));
+    //arm_note_init(&note, s, "CORE", 5, NT_PRSTATUS, sizeof(note.prstatus));
+    arm_note_init(&note, s, "MSFT", 5, NT_PRSTATUS, sizeof(note.prstatus));
 
     note.prstatus.pr_pid = cpu_to_dump32(s, cpuid);
     note.prstatus.pr_fpvalid = cpu_to_dump32(s, fpvalid);

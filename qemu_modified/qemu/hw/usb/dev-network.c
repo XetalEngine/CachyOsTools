@@ -112,16 +112,16 @@ enum usbstring_idx {
 // };
 
 static const USBDescStrings usb_net_stringtable = {
-    [STRING_MANUFACTURER]       = "XETA",
-    [STRING_PRODUCT]            = "RNDIS/XETA USB Network Device",
+    [STRING_MANUFACTURER]       = "ASUS",
+    [STRING_PRODUCT]            = "RNDIS/ASUS USB Network Device",
     [STRING_ETHADDR]            = "400102030405",
-    [STRING_DATA]               = "XETA USB Net Data Interface",
-    [STRING_CONTROL]            = "XETA USB Net Control Interface",
-    [STRING_RNDIS_CONTROL]      = "XETA USB Net RNDIS Control Interface",
-    [STRING_CDC]                = "XETA USB Net CDC",
-    [STRING_SUBSET]             = "XETA USB Net Subset",
-    [STRING_RNDIS]              = "XETA USB Net RNDIS",
-    [STRING_SERIALNUMBER]       = "1",
+    [STRING_DATA]               = "ASUS USB Net Data Interface",
+    [STRING_CONTROL]            = "ASUS USB Net Control Interface",
+    [STRING_RNDIS_CONTROL]      = "ASUS USB Net RNDIS Control Interface",
+    [STRING_CDC]                = "ASUS USB Net CDC",
+    [STRING_SUBSET]             = "ASUS USB Net Subset",
+    [STRING_RNDIS]              = "ASUS USB Net RNDIS",
+    [STRING_SERIALNUMBER]       = "0",
 };
 
 static const USBDescIface desc_iface_rndis[] = {
@@ -730,7 +730,8 @@ static int ndis_query(USBNetState *s, uint32_t oid,
 
     /* mandatory */
     case OID_GEN_VENDOR_DESCRIPTION:
-        pstrcpy((char *)outbuf, outlen, "QEMU USB RNDIS Net");
+        //pstrcpy((char *)outbuf, outlen, "QEMU USB RNDIS Net");
+        pstrcpy((char *)outbuf, outlen, "ASUS USB RNDIS Net");
         return strlen((char *)outbuf) + 1;
 
     case OID_GEN_VENDOR_DRIVER_VERSION:

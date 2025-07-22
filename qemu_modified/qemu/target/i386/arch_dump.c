@@ -40,6 +40,7 @@ typedef struct {
     char pad3[8];
 } x86_64_elf_prstatus;
 
+//Xetal Core
 static int x86_64_write_elf64_note(WriteCoreDumpFunction f,
                                    CPUX86State *env, int id,
                                    DumpState *s)
@@ -48,7 +49,8 @@ static int x86_64_write_elf64_note(WriteCoreDumpFunction f,
     Elf64_Nhdr *note;
     char *buf;
     int descsz, note_size, name_size = 5;
-    const char *name = "CORE";
+    //const char *name = "CORE";
+    const char *name = "MSFT";
     int ret;
 
     regs.r15 = env->regs[15];
@@ -147,6 +149,7 @@ static void x86_fill_elf_prstatus(x86_elf_prstatus *prstatus, CPUX86State *env,
     prstatus->pid = id;
 }
 
+//Xetal Core
 static int x86_write_elf64_note(WriteCoreDumpFunction f, CPUX86State *env,
                                 int id, DumpState *s)
 {
@@ -154,7 +157,8 @@ static int x86_write_elf64_note(WriteCoreDumpFunction f, CPUX86State *env,
     Elf64_Nhdr *note;
     char *buf;
     int descsz, note_size, name_size = 5;
-    const char *name = "CORE";
+    //const char *name = "CORE";
+    const char *name = "MSFT";
     int ret;
 
     x86_fill_elf_prstatus(&prstatus, env, id);
@@ -200,6 +204,8 @@ int x86_cpu_write_elf64_note(WriteCoreDumpFunction f, CPUState *cs,
     return ret;
 }
 
+//Xetal Core
+
 int x86_cpu_write_elf32_note(WriteCoreDumpFunction f, CPUState *cs,
                              int cpuid, DumpState *s)
 {
@@ -208,7 +214,8 @@ int x86_cpu_write_elf32_note(WriteCoreDumpFunction f, CPUState *cs,
     Elf32_Nhdr *note;
     char *buf;
     int descsz, note_size, name_size = 5;
-    const char *name = "CORE";
+    //const char *name = "CORE";
+    const char *name = "MSFT";
     int ret;
 
     x86_fill_elf_prstatus(&prstatus, &cpu->env, cpuid);

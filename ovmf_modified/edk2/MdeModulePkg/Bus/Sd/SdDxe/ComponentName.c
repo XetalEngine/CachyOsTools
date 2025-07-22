@@ -11,6 +11,8 @@
 //
 // Driver name table
 //
+
+//xetal edk
 GLOBAL_REMOVE_IF_UNREFERENCED EFI_UNICODE_STRING_TABLE  mSdDxeDriverNameTable[] = {
   { "eng;en", L"Edkii Sd Memory Card Device Driver" },
   { NULL,     NULL                                  }

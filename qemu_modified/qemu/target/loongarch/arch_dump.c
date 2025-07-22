@@ -88,6 +88,7 @@ static void loongarch_note_init(struct loongarch_note *note, DumpState *s,
     memcpy(note->name, name, namesz);
 }
 
+//XetalCore
 static int loongarch_write_elf64_fprpreg(WriteCoreDumpFunction f,
                                          CPULoongArchState *env, int cpuid,
                                          DumpState *s)
@@ -110,7 +111,7 @@ static int loongarch_write_elf64_fprpreg(WriteCoreDumpFunction f,
 
     return 0;
 }
-
+//XetalCore
 int loongarch_cpu_write_elf64_note(WriteCoreDumpFunction f, CPUState *cs,
                                    int cpuid, DumpState *s)
 {

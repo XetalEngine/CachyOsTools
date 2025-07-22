@@ -4486,9 +4486,15 @@ static int elf_core_dump(int signr, const CPUArchState *env)
     offset += (css.count + 1) * sizeof(struct elf_phdr);
     note_offset = offset;
 
-    offset += size_note("CORE", ts->info->auxv_len);
-    offset += size_note("CORE", sizeof(struct target_elf_prpsinfo));
-    offset += size_note("CORE", sizeof(struct target_elf_prstatus)) * cpus;
+//Xetal Core
+
+    // offset += size_note("CORE", ts->info->auxv_len);
+    // offset += size_note("CORE", sizeof(struct target_elf_prpsinfo));
+    // offset += size_note("CORE", sizeof(struct target_elf_prstatus)) * cpus;
+    offset += size_note("MSFT", ts->info->auxv_len);
+    offset += size_note("MSFT", sizeof(struct target_elf_prpsinfo));
+    offset += size_note("MSFT", sizeof(struct target_elf_prstatus)) * cpus;
+
     note_size = offset - note_offset;
     data_offset = ROUND_UP(offset, ELF_EXEC_PAGESIZE);
 
@@ -4533,16 +4539,21 @@ static int elf_core_dump(int signr, const CPUArchState *env)
         walk_memory_regions(&frp, wmr_fill_region_phdr);
         hptr = frp.phdr;
 
+        //Xetal Core
         /* Create the notes. */
-        dptr = fill_note(&hptr, NT_AUXV, "CORE", ts->info->auxv_len);
+        //dptr = fill_note(&hptr, NT_AUXV, "CORE", ts->info->auxv_len);
+        dptr = fill_note(&hptr, NT_AUXV, "MSFT", ts->info->auxv_len);
         fill_auxv_note(dptr, ts);
 
-        dptr = fill_note(&hptr, NT_PRPSINFO, "CORE",
+        //dptr = fill_note(&hptr, NT_PRPSINFO, "CORE",
+        dptr = fill_note(&hptr, NT_PRPSINFO, "MSFT",
+
                          sizeof(struct target_elf_prpsinfo));
         fill_prpsinfo_note(dptr, ts);
 
         CPU_FOREACH(cpu_iter) {
-            dptr = fill_note(&hptr, NT_PRSTATUS, "CORE",
+            //dptr = fill_note(&hptr, NT_PRSTATUS, "CORE",
+            dptr = fill_note(&hptr, NT_PRSTATUS, "MSFT",
                              sizeof(struct target_elf_prstatus));
             fill_prstatus_note(dptr, cpu_iter, cpu_iter == cpu ? signr : 0);
         }
