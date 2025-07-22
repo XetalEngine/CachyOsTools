@@ -1,6 +1,10 @@
 # CachyOsTools 🚀
 
-A comprehensive system management tool for CachyOS (tested) and other Arch-based distributions.
+<div align="center">
+  <img src="images/logo.png" alt="CachyOsTools Logo" width="200">
+  <br>
+  <em>A comprehensive system management tool for CachyOS (tested) and other Arch-based distributions.</em>
+</div>
 
 ![CachyOsTools](https://img.shields.io/badge/CachyOsTools-System%20Manager-blue)
 ![Qt](https://img.shields.io/badge/Qt-6%20%7C%205-green)
