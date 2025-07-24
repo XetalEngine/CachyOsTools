@@ -45,12 +45,36 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) , ui(new Ui::MainW
     connect(ui->minSizeSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &MainWindow::on_minSizeSpinBox_valueChanged);
     
     // Shell/alias management setup
-    shellConfigFiles["bash"] = {QString::fromUtf8(getenv("HOME")) + "/.bash_aliases", QString::fromUtf8(getenv("HOME")) + "/.bashrc", QString::fromUtf8(getenv("HOME")) + "/.bash_profile"};
-    shellConfigFiles["zsh"] = {QString::fromUtf8(getenv("HOME")) + "/.zshrc"};
-    shellConfigFiles["fish"] = {QString::fromUtf8(getenv("HOME")) + "/.config/fish/config.fish"};
-    shellConfigFiles["tcsh"] = {QString::fromUtf8(getenv("HOME")) + "/.tcshrc", QString::fromUtf8(getenv("HOME")) + "/.cshrc"};
-    shellConfigFiles["csh"] = {QString::fromUtf8(getenv("HOME")) + "/.cshrc"};
-    shellConfigFiles["ksh"] = {QString::fromUtf8(getenv("HOME")) + "/.kshrc", QString::fromUtf8(getenv("HOME")) + "/.profile"};
+    // shellConfigFiles["bash"] = {QString::fromUtf8(getenv("HOME")) + "/.bash_aliases", QString::fromUtf8(getenv("HOME")) + "/.bashrc", QString::fromUtf8(getenv("HOME")) + "/.bash_profile"};
+    // shellConfigFiles["zsh"] = {QString::fromUtf8(getenv("HOME")) + "/.zshrc"};
+    // shellConfigFiles["fish"] = {QString::fromUtf8(getenv("HOME")) + "/.config/fish/config.fish"};
+    // shellConfigFiles["tcsh"] = {QString::fromUtf8(getenv("HOME")) + "/.tcshrc", QString::fromUtf8(getenv("HOME")) + "/.cshrc"};
+    // shellConfigFiles["csh"] = {QString::fromUtf8(getenv("HOME")) + "/.cshrc"};
+    // shellConfigFiles["ksh"] = {QString::fromUtf8(getenv("HOME")) + "/.kshrc", QString::fromUtf8(getenv("HOME")) + "/.profile"};
+
+    shellConfigFiles["bash"] = QStringList()
+<< QString::fromUtf8(getenv("HOME")) + "/.bash_aliases"
+<< QString::fromUtf8(getenv("HOME")) + "/.bashrc"
+<< QString::fromUtf8(getenv("HOME")) + "/.bash_profile";
+
+shellConfigFiles["zsh"] = QStringList()
+<< QString::fromUtf8(getenv("HOME")) + "/.zshrc";
+
+shellConfigFiles["fish"] = QStringList()
+<< QString::fromUtf8(getenv("HOME")) + "/.config/fish/config.fish";
+
+shellConfigFiles["tcsh"] = QStringList()
+<< QString::fromUtf8(getenv("HOME")) + "/.tcshrc"
+<< QString::fromUtf8(getenv("HOME")) + "/.cshrc";
+
+shellConfigFiles["csh"] = QStringList()
+<< QString::fromUtf8(getenv("HOME")) + "/.cshrc";
+
+shellConfigFiles["ksh"] = QStringList()
+<< QString::fromUtf8(getenv("HOME")) + "/.kshrc"
+<< QString::fromUtf8(getenv("HOME")) + "/.profile";
+
+    
     detectShellAndConfig();
     loadAliases();
     populateAliasTable();
