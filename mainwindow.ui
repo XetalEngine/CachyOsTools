@@ -1475,6 +1475,8 @@
 • Type: sudo installer.sh
 • DONE ! From here, just follow the instructions on the screen.
 • **** After the installation is done, if grub is unable to boot into the OS, try all other grub entries, one of them should work!                  
+• **** THIS ISO WILL KEEP ALL OF YOUR PERSONAL DATA AND GOOGLE LOGINS, DISCORD LOGINS, ETC. 
+• **** IF YOU WANT TO MAKE A ISO FOR YOUR FRIENDS, MAKE SURE YOU REMOVE ALL OF YOUR PERSONAL DATA AND GOOGLE LOGINS, DISCORD LOGINS, ETC.
 
 • Complete system snapshot (all files, configurations, installed packages)
 • Bootable live environment with installer
