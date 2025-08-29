@@ -1560,7 +1560,7 @@ The resulting ISO can be used to:
             <item>
              <widget class="QTextEdit" name="isoStatusLabel">
               <property name="plainText">
-               <string>Ready to create system clone ISO. Output will be saved to /home/user/iso/</string>
+               <string>Ready to create system clone ISO. Output will be saved to /home/user/iso/xiso/output/</string>
               </property>
               <property name="readOnly">
                <bool>true</bool>
