@@ -1428,98 +1428,18 @@
             <item>
              <widget class="QGroupBox" name="isoBasicGroup">
               <property name="title">
-               <string>Basic ISO Settings</string>
+               <string>ISO Settings</string>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_basic">
                <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_iso_name">
-                 <item>
-                  <widget class="QLabel" name="isoNameLabel">
-                   <property name="text">
-                    <string>ISO Name:</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLineEdit" name="isoNameEdit">
-                   <property name="placeholderText">
-                    <string>cachyos-custom-2024-01-01</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_iso_output">
-                 <item>
-                  <widget class="QLabel" name="isoOutputLabel">
-                   <property name="text">
-                    <string>Output Directory:</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLineEdit" name="isoOutputEdit">
-                   <property name="placeholderText">
-                    <string>/home/user/Downloads</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="isoOutputBrowseButton">
-                   <property name="text">
-                    <string>Browse</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <widget class="QGroupBox" name="isoKernelGroup">
-              <property name="title">
-               <string>Kernel Selection</string>
-              </property>
-              <layout class="QVBoxLayout" name="verticalLayout_kernel">
-               <item>
-                <widget class="QCheckBox" name="includeLinuxKernelCheck">
+                <widget class="QLabel" name="isoInfoLabel">
                  <property name="text">
-                  <string>Include Linux Kernel (default)</string>
+                  <string>ISO will be created with default naming and saved to /home/user/iso/xiso/output/</string>
                  </property>
-                 <property name="checked">
-                  <bool>true</bool>
+                 <property name="alignment">
+                  <set>Qt::AlignmentFlag::AlignCenter</set>
                  </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="includeLinuxLtsKernelCheck">
-                 <property name="text">
-                  <string>Include Linux LTS Kernel</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="includeLinuxZenKernelCheck">
-                 <property name="text">
-                  <string>Include Linux Zen Kernel</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="includeLinuxHardenedKernelCheck">
-                 <property name="text">
-                  <string>Include Linux Hardened Kernel</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="includeCachyosKernelCheck">
-                 <property name="text">
-                  <string>Include CachyOS Kernel (optimized)</string>
-                 </property>
-                 <property name="checked">
+                 <property name="wordWrap">
                   <bool>true</bool>
                  </property>
                 </widget>
@@ -1528,311 +1448,54 @@
              </widget>
             </item>
             <item>
-             <widget class="QGroupBox" name="isoDriversGroup">
+             <widget class="QGroupBox" name="isoInfoGroup">
               <property name="title">
-               <string>Driver Inclusion</string>
+               <string>System Clone Information</string>
               </property>
-              <layout class="QVBoxLayout" name="verticalLayout_drivers">
+              <layout class="QVBoxLayout" name="verticalLayout_info">
                <item>
-                <widget class="QCheckBox" name="includeAllWifiDriversCheck">
+                <widget class="QLabel" name="isoInfoLabel">
                  <property name="text">
-                  <string>Include ALL WiFi Drivers</string>
+                  <string>This tool creates a bootable ISO that contains an EXACT clone of your current system. The ISO will include:</string>
                  </property>
-                 <property name="checked">
+                 <property name="wordWrap">
                   <bool>true</bool>
                  </property>
                 </widget>
                </item>
                <item>
-                <widget class="QCheckBox" name="includeAllFirmwareCheck">
-                 <property name="text">
-                  <string>Include ALL Firmware</string>
+                <widget class="QTextEdit" name="isoInfoText">
+                 <property name="plainText">
+                  <string>
+• Instructions after the ISO is ready:
+• Burn the ISO with BalenaEtcher
+• Boot into the live environment with our ISO
+• Type: cd /usr/local/bin
+• Type: sudo chmod +x installer.sh
+• Type: sudo installer.sh
+• DONE ! From here, just follow the instructions on the screen.
+• **** After the installation is done, if grub is unable to boot into the OS, try all other grub entries, one of them should work!                  
+
+• Complete system snapshot (all files, configurations, installed packages)
+• Bootable live environment with installer
+• Automatic system restoration tool
+• UEFI/GPT partitioning support
+• NetworkManager and essential tools
+• Your exact system state as of creation time
+
+The resulting ISO can be used to:
+• Boot into a live environment
+• Install an exact copy of your system to any compatible hardware
+• Restore your system to any point in time
+• Create backup installations
+
+                </string>
                  </property>
-                 <property name="checked">
+                 <property name="readOnly">
                   <bool>true</bool>
                  </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="includeNvidiaDriversCheck">
-                 <property name="text">
-                  <string>Include NVIDIA Drivers</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="includeAmdDriversCheck">
-                 <property name="text">
-                  <string>Include AMD Drivers</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="includeIntelDriversCheck">
-                 <property name="text">
-                  <string>Include Intel Drivers</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="includeBluetoothDriversCheck">
-                 <property name="text">
-                  <string>Include Bluetooth Drivers</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="includeAudioDriversCheck">
-                 <property name="text">
-                  <string>Include Audio Drivers</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <widget class="QGroupBox" name="isoSoftwareGroup">
-              <property name="title">
-               <string>Software &amp; Tools</string>
-              </property>
-              <layout class="QVBoxLayout" name="verticalLayout_software">
-               <item>
-                <widget class="QCheckBox" name="includeCalamareInstallerCheck">
-                 <property name="text">
-                  <string>Include Calamares Installer</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="includeSystemToolsCheck">
-                 <property name="text">
-                  <string>Include System Tools (htop, neofetch, etc.)</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="includeNetworkToolsCheck">
-                 <property name="text">
-                  <string>Include Network Tools</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="includeMediaCodecsCheck">
-                 <property name="text">
-                  <string>Include Media Codecs</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="includeOfficeSuiteCheck">
-                 <property name="text">
-                  <string>Include Office Suite (LibreOffice)</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="includeWebBrowserCheck">
-                 <property name="text">
-                  <string>Include Web Browser (Firefox/Chromium)</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <widget class="QGroupBox" name="isoDesktopGroup">
-              <property name="title">
-               <string>Desktop Environment</string>
-              </property>
-              <layout class="QVBoxLayout" name="verticalLayout_desktop">
-               <item>
-                <widget class="QCheckBox" name="includeKdePlasmaCheck">
-                 <property name="text">
-                  <string>Include KDE Plasma</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="includeGnomeCheck">
-                 <property name="text">
-                  <string>Include GNOME</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="includeXfceCheck">
-                 <property name="text">
-                  <string>Include XFCE</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="includeI3wmCheck">
-                 <property name="text">
-                  <string>Include i3 Window Manager</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="includeSwayCheck">
-                 <property name="text">
-                  <string>Include Sway (Wayland)</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <widget class="QGroupBox" name="isoAdvancedGroup">
-              <property name="title">
-               <string>Advanced Options</string>
-              </property>
-              <layout class="QVBoxLayout" name="verticalLayout_advanced">
-               <item>
-                <widget class="QCheckBox" name="includeCustomConfigsCheck">
-                 <property name="text">
-                  <string>Include Custom System Configurations</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="includeUserDataCheck">
-                 <property name="text">
-                  <string>Include User Data (Documents, Downloads, etc.)</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="includeDevelopmentToolsCheck">
-                 <property name="text">
-                  <string>Include Development Tools</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="includeGamingToolsCheck">
-                 <property name="text">
-                  <string>Include Gaming Tools (Steam, Wine, etc.)</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="includeVirtualizationCheck">
-                 <property name="text">
-                  <string>Include Virtualization Tools (QEMU, VirtualBox)</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_compression">
-                 <item>
-                  <widget class="QLabel" name="compressionLabel">
-                   <property name="text">
-                    <string>Compression Level:</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QComboBox" name="compressionCombo">
-                   <item>
-                    <property name="text">
-                     <string>None</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>Fast (gzip)</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>Best (xz)</string>
-                    </property>
-                   </item>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_arch">
-                 <item>
-                  <widget class="QLabel" name="archLabel">
-                   <property name="text">
-                    <string>Target Architecture:</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QComboBox" name="archCombo">
-                   <item>
-                    <property name="text">
-                     <string>x86_64</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>aarch64 (ARM64)</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>Multi-arch (x86_64 + aarch64)</string>
-                    </property>
-                   </item>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <widget class="QGroupBox" name="isoSecurityGroup">
-              <property name="title">
-               <string>Security &amp; Privacy</string>
-              </property>
-              <layout class="QVBoxLayout" name="verticalLayout_security">
-               <item>
-                <widget class="QCheckBox" name="includeSecurityToolsCheck">
-                 <property name="text">
-                  <string>Include Security Tools</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="includeEncryptionToolsCheck">
-                 <property name="text">
-                  <string>Include Encryption Tools</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="includeFirewallCheck">
-                 <property name="text">
-                  <string>Include Firewall Configuration</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="includeVpnToolsCheck">
-                 <property name="text">
-                  <string>Include VPN Tools</string>
+                 <property name="maximumHeight">
+                  <number>150</number>
                  </property>
                 </widget>
                </item>
@@ -1845,60 +1508,22 @@
                <widget class="QPushButton" name="createIsoButton">
                 <property name="minimumSize">
                  <size>
-                  <width>150</width>
-                  <height>40</height>
+                  <width>200</width>
+                  <height>50</height>
                  </size>
                 </property>
                 <property name="font">
                  <font>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                   <bold>true</bold>
                  </font>
                 </property>
                 <property name="text">
-                 <string>🚀 Create ISO</string>
+                 <string>🚀 Create System Clone ISO</string>
                 </property>
                </widget>
               </item>
-              <item>
-               <widget class="QPushButton" name="estimateSizeButton">
-                <property name="minimumSize">
-                 <size>
-                  <width>120</width>
-                  <height>40</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>📊 Estimate Size</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="loadPresetButton">
-                <property name="minimumSize">
-                 <size>
-                  <width>120</width>
-                  <height>40</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>📂 Load Preset</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="savePresetButton">
-                <property name="minimumSize">
-                 <size>
-                  <width>120</width>
-                  <height>40</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>💾 Save Preset</string>
-                </property>
-               </widget>
-              </item>
+
               <item>
                <spacer name="horizontalSpacer_iso">
                 <property name="orientation">
@@ -1931,12 +1556,21 @@
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="isoStatusLabel">
-              <property name="text">
-               <string>Ready to create custom ISO. Configure your options above.</string>
+             <widget class="QTextEdit" name="isoStatusLabel">
+              <property name="plainText">
+               <string>Ready to create system clone ISO. Output will be saved to /home/user/iso/</string>
               </property>
-              <property name="alignment">
-               <set>Qt::AlignmentFlag::AlignCenter</set>
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+              <property name="maximumHeight">
+               <number>150</number>
+              </property>
+              <property name="font">
+               <font>
+                <family>Monospace</family>
+                <pointsize>9</pointsize>
+               </font>
               </property>
              </widget>
             </item>

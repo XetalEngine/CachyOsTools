@@ -181,10 +181,6 @@ private slots:
     void handleBackupFinished(int exitCode, QProcess::ExitStatus exitStatus);
     // ISO Creator tab slots
     void on_createIsoButton_clicked();
-    void on_estimateSizeButton_clicked();
-    void on_loadPresetButton_clicked();
-    void on_savePresetButton_clicked();
-    void on_isoOutputBrowseButton_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -270,6 +266,10 @@ private:
     QFileSystemModel *restoreDestFsModel;
     QString restoreSourceMountPoint;
     QString restoreDestMountPoint;
+    
+    // ISO Creator helper functions
+    QString createIsoScript(const QString &isoName, const QString &outputDir, const QString &sudoPassword);
+    QString formatSize(qint64 bytes);
 };
 
 #endif // MAINWINDOW_H
