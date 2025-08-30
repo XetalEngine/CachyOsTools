@@ -1470,9 +1470,7 @@
 • Instructions after the ISO is ready:
 • Burn the ISO with BalenaEtcher
 • Boot into the live environment with our ISO
-• Type: cd /usr/local/bin
-• Type: sudo chmod +x installer.sh
-• Type: sudo installer.sh
+• Type: sudo install.sh
 • DONE ! From here, just follow the instructions on the screen.
 • **** After the installation is done, if grub is unable to boot into the OS, try all other grub entries, one of them should work!                  
 • **** THIS ISO WILL KEEP ALL OF YOUR PERSONAL DATA AND GOOGLE LOGINS, DISCORD LOGINS, ETC. 

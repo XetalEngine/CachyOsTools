@@ -18,6 +18,7 @@
   <img src="images/logo7.png" alt="Logo 7" width="150" style="margin: 10px;">
   <img src="images/logo8.png" alt="Logo 8" width="150" style="margin: 10px;">
   <img src="images/logo9.png" alt="Logo 9" width="150" style="margin: 10px;">
+  <img src="images/logo10.png" alt="Logo 10" width="150" style="margin: 10px;">
 </div>
 
 ![CachyOsTools](https://img.shields.io/badge/CachyOsTools-System%20Manager-blue)
@@ -86,8 +87,15 @@ After building, run the application:
 
 ## 📄 License
 
-This project is licensed under the MIT License.
+This project is licensed under the GNU General Public License v3 (GPLv3). See the [LICENSE](LICENSE) file for details.
+
+**What this means:**
+- ✅ You can use, modify, and distribute this software
+- ✅ Any modifications or improvements must remain open source
+- ✅ Derivative works must also be licensed under GPLv3
+- ✅ Source code must be made available to users
+- 🔒 This ensures CachyOsTools and all its improvements stay open source forever
 
 ---
 
-**Made with ❤️ for the CachyOS community** 
+**Made with ❤️ for the CachyOS and Arch community** 

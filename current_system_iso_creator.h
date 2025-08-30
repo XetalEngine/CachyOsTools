@@ -352,6 +352,16 @@ void MainWindow::on_createIsoButton_clicked()
     out << "EOF\n";
     out << "chmod +x \"$PROFILE/airootfs$INSTALLER_REL\"\n\n";
     
+    out << "# === Create convenience wrapper script in root directory ===\n";
+    out << "cat > \"$PROFILE/airootfs/install.sh\" <<'EOF'\n";
+    out << "#!/usr/bin/env bash\n";
+    out << "echo \"Setting up installer...\"\n";
+    out << "chmod +x /usr/local/bin/installer.sh\n";
+    out << "echo \"Running installer...\"\n";
+    out << "exec /usr/local/bin/installer.sh \"$@\"\n";
+    out << "EOF\n";
+    out << "chmod +x \"$PROFILE/airootfs/install.sh\"\n\n";
+    
     out << "# === Autologin & autorun installer on TTY1 ===\n";
     out << "mkdir -p \"$PROFILE/airootfs/etc/systemd/system/getty@tty1.service.d\" \"$PROFILE/airootfs/root\"\n";
     out << "cat > \"$PROFILE/airootfs/etc/systemd/system/getty@tty1.service.d/override.conf\" <<'EOF'\n";
