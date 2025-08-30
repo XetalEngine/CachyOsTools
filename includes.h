@@ -19,4 +19,5 @@
 #include <QTimer>
 #include <QDebug>
 #include <QFileSystemModel>
+#include <QTextStream>
 #include <unistd.h>

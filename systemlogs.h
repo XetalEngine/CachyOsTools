@@ -172,13 +172,63 @@ void MainWindow::onLogProcessFinished(int exitCode, QProcess::ExitStatus exitSta
 void MainWindow::clearLogFile(const QString &filePath) {
     if (filePath.isEmpty()) return;
     
+    // Check if it's an inxi command (not a file)
+    if (filePath.startsWith("inxi")) {
+        QMessageBox::warning(this, "Cannot Clear Command", 
+            QString("'%1' is a system information command, not a log file. Cannot clear commands.\n\nPlease select an actual log file instead.").arg(filePath));
+        return;
+    }
+    
+    // Check if it's a directory (like /var/log/journal/)
+    QFileInfo fileInfo(filePath);
+    if (fileInfo.isDir()) {
+        QMessageBox::warning(this, "Cannot Clear Directory", 
+            QString("'%1' is a directory, not a file. Cannot clear directories.\n\nPlease select a specific log file instead.").arg(filePath));
+        return;
+    }
+    
     QMessageBox::StandardButton reply = QMessageBox::question(this, "Clear Log File",
         QString("Are you sure you want to clear '%1'?\n\nThis action cannot be undone.").arg(filePath),
         QMessageBox::Yes | QMessageBox::No);
     
     if (reply == QMessageBox::Yes) {
-        QProcess::startDetached("sudo", QStringList() << "sh" << "-c" << QString("echo '' > '%1'").arg(filePath));
-        loadLogContent(); // Reload the content
+        // Create a temporary script to handle the sudo command
+        QString tempScript = QString("/tmp/clear_log_%1.sh").arg(QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss"));
+        QString scriptContent = QString("#!/bin/bash\nsudo sh -c 'echo \"\" > \"%1\"'\necho 'Log file cleared successfully!'\nread -p 'Press Enter to close...'\n").arg(filePath);
+        
+        QFile scriptFile(tempScript);
+        if (scriptFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            QTextStream out(&scriptFile);
+            out << scriptContent;
+            scriptFile.close();
+            
+            // Make the script executable
+            QProcess::startDetached("chmod", QStringList() << "+x" << tempScript);
+            
+            // Run the script in a terminal
+            QStringList terminals = {"konsole", "gnome-terminal", "xterm", "alacritty", "kitty"};
+            bool terminalFound = false;
+            
+            for (const QString &terminal : terminals) {
+                if (QProcess::startDetached(terminal, QStringList() << "-e" << tempScript)) {
+                    terminalFound = true;
+                    break;
+                }
+            }
+            
+            if (!terminalFound) {
+                QMessageBox::warning(this, "Terminal Not Found", 
+                    "Could not find a suitable terminal emulator. Please install one of: konsole, gnome-terminal, xterm, alacritty, or kitty");
+            }
+            
+            // Clean up the script after a delay
+            QTimer::singleShot(10000, [tempScript]() {
+                QFile::remove(tempScript);
+            });
+        }
+        
+        // Wait a moment for the operation to complete, then reload
+        QTimer::singleShot(3000, this, &MainWindow::loadLogContent);
     }
 }
 

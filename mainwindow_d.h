@@ -107,7 +107,6 @@ shellConfigFiles["ksh"] = QStringList()
     setupLogFiles();
     populateLogComboBox();
     connect(ui->refreshLogsButton, &QPushButton::clicked, this, &MainWindow::on_refreshLogsButton_clicked);
-    connect(ui->clearLogButton, &QPushButton::clicked, this, &MainWindow::on_clearLogButton_clicked);
     connect(ui->applyFilterButton, &QPushButton::clicked, this, &MainWindow::on_applyFilterButton_clicked);
     connect(ui->copyLogButton, &QPushButton::clicked, this, &MainWindow::on_copyLogButton_clicked);
     connect(ui->saveLogButton, &QPushButton::clicked, this, &MainWindow::on_saveLogButton_clicked);
