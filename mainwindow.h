@@ -10,6 +10,11 @@
 #include <QMap>
 #include <QPair>
 #include <QFileSystemModel>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QNetworkRequest>
+#include <QRadioButton>
+#include <QLabel>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -181,6 +186,10 @@ private slots:
     void handleBackupFinished(int exitCode, QProcess::ExitStatus exitStatus);
     // ISO Creator tab slots
     void on_createIsoButton_clicked();
+    void on_onlineModeRadio_toggled(bool checked);
+    void on_offlineModeRadio_toggled(bool checked);
+    void on_downloadOfflineButton_clicked();
+    void checkOfflinePackageAvailability();
 
 private:
     Ui::MainWindow *ui;
@@ -268,8 +277,12 @@ private:
     QString restoreDestMountPoint;
     
     // ISO Creator helper functions
-    QString createIsoScript(const QString &isoName, const QString &outputDir, const QString &sudoPassword);
+    QString createIsoScript(const QString &isoName, const QString &outputDir, const QString &sudoPassword, bool offlineMode = false);
     QString formatSize(qint64 bytes);
+    
+    // Offline mode variables
+    QString offlinePackagePath;
+    const QString OFFLINE_PACKAGE_FILENAME = "offline-iso-packages-complete.tar.gz";
 };
 
 #endif // MAINWINDOW_H

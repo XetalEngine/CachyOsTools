@@ -206,6 +206,26 @@ shellConfigFiles["ksh"] = QStringList()
             populateRestoreDrives();
         }
     });
+
+    // ISO Creator offline mode setup
+    offlinePackagePath = QDir::currentPath() + "/" + OFFLINE_PACKAGE_FILENAME;
+    
+    // Connect radio button signals
+    connect(ui->onlineModeRadio, &QRadioButton::toggled, this, &MainWindow::on_onlineModeRadio_toggled);
+    connect(ui->offlineModeRadio, &QRadioButton::toggled, this, &MainWindow::on_offlineModeRadio_toggled);
+    
+    // Disconnect any existing connections to prevent duplicates
+    disconnect(ui->downloadOfflineButton, nullptr, this, nullptr);
+    disconnect(ui->checkAvailabilityButton, nullptr, this, nullptr);
+    
+    connect(ui->downloadOfflineButton, &QPushButton::clicked, this, &MainWindow::on_downloadOfflineButton_clicked);
+    connect(ui->checkAvailabilityButton, &QPushButton::clicked, this, &MainWindow::checkOfflinePackageAvailability);
+    
+    // Initialize offline status for online mode (default)
+    ui->offlineStatusLabel->setText("Online mode selected - packages will be downloaded during ISO creation");
+    ui->offlineStatusLabel->setStyleSheet("color: #666666;");
+    ui->downloadOfflineButton->setVisible(false);
+    ui->checkAvailabilityButton->setVisible(false);
 }
 
 MainWindow::~MainWindow()

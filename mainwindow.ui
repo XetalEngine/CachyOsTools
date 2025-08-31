@@ -1425,24 +1425,60 @@
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_iso_content">
+            
             <item>
-             <widget class="QGroupBox" name="isoBasicGroup">
+             <widget class="QGroupBox" name="isoModeGroup">
               <property name="title">
-               <string>ISO Settings</string>
+               <string>Download Mode</string>
               </property>
-              <layout class="QVBoxLayout" name="verticalLayout_basic">
+              <layout class="QVBoxLayout" name="verticalLayout_mode">
                <item>
-                <widget class="QLabel" name="isoInfoLabel">
+                <widget class="QRadioButton" name="onlineModeRadio">
                  <property name="text">
-                  <string>ISO will be created with default naming and saved to /home/user/iso/xiso/output/</string>
+                  <string>Online Mode: Download Required Installation Packages from AUR (4.0GB Download)</string>
                  </property>
-                 <property name="alignment">
-                  <set>Qt::AlignmentFlag::AlignCenter</set>
-                 </property>
-                 <property name="wordWrap">
+                 <property name="checked">
                   <bool>true</bool>
                  </property>
                 </widget>
+               </item>
+               <item>
+                <widget class="QRadioButton" name="offlineModeRadio">
+                 <property name="text">
+                  <string>Offline Mode: (DO NOT USE... NEEDS TO BE FIXED) Use existing offline-iso-packages.tar.gz previously downloaded (Must be in the root folder of this program)</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="offlineStatusLabel">
+                 <property name="text">
+                  <string>Checking offline package availability...</string>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">color: #666666;</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_offline_buttons">
+                 <item>
+                  <widget class="QPushButton" name="downloadOfflineButton">
+                   <property name="text">
+                    <string>📥 Download Offline Package (3.8GB)</string>
+                   </property>
+                   <property name="visible">
+                    <bool>false</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="checkAvailabilityButton">
+                   <property name="text">
+                    <string>🔄 Check Availability</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
                </item>
               </layout>
              </widget>
@@ -1466,8 +1502,7 @@
                <item>
                 <widget class="QTextEdit" name="isoInfoText">
                  <property name="plainText">
-                  <string>
-• Instructions after the ISO is ready:
+                  <string>• Instructions after the ISO is ready:
 • Burn the ISO with BalenaEtcher
 • Boot into the live environment with our ISO
 • Type: sudo install.sh
@@ -1487,58 +1522,20 @@ The resulting ISO can be used to:
 • Boot into a live environment
 • Install an exact copy of your system to any compatible hardware
 • Restore your system to any point in time
-• Create backup installations
-
-                </string>
+• Create backup installations</string>
                  </property>
                  <property name="readOnly">
                   <bool>true</bool>
                  </property>
                  <property name="maximumHeight">
-                  <number>150</number>
+                  <number>200</number>
                  </property>
                 </widget>
                </item>
               </layout>
              </widget>
             </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_iso_buttons">
-              <item>
-               <widget class="QPushButton" name="createIsoButton">
-                <property name="minimumSize">
-                 <size>
-                  <width>200</width>
-                  <height>50</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>14</pointsize>
-                  <bold>true</bold>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>🚀 Create System Clone ISO</string>
-                </property>
-               </widget>
-              </item>
-
-              <item>
-               <spacer name="horizontalSpacer_iso">
-                <property name="orientation">
-                 <enum>Qt::Orientation::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
+           
             <item>
              <widget class="QProgressBar" name="isoProgressBar">
               <property name="minimum">
@@ -1564,7 +1561,7 @@ The resulting ISO can be used to:
                <bool>true</bool>
               </property>
               <property name="maximumHeight">
-               <number>150</number>
+               <number>90</number>
               </property>
               <property name="font">
                <font>
@@ -1574,6 +1571,60 @@ The resulting ISO can be used to:
               </property>
              </widget>
             </item>
+
+ <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_iso_buttons">
+              <property name="alignment">
+               <set>Qt::AlignHCenter</set>
+              </property>
+              <item>
+               <spacer name="horizontalSpacer_iso_left">
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="createIsoButton">
+                <property name="minimumSize">
+                 <size>
+                  <width>110</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>10</pointsize>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>🚀 Create System Clone ISO</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_iso_right">
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+
            </layout>
           </widget>
          </widget>

@@ -4,7 +4,7 @@ void MainWindow::on_createIsoButton_clicked()
 {
     // Use default values
     QString isoName = "cachyos-system-clone";
-    QString outputDir = QDir::homePath() + "/iso";
+    QString outputDir = QDir::homePath() + "/iso/xiso/output";
     
     // Create output directory if it doesn't exist
     if (!QDir().exists(outputDir)) {
@@ -48,8 +48,21 @@ void MainWindow::on_createIsoButton_clicked()
     ui->isoProgressBar->setValue(0);
     ui->isoStatusLabel->setPlainText("Starting system clone ISO creation...\n");
     
+    // Check if offline mode is selected and package is available
+    bool offlineMode = ui->offlineModeRadio->isChecked();
+    if (offlineMode) {
+        QFileInfo fileInfo(offlinePackagePath);
+        if (!fileInfo.exists() || !fileInfo.isFile()) {
+            QMessageBox::critical(this, "Offline Package Not Found", 
+                QString("Offline mode is selected but the package file '%1' was not found.\n\n"
+                        "Please download the offline package first or switch to online mode.").arg(OFFLINE_PACKAGE_FILENAME));
+            ui->createIsoButton->setEnabled(true);
+            return;
+        }
+    }
+    
     // Create and run the ISO creation script
-    QString scriptPath = createIsoScript(isoName, outputDir, sudoPassword);
+    QString scriptPath = createIsoScript(isoName, outputDir, sudoPassword, offlineMode);
     if (scriptPath.isEmpty()) {
         ui->createIsoButton->setEnabled(true);
         return;
@@ -179,7 +192,7 @@ void MainWindow::on_createIsoButton_clicked()
 
 
     // Helper function to create the ISO creation script
-    QString MainWindow::createIsoScript(const QString &isoName, const QString &outputDir, const QString &sudoPassword)
+    QString MainWindow::createIsoScript(const QString &isoName, const QString &outputDir, const QString &sudoPassword, bool offlineMode)
 {
     // Create temporary script file
     QString tempDir = QDir::tempPath();
@@ -215,6 +228,55 @@ void MainWindow::on_createIsoButton_clicked()
     out << "WORK=\"$BASE/xiso/work\"            # mkarchiso work dir\n";
     out << "OUT=\"$BASE/xiso/output\"           # ISO output dir\n";
     out << "RELENG=\"/usr/share/archiso/configs/releng\"\n\n";
+    
+    // Add offline mode setup if enabled
+    if (offlineMode) {
+        out << "# === Offline Mode Setup ===\n";
+        out << "OFFLINE_PACKAGE_NEW=\"" << QDir::currentPath() << "/" << OFFLINE_PACKAGE_FILENAME << "\"\n";
+        out << "OFFLINE_PACKAGE_OLD=\"" << QDir::currentPath() << "/offline-iso-packages.tar.gz\"\n";
+        out << "OFFLINE_CACHE_DIR=\"$BASE/xiso/offline-cache\"\n\n";
+        out << "echo \"[*] Setting up offline mode...\"\n";
+        out << "if [[ -f \"$OFFLINE_PACKAGE_NEW\" ]]; then\n";
+        out << "    OFFLINE_PACKAGE=\"$OFFLINE_PACKAGE_NEW\"\n";
+        out << "    echo \"[*] Using complete offline package: $OFFLINE_PACKAGE\"\n";
+        out << "elif [[ -f \"$OFFLINE_PACKAGE_OLD\" ]]; then\n";
+        out << "    OFFLINE_PACKAGE=\"$OFFLINE_PACKAGE_OLD\"\n";
+        out << "    echo \"[*] Using legacy offline package: $OFFLINE_PACKAGE\"\n";
+        out << "else\n";
+        out << "    echo \"[ERROR] No offline package found. Expected one of:\"\n";
+        out << "    echo \"[ERROR]   $OFFLINE_PACKAGE_NEW\"\n";
+        out << "    echo \"[ERROR]   $OFFLINE_PACKAGE_OLD\"\n";
+        out << "    exit 1\n";
+        out << "fi\n\n";
+        out << "echo \"[*] Extracting offline package cache...\"\n";
+        out << "mkdir -p \"$OFFLINE_CACHE_DIR\"\n";
+        out << "echo \"[*] Package file size: $(ls -lh \"$OFFLINE_PACKAGE\" | awk '{print $5}')\"\n";
+        out << "tar -xzf \"$OFFLINE_PACKAGE\" -C \"$OFFLINE_CACHE_DIR\"\n";
+        out << "if [[ $? -ne 0 ]]; then\n";
+        out << "    echo \"[ERROR] Failed to extract offline package\"\n";
+        out << "    echo \"[ERROR] Please check if the package file is corrupted\"\n";
+        out << "    exit 1\n";
+        out << "fi\n";
+        out << "echo \"[*] Extracted contents:\"\n";
+        out << "ls -la \"$OFFLINE_CACHE_DIR/offline-packages/\" 2>/dev/null || echo \"[WARNING] Expected directory structure not found\"\n\n";
+        out << "echo \"[*] Setting up local package cache...\"\n";
+        out << "mkdir -p \"/var/cache/pacman/pkg\"\n";
+        out << "if [[ -d \"$OFFLINE_CACHE_DIR/offline-packages/pkg\" ]]; then\n";
+        out << "    cp -r \"$OFFLINE_CACHE_DIR/offline-packages/pkg/\"* \"/var/cache/pacman/pkg/\" 2>/dev/null || true\n";
+        out << "    echo \"[*] Packages copied successfully\"\n";
+        out << "else\n";
+        out << "    echo \"[WARNING] Package directory not found in offline package\"\n";
+        out << "fi\n";
+        out << "echo \"[*] Setting up local package databases...\"\n";
+        out << "mkdir -p \"/var/lib/pacman/sync\"\n";
+        out << "if [[ -d \"$OFFLINE_CACHE_DIR/offline-packages/sync\" ]]; then\n";
+        out << "    cp -r \"$OFFLINE_CACHE_DIR/offline-packages/sync/\"* \"/var/lib/pacman/sync/\" 2>/dev/null || true\n";
+        out << "    echo \"[*] Package databases copied successfully\"\n";
+        out << "else\n";
+        out << "    echo \"[WARNING] Package databases directory not found in offline package\"\n";
+        out << "fi\n";
+        out << "echo \"[*] Offline mode setup complete\"\n\n";
+    }
     
     out << "SNAPDIR=\"$BASE/xiso/snapshot\"     # rsync snapshot (temp)\n";
     out << "SNAP_TAR=\"$BASE/xiso/rootfs-snapshot.tar.zst\"  # compressed snapshot\n\n";
@@ -391,6 +453,12 @@ void MainWindow::on_createIsoButton_clicked()
     out << "ls -lh \"$OUT\"/*.iso || true\n";
     out << "echo \"[*] Final cleanup - removing work directory:\"\n";
     out << "run_sudo rm -rf \"$WORK\"\n";
+    
+    // Clean up offline cache if used
+    if (offlineMode) {
+        out << "echo \"[*] Cleaning up offline cache...\"\n";
+        out << "rm -rf \"$OFFLINE_CACHE_DIR\"\n";
+    }
   
     
     scriptFile.close();
@@ -415,3 +483,73 @@ QString MainWindow::formatSize(qint64 bytes)
     
     return QString("%1 %2").arg(size, 0, 'f', 1).arg(units[unitIndex]);
 }
+
+// Offline mode functions
+void MainWindow::on_onlineModeRadio_toggled(bool checked)
+{
+    if (checked) {
+        ui->offlineStatusLabel->setText("Online mode selected - packages will be downloaded during ISO creation");
+        ui->offlineStatusLabel->setStyleSheet("color: #666666;");
+        ui->downloadOfflineButton->setVisible(false);
+        ui->checkAvailabilityButton->setVisible(false);
+    }
+}
+
+void MainWindow::on_offlineModeRadio_toggled(bool checked)
+{
+    if (checked) {
+        ui->checkAvailabilityButton->setVisible(true);
+        checkOfflinePackageAvailability();
+    }
+}
+
+void MainWindow::checkOfflinePackageAvailability()
+{
+    // Check for both old and new filename
+    QString oldFilename = "offline-iso-packages.tar.gz";
+    QString newFilename = OFFLINE_PACKAGE_FILENAME;
+    
+    QFileInfo newFileInfo(offlinePackagePath);
+    QFileInfo oldFileInfo(QDir::currentPath() + "/" + oldFilename);
+    
+    if (newFileInfo.exists() && newFileInfo.isFile()) {
+        qint64 fileSize = newFileInfo.size();
+        QString sizeStr = formatSize(fileSize);
+        ui->offlineStatusLabel->setText(QString("✅ %1 Found and Ready (%2)").arg(newFilename, sizeStr));
+        ui->offlineStatusLabel->setStyleSheet("color: #28a745; font-weight: bold;");
+        ui->downloadOfflineButton->setVisible(false);
+    } else if (oldFileInfo.exists() && oldFileInfo.isFile()) {
+        qint64 fileSize = oldFileInfo.size();
+        QString sizeStr = formatSize(fileSize);
+        ui->offlineStatusLabel->setText(QString("✅ %1 Found and Ready (%2) - Consider upgrading to complete package").arg(oldFilename, sizeStr));
+        ui->offlineStatusLabel->setStyleSheet("color: #28a745; font-weight: bold;");
+        ui->downloadOfflineButton->setVisible(false);
+        // Update the path to use the old file
+        offlinePackagePath = oldFileInfo.absoluteFilePath();
+    } else {
+        ui->offlineStatusLabel->setText("❌ Offline package not found. Click download button to get it.");
+        ui->offlineStatusLabel->setStyleSheet("color: #dc3545; font-weight: bold;");
+        ui->downloadOfflineButton->setVisible(true);
+    }
+}
+
+void MainWindow::on_downloadOfflineButton_clicked()
+{
+    QString instructions = QString(
+        "Manual Download Instructions:\n\n"
+        "1. Your default browser will open to the Google Drive page\n"
+        "2. Click the download button on the Google Drive page\n"
+        "3. If you see a warning page, click 'Download anyway'\n"
+        "4. Save the file as '%1' in this directory:\n"
+        "   %2\n\n"
+        "5. Once downloaded, return to this application and click 'Check Availability'\n\n"
+        "Note: The file is approximately 3.8GB and may take some time to download."
+    ).arg(OFFLINE_PACKAGE_FILENAME, QDir::currentPath());
+    
+    QMessageBox::information(this, "Download Instructions", instructions);
+    
+    // Open the Google Drive page in the default browser
+    QDesktopServices::openUrl(QUrl("https://drive.google.com/file/d/1U8Z1MuOTHBJXDqLbgtKoUSKtUqZvBJ8L/view?usp=drive_link"));
+}
+
+

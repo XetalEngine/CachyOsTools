@@ -20,4 +20,8 @@
 #include <QDebug>
 #include <QFileSystemModel>
 #include <QTextStream>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QNetworkRequest>
+#include <QDesktopServices>
 #include <unistd.h>
