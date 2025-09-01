@@ -1610,6 +1610,28 @@ The resulting ISO can be used to:
                </widget>
               </item>
               <item>
+               <widget class="QPushButton" name="browseIsoOutputButton">
+                <property name="minimumSize">
+                 <size>
+                  <width>80</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>10</pointsize>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>📁 Browse</string>
+                </property>
+                <property name="toolTip">
+                 <string>Browse to ISO output folder using Dolphin</string>
+                </property>
+               </widget>
+              </item>
+              <item>
                <spacer name="horizontalSpacer_iso_right">
                 <property name="orientation">
                  <enum>Qt::Orientation::Horizontal</enum>

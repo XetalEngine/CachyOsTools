@@ -186,6 +186,7 @@ private slots:
     void handleBackupFinished(int exitCode, QProcess::ExitStatus exitStatus);
     // ISO Creator tab slots
     void on_createIsoButton_clicked();
+    void on_browseIsoOutputButton_clicked();
     void on_onlineModeRadio_toggled(bool checked);
     void on_offlineModeRadio_toggled(bool checked);
     void on_downloadOfflineButton_clicked();

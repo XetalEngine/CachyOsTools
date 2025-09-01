@@ -1,5 +1,30 @@
 
 // ISO Creator tab functions
+void MainWindow::on_browseIsoOutputButton_clicked()
+{
+    // Default ISO output directory
+    QString outputDir = QDir::homePath() + "/iso/xiso/output";
+    
+    // Create the directory if it doesn't exist
+    if (!QDir().exists(outputDir)) {
+        if (!QDir().mkpath(outputDir)) {
+            QMessageBox::warning(this, "Directory Creation Failed", 
+                               "Failed to create output directory: " + outputDir + "\n\n"
+                               "Please check permissions or try again.");
+            return;
+        }
+    }
+    
+    // Use dolphin to browse to the ISO output folder
+    QProcess *process = new QProcess(this);
+    connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+            [process](int exitCode, QProcess::ExitStatus exitStatus) {
+        process->deleteLater();
+    });
+    
+    process->start("dolphin", QStringList() << outputDir);
+}
+
 void MainWindow::on_createIsoButton_clicked()
 {
     // Use default values
