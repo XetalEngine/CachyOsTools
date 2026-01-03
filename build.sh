@@ -7,10 +7,17 @@ set -e  # Exit on any error
 
 # Colors for output
 RED='\033[0;31m'
+BRIGHT_RED='\033[1;31m'
 GREEN='\033[0;32m'
+BRIGHT_GREEN='\033[1;32m'
 YELLOW='\033[1;33m'
+BRIGHT_YELLOW='\033[1;93m'
 BLUE='\033[0;34m'
+BRIGHT_BLUE='\033[1;34m'
 CYAN='\033[0;36m'
+BRIGHT_CYAN='\033[1;36m'
+MAGENTA='\033[1;35m'
+BOLD='\033[1m'
 NC='\033[0m' # No Color
 
 # Function to print colored output
@@ -228,7 +235,73 @@ check_dependencies() {
         exit 1
     fi
     
-    print_success "All dependencies found!"
+    print_success "All build dependencies found!"
+    echo ""
+}
+
+
+check_runtime_dependencies() {
+    print_status "Checking runtime dependencies for ISO creation feature..."
+    
+    local missing_runtime_deps=()
+    local optional_missing=()
+    
+    # Required for ISO creation
+    if ! command_exists mkarchiso; then
+        missing_runtime_deps+=("archiso")
+    fi
+    
+    # Usually installed by default, but check anyway
+    if ! command_exists rsync; then
+        missing_runtime_deps+=("rsync")
+    fi
+    
+    if ! command_exists tar; then
+        missing_runtime_deps+=("tar")
+    fi
+    
+    if ! command_exists zstd; then
+        missing_runtime_deps+=("zstd")
+    fi
+    
+    # Optional - only for browsing output folder
+    if ! command_exists dolphin; then
+        optional_missing+=("dolphin")
+    fi
+    
+    if [ ${#missing_runtime_deps[@]} -gt 0 ]; then
+        echo ""
+        echo -e "${BRIGHT_RED}${BOLD}════════════════════════════════════════════════════════════════${NC}"
+        echo -e "${BRIGHT_RED}${BOLD}  ⚠️  MISSING REQUIRED PACKAGES FOR ISO CREATION FEATURE  ⚠️${NC}"
+        echo -e "${BRIGHT_RED}${BOLD}════════════════════════════════════════════════════════════════${NC}"
+        echo ""
+        echo -e "${BRIGHT_RED}${BOLD}Missing packages:${NC} ${BRIGHT_YELLOW}${BOLD}${missing_runtime_deps[*]}${NC}"
+        echo ""
+        echo -e "${BRIGHT_CYAN}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo -e "${BRIGHT_CYAN}${BOLD}  📦 INSTALL COMMANDS:${NC}"
+        echo -e "${BRIGHT_CYAN}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo ""
+        echo -e "${BRIGHT_GREEN}${BOLD}Arch/Manjaro/CachyOS:${NC}"
+        echo -e "${BRIGHT_YELLOW}${BOLD}  sudo pacman -S ${missing_runtime_deps[*]}${NC}"
+        echo ""
+        echo -e "${BRIGHT_GREEN}${BOLD}Ubuntu/Debian:${NC}"
+        echo -e "${BRIGHT_YELLOW}${BOLD}  sudo apt install ${missing_runtime_deps[*]}${NC}"
+        echo ""
+        echo -e "${BRIGHT_GREEN}${BOLD}Fedora:${NC}"
+        echo -e "${BRIGHT_YELLOW}${BOLD}  sudo dnf install ${missing_runtime_deps[*]}${NC}"
+        echo ""
+        echo -e "${BRIGHT_RED}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo -e "${BRIGHT_RED}${BOLD}  ⛔ WARNING: ISO creation feature will NOT work without these!${NC}"
+        echo -e "${BRIGHT_RED}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo ""
+    else
+        print_success "All required runtime dependencies found!"
+    fi
+    
+    if [ ${#optional_missing[@]} -gt 0 ]; then
+        echo -e "${CYAN}[INFO]${NC} Optional dependency missing: ${YELLOW}${optional_missing[*]}${NC} (only needed for browsing ISO output folder)"
+    fi
+    
     echo ""
 }
 
@@ -249,6 +322,9 @@ select_build_config
 
 # Check dependencies
 check_dependencies
+
+# Check runtime dependencies (informational only, don't fail build)
+check_runtime_dependencies
 
 # Build directory based on selected configuration
 BUILD_DIR="build/Desktop-$BUILD_TYPE-$BUILD_DIR_SUFFIX"
