@@ -479,8 +479,8 @@ void MainWindow::on_hugePagesConfigButton_clicked() {
         "echo \"  sudo mkdir -p /dev/hugepages\"\n"
         "echo \"  sudo mount -t hugetlbfs none /dev/hugepages\"\n"
         "echo \"fi\"\n"
-        "echo \"kib=\\\$((gb * 1024 * 1024))\"\n"
-        "echo \"echo \\\"Huge pages allocated: \\\$kib KiB\\\"\"";
+        "echo \"kib=\\$((gb * 1024 * 1024))\"\n"
+        "echo \"echo \\\"Huge pages allocated: \\$kib KiB\\\"\"";
     runSudoCommandInTerminal(command);
 }
 

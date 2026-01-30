@@ -15,6 +15,7 @@
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QRegularExpression>
+#include <QApplication>
 #include <QSettings>
 #include <QTimer>
 #include <QDebug>

@@ -376,7 +376,9 @@ QString MainWindow::createIsoScript(const QString &isoName, const QString &outpu
     out << "cat > \"$PROFILE/airootfs$INSTALLER_REL\" <<'EOF'\n";
     out << "#!/usr/bin/env bash\n";
     out << "set -euo pipefail\n";
-    out << "RED=$'\\e[31m'; GRN=$'\\e[32m'; YLW=$'\\e[33m'; BLU=$'\\e[34m'; CLR=$'\\e[0m'\n";
+    out << "RED=$'\\e[31m'; GRN=$'\\e[32m'; YLW=$'\\e[33m'; BLU=$'\\e[34m'; WHT=$'\\e[37m'; CLR=$'\\e[0m'\n";
+    out << "echo -e \"${WHT}Welcome to ${GRN}Xetal ${YLW}Engine${CLR}\"\n";
+    out << "echo \"\"\n";
     out << "need(){ command -v \"$1\" >/dev/null 2>&1 || { echo \"${RED}Missing $1${CLR}\"; exit 1; }; }\n";
     out << "for b in lsblk parted mkfs.fat mkfs.ext4 mount umount genfstab arch-chroot grub-install grub-mkconfig efibootmgr rsync tar zstd; do need \"$b\"; done\n\n";
 
@@ -440,14 +442,14 @@ QString MainWindow::createIsoScript(const QString &isoName, const QString &outpu
     out << "chmod +x \"$PROFILE/airootfs$INSTALLER_REL\"\n\n";
 
     out << "# === Create convenience wrapper script in root directory ===\n";
-    out << "cat > \"$PROFILE/airootfs/install.sh\" <<'EOF'\n";
+    out << "cat > \"$PROFILE/airootfs/xetal.sh\" <<'EOF'\n";
     out << "#!/usr/bin/env bash\n";
     out << "echo \"Setting up installer...\"\n";
     out << "chmod +x /usr/local/bin/installer.sh\n";
     out << "echo \"Running installer...\"\n";
     out << "exec /usr/local/bin/installer.sh \"$@\"\n";
     out << "EOF\n";
-    out << "chmod +x \"$PROFILE/airootfs/install.sh\"\n\n";
+    out << "chmod +x \"$PROFILE/airootfs/xetal.sh\"\n\n";
 
     out << "# === Autologin & autorun installer on TTY1 ===\n";
     out << "mkdir -p \"$PROFILE/airootfs/etc/systemd/system/getty@tty1.service.d\" \"$PROFILE/airootfs/root\"\n";
@@ -457,11 +459,12 @@ QString MainWindow::createIsoScript(const QString &isoName, const QString &outpu
     out << "ExecStart=-/sbin/agetty --autologin root --noclear %I $TERM\n";
     out << "Type=idle\n";
     out << "EOF\n";
+    out << "# Auto-execute xetal.sh when root logs in on TTY1 (after Arch finishes booting)\n";
     out << "cat > \"$PROFILE/airootfs/root/.bash_profile\" <<'EOF'\n";
     out << "if [[ -z \"$DISPLAY\" ]] && [[ $(tty) == /dev/tty1 ]]; then\n";
     out << "  clear\n";
-    out << "  echo \"Launching EXACT clone installer...\"\n";
-    out << "  /usr/local/bin/installer.sh || bash\n";
+    out << "  echo \"Launching Xetal Engine installer...\"\n";
+    out << "  /xetal.sh || bash\n";
     out << "fi\n";
     out << "EOF\n\n";
 

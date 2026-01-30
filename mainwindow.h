@@ -29,6 +29,11 @@ struct DriveInfo {
     QString mountPoint;
     bool isMounted;
     QString label;
+    QString diskId;
+    QString filesystem;
+    QString uuid;
+    QString model;
+    QString serial;
 };
 
 struct AliasEntry {
@@ -60,6 +65,14 @@ struct LogFileEntry {
     qint64 size;
 };
 
+struct PackageEntry {
+    QString name;
+    QString version;
+    QString description;
+    QString repository;
+    bool isInstalled;
+};
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -67,6 +80,11 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    
+protected:
+    void closeEvent(QCloseEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
+    void moveEvent(QMoveEvent *event) override;
 
 private slots:
     void on_refreshButton_clicked();
@@ -75,6 +93,9 @@ private slots:
     void on_unmountButton_clicked();
     void on_mount777Button_clicked();
     void on_takeOwnershipButton_clicked();
+    void on_ejectButton_clicked();
+    void on_formatButton_clicked();
+    void on_smartInfoButton_clicked();
     void on_diskFilterCheckBox_stateChanged(int state);
     void on_partitionFilterCheckBox_stateChanged(int state);
     void on_minSizeFilterCheckBox_stateChanged(int state);
@@ -191,6 +212,54 @@ private slots:
     void on_offlineModeRadio_toggled(bool checked);
     void on_downloadOfflineButton_clicked();
     void checkOfflinePackageAvailability();
+    // Preferences menu slots
+    void on_actionShowHideTabs_triggered();
+    void on_actionAbout_triggered();
+    // Network tab slots
+    void on_refreshIpButton_clicked();
+    void on_refreshBridgeButton_clicked();
+    void on_createBridgeButton_clicked();
+    void on_deleteBridgeButton_clicked();
+    void on_refreshLibvirtNetworkButton_clicked();
+    void on_startLibvirtNetworkButton_clicked();
+    void on_stopLibvirtNetworkButton_clicked();
+    void on_restartLibvirtNetworkButton_clicked();
+    void on_configureInterfaceButton_clicked();
+    void on_upInterfaceButton_clicked();
+    void on_downInterfaceButton_clicked();
+    void on_refreshInterfaceConfigButton_clicked();
+    void refreshNetworkInfo();
+    void refreshBridges();
+    void refreshLibvirtNetworks();
+    void refreshInterfaceStats();
+    void refreshInterfaceConfig();
+    void configureInterface(const QString &interfaceName);
+    QString formatBytes(qint64 bytes);
+    QString convertNetmaskToCIDR(const QString &netmask);
+    // Package Manager tab slots
+    void on_clearCacheButton_clicked();
+    void on_refreshPackagesButton_clicked();
+    void on_pacmanInstalledSearch_textChanged(const QString &text);
+    void on_pacmanRefreshInstalledButton_clicked();
+    void on_pacmanAurSearchButton_clicked();
+    void on_pacmanAurSearch_returnPressed();
+    void on_pacmanUninstallButton_clicked();
+    void on_pacmanReinstallButton_clicked();
+    void on_pacmanAurInstallButton_clicked();
+    void on_yaySearchButton_clicked();
+    void on_yaySearch_returnPressed();
+    void on_yayInstallPackageButton_clicked();
+    void on_yayUninstallPackageButton_clicked();
+    void on_paruSearchButton_clicked();
+    void on_paruSearch_returnPressed();
+    void on_paruInstallPackageButton_clicked();
+    void on_paruUninstallPackageButton_clicked();
+    void on_yayInstallButton_clicked();
+    void on_yayReinstallButton_clicked();
+    void on_yayUninstallButton_clicked();
+    void on_paruInstallButton_clicked();
+    void on_paruReinstallButton_clicked();
+    void on_paruUninstallButton_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -284,6 +353,28 @@ private:
     // Offline mode variables
     QString offlinePackagePath;
     const QString OFFLINE_PACKAGE_FILENAME = "offline-iso-packages-complete.tar.gz";
+    
+    // Package Manager helper functions
+    void checkAurHelpers();
+    void refreshPacmanInstalled();
+    void searchPacmanAur(const QString &query, int searchMode = 0, int searchType = 0);
+    void searchYay(const QString &query, int searchMode = 0, int searchType = 0);
+    void searchParu(const QString &query, int searchMode = 0, int searchType = 0);
+    
+    // Preferences functions
+    void loadTabVisibilityPreferences();
+    void saveTabVisibilityPreferences();
+    void applyTabVisibility();
+    void showPreferencesDialog();
+    void saveAllPreferences();
+    void loadAllPreferences();
+    bool loadWindowSizeEnabled();
+    void saveWindowSizeEnabled(bool enabled);
+    bool loadAutoSaveEnabled();
+    void saveAutoSaveEnabled(bool enabled);
+    void saveWindowGeometry();
+    void loadWindowGeometry();
+    QMap<QString, bool> tabVisibilityMap; // tab name -> visible
 };
 
 #endif // MAINWINDOW_H

@@ -14,6 +14,9 @@
 #include "systemrestore.h"
 #include "current_system_iso_creator.h"
 #include "dual_gpu_kvm.h"
+#include "packagemanager.h"
+#include "preferences.h"
+#include "network.h"
 
 void MainWindow::setNumlockSetting(bool enabled) {
     QString value = enabled ? "1" : "0";

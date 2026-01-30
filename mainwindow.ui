@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1000</width>
-    <height>700</height>
+    <width>1100</width>
+    <height>760</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>CachyOS Tools</string>
+   <string>Arch OS Tools</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -25,21 +25,15 @@
         <string>Drive Tools</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_2">
+        <property name="spacing">
+         <number>6</number>
+        </property>
         <item>
-         <widget class="QLabel" name="label">
-          <property name="font">
-           <font>
-            <pointsize>12</pointsize>
-            <bold>true</bold>
-           </font>
+         <widget class="QGroupBox" name="filterGroupBox">
+          <property name="title">
+           <string>Filters</string>
           </property>
-          <property name="text">
-           <string>Available Drives</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="filterLayout">
+          <layout class="QHBoxLayout" name="filterLayout">
           <item>
            <widget class="QCheckBox" name="diskFilterCheckBox">
             <property name="text">
@@ -100,9 +94,22 @@
            </spacer>
           </item>
          </layout>
+         </widget>
         </item>
         <item>
-         <widget class="QTableWidget" name="drivesTable">
+         <widget class="QGroupBox" name="drivesGroupBox">
+          <property name="title">
+           <string>Available Drives &amp; Partitions</string>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>3</verstretch>
+           </sizepolicy>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_drives">
+           <item>
+            <widget class="QTableWidget" name="drivesTable">
           <property name="alternatingRowColors">
            <bool>true</bool>
           </property>
@@ -112,11 +119,31 @@
           <property name="sortingEnabled">
            <bool>true</bool>
           </property>
+            </widget>
+           </item>
+          </layout>
          </widget>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <item>
+         <widget class="QWidget" name="actionsWidget">
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <spacer name="leftSpacer">
+             <property name="orientation">
+              <enum>Qt::Orientation::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Expanding</enum>
+             </property>
+            </spacer>
+           </item>
+           <item>
            <widget class="QPushButton" name="refreshButton">
             <property name="minimumSize">
              <size>
@@ -195,7 +222,46 @@
            </widget>
           </item>
           <item>
-           <spacer name="horizontalSpacer">
+           <widget class="QPushButton" name="ejectButton">
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>35</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>⏏️ Eject</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="formatButton">
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>35</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>🔧 Format</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="smartInfoButton">
+            <property name="minimumSize">
+             <size>
+              <width>120</width>
+              <height>35</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>📊 SMART Info</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="rightSpacer">
             <property name="orientation">
              <enum>Qt::Orientation::Horizontal</enum>
             </property>
@@ -205,17 +271,51 @@
               <height>20</height>
              </size>
             </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Expanding</enum>
+            </property>
            </spacer>
           </item>
          </layout>
+         </widget>
         </item>
         <item>
-         <widget class="QTextEdit" name="logOutput">
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>150</height>
-           </size>
+         <widget class="QGroupBox" name="logGroupBox">
+          <property name="title">
+           <string>Command Output</string>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>1</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumHeight">
+           <number>200</number>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_log">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QTextEdit" name="logOutput">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>1</verstretch>
+           </sizepolicy>
           </property>
           <property name="readOnly">
            <bool>true</bool>
@@ -223,6 +323,9 @@
           <property name="placeholderText">
            <string>Command output will appear here...</string>
           </property>
+            </widget>
+           </item>
+          </layout>
          </widget>
         </item>
        </layout>
@@ -1653,6 +1756,997 @@ The resulting ISO can be used to:
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="networkTab">
+       <attribute name="title">
+        <string>Network</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_network">
+        <item>
+         <widget class="QTabWidget" name="networkTabWidget">
+          <property name="currentIndex">
+           <number>0</number>
+          </property>
+          <widget class="QWidget" name="networkInfoTab">
+           <attribute name="title">
+            <string>Network Information</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_networkInfo">
+            <item>
+             <widget class="QGroupBox" name="ipInfoGroupBox">
+              <property name="title">
+               <string>IP Addresses</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_ipInfo">
+               <item>
+                <widget class="QTableWidget" name="ipAddressTable">
+                 <property name="columnCount">
+                  <number>4</number>
+                 </property>
+                 <property name="alternatingRowColors">
+                  <bool>true</bool>
+                 </property>
+                 <property name="selectionBehavior">
+                  <enum>QAbstractItemView::SelectRows</enum>
+                 </property>
+                 <column>
+                  <property name="text">
+                   <string>Interface</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>IP Address</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>Netmask</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>Status</string>
+                  </property>
+                 </column>
+                </widget>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_ipRefresh">
+                 <item>
+                  <spacer name="horizontalSpacer_ipRefresh">
+                   <property name="orientation">
+                    <enum>Qt::Orientation::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="refreshIpButton">
+                   <property name="text">
+                    <string>🔄 Refresh</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="networkStatsGroupBox">
+              <property name="title">
+               <string>Network Statistics</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_networkStats">
+               <item row="0" column="0">
+                <widget class="QLabel" name="localIpLabel">
+                 <property name="text">
+                  <string>Local IP:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QLabel" name="localIpValueLabel">
+                 <property name="text">
+                  <string>Loading...</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="publicIpLabel">
+                 <property name="text">
+                  <string>Public IP:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QLabel" name="publicIpValueLabel">
+                 <property name="text">
+                  <string>Loading...</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="hostnameLabel">
+                 <property name="text">
+                  <string>Hostname:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QLabel" name="hostnameValueLabel">
+                 <property name="text">
+                  <string>Loading...</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="0">
+                <widget class="QLabel" name="dnsLabel">
+                 <property name="text">
+                  <string>DNS Servers:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="1">
+                <widget class="QLabel" name="dnsValueLabel">
+                 <property name="text">
+                  <string>Loading...</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="detailedStatsGroupBox">
+              <property name="title">
+               <string>Detailed Interface Statistics</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_detailedStats">
+               <item>
+                <widget class="QTableWidget" name="interfaceStatsTable">
+                 <property name="columnCount">
+                  <number>8</number>
+                 </property>
+                 <property name="alternatingRowColors">
+                  <bool>true</bool>
+                 </property>
+                 <property name="selectionBehavior">
+                  <enum>QAbstractItemView::SelectRows</enum>
+                 </property>
+                 <column>
+                  <property name="text">
+                   <string>Interface</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>RX Bytes</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>TX Bytes</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>RX Packets</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>TX Packets</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>RX Errors</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>TX Errors</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>Speed</string>
+                  </property>
+                 </column>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="interfaceConfigTab">
+           <attribute name="title">
+            <string>Interface Configuration</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_interfaceConfig">
+            <item>
+             <widget class="QTableWidget" name="interfaceConfigTable">
+              <property name="columnCount">
+               <number>5</number>
+              </property>
+              <property name="alternatingRowColors">
+               <bool>true</bool>
+              </property>
+              <property name="selectionBehavior">
+               <enum>QAbstractItemView::SelectRows</enum>
+              </property>
+              <column>
+               <property name="text">
+                <string>Interface</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Configuration</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>IP Address</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Gateway</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Status</string>
+               </property>
+              </column>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_interfaceConfig">
+              <item>
+               <widget class="QPushButton" name="configureInterfaceButton">
+                <property name="text">
+                 <string>⚙️ Configure Interface</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="upInterfaceButton">
+                <property name="text">
+                 <string>⬆️ Bring Up</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="downInterfaceButton">
+                <property name="text">
+                 <string>⬇️ Bring Down</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="refreshInterfaceConfigButton">
+                <property name="text">
+                 <string>🔄 Refresh</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_interfaceConfig">
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="bridgeTab">
+           <attribute name="title">
+            <string>Bridge Configuration</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_bridge">
+            <item>
+             <widget class="QTableWidget" name="bridgeTable">
+              <property name="columnCount">
+               <number>3</number>
+              </property>
+              <property name="alternatingRowColors">
+               <bool>true</bool>
+              </property>
+              <property name="selectionBehavior">
+               <enum>QAbstractItemView::SelectRows</enum>
+              </property>
+              <column>
+               <property name="text">
+                <string>Bridge Name</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Interfaces</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Status</string>
+               </property>
+              </column>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_bridge">
+              <item>
+               <widget class="QPushButton" name="createBridgeButton">
+                <property name="text">
+                 <string>➕ Create Bridge</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="deleteBridgeButton">
+                <property name="text">
+                 <string>🗑️ Delete Bridge</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="refreshBridgeButton">
+                <property name="text">
+                 <string>🔄 Refresh</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_bridge">
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="libvirtTab">
+           <attribute name="title">
+            <string>Libvirt Networks</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_libvirt">
+            <item>
+             <widget class="QTableWidget" name="libvirtNetworkTable">
+              <property name="columnCount">
+               <number>4</number>
+              </property>
+              <property name="alternatingRowColors">
+               <bool>true</bool>
+              </property>
+              <property name="selectionBehavior">
+               <enum>QAbstractItemView::SelectRows</enum>
+              </property>
+              <column>
+               <property name="text">
+                <string>Network Name</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Type</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>State</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Autostart</string>
+               </property>
+              </column>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_libvirt">
+              <item>
+               <widget class="QPushButton" name="startLibvirtNetworkButton">
+                <property name="text">
+                 <string>▶️ Start</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="stopLibvirtNetworkButton">
+                <property name="text">
+                 <string>⏸️ Stop</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="restartLibvirtNetworkButton">
+                <property name="text">
+                 <string>🔄 Restart</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="refreshLibvirtNetworkButton">
+                <property name="text">
+                 <string>🔄 Refresh</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_libvirt">
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="packageManagerTab">
+       <attribute name="title">
+        <string>Package Manager</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_package">
+        <item>
+         <layout class="QHBoxLayout" name="packageTopLayout">
+          <item>
+           <widget class="QPushButton" name="clearCacheButton">
+            <property name="text">
+             <string>🗑️ Clear Pacman Cache</string>
+            </property>
+            <property name="toolTip">
+             <string>Clear pacman package cache</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="refreshPackagesButton">
+            <property name="text">
+             <string>🔄 Refresh All</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="packageTopSpacer">
+            <property name="orientation">
+             <enum>Qt::Orientation::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="yayStatusLabel">
+            <property name="text">
+             <string>Yay: Not Installed</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="yayInstallButton">
+            <property name="text">
+             <string>Install Yay</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="yayReinstallButton">
+            <property name="text">
+             <string>Reinstall Yay</string>
+            </property>
+            <property name="visible">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="yayUninstallButton">
+            <property name="text">
+             <string>Uninstall Yay</string>
+            </property>
+            <property name="visible">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="paruStatusLabel">
+            <property name="text">
+             <string>Paru: Not Installed</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="paruInstallButton">
+            <property name="text">
+             <string>Install Paru</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="paruReinstallButton">
+            <property name="text">
+             <string>Reinstall Paru</string>
+            </property>
+            <property name="visible">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="paruUninstallButton">
+            <property name="text">
+             <string>Uninstall Paru</string>
+            </property>
+            <property name="visible">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QTabWidget" name="packageManagerTabWidget">
+          <widget class="QWidget" name="pacmanTab">
+           <attribute name="title">
+            <string>📦 Pacman</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_pacman">
+            <item>
+             <widget class="QTabWidget" name="pacmanTabWidget">
+              <widget class="QWidget" name="pacmanInstalledTab">
+               <attribute name="title">
+                <string>Installed Packages</string>
+               </attribute>
+               <layout class="QVBoxLayout" name="verticalLayout_pacman_installed">
+                <item>
+                 <layout class="QHBoxLayout" name="pacmanInstalledSearchLayout">
+                  <item>
+                   <widget class="QLineEdit" name="pacmanInstalledSearch">
+                    <property name="placeholderText">
+                     <string>Search installed packages...</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="pacmanRefreshInstalledButton">
+                    <property name="text">
+                     <string>🔄 Refresh</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <widget class="QTableWidget" name="pacmanInstalledTable">
+                  <property name="alternatingRowColors">
+                   <bool>true</bool>
+                  </property>
+                  <property name="selectionBehavior">
+                   <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+                  </property>
+                  <property name="sortingEnabled">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="pacmanInstalledActionsLayout">
+                  <item>
+                   <widget class="QPushButton" name="pacmanUninstallButton">
+                    <property name="text">
+                     <string>Uninstall Selected</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="pacmanReinstallButton">
+                    <property name="text">
+                     <string>Reinstall Selected</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="pacmanInstalledSpacer">
+                    <property name="orientation">
+                     <enum>Qt::Orientation::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </widget>
+              <widget class="QWidget" name="pacmanAurTab">
+               <attribute name="title">
+                <string>AUR Search</string>
+               </attribute>
+               <layout class="QVBoxLayout" name="verticalLayout_pacman_aur">
+                <item>
+                 <layout class="QHBoxLayout" name="pacmanAurSearchLayout">
+                  <item>
+                   <widget class="QLineEdit" name="pacmanAurSearch">
+                    <property name="placeholderText">
+                     <string>Search AUR packages...</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QComboBox" name="pacmanAurSearchMode">
+                    <property name="toolTip">
+                     <string>Search mode</string>
+                    </property>
+                    <item>
+                     <property name="text">
+                      <string>Package Name</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Description</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Both (Name or Desc)</string>
+                     </property>
+                    </item>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QComboBox" name="pacmanAurSearchType">
+                    <property name="toolTip">
+                     <string>Search type</string>
+                    </property>
+                    <item>
+                     <property name="text">
+                      <string>Exact</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Contains</string>
+                     </property>
+                    </item>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="pacmanAurSearchButton">
+                    <property name="text">
+                     <string>🔍 Search</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <widget class="QTableWidget" name="pacmanAurTable">
+                  <property name="alternatingRowColors">
+                   <bool>true</bool>
+                  </property>
+                  <property name="selectionBehavior">
+                   <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+                  </property>
+                  <property name="sortingEnabled">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="pacmanAurActionsLayout">
+                  <item>
+                   <widget class="QPushButton" name="pacmanAurInstallButton">
+                    <property name="text">
+                     <string>Install Selected</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="pacmanAurSpacer">
+                    <property name="orientation">
+                     <enum>Qt::Orientation::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </widget>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="yayTab">
+           <attribute name="title">
+            <string>🔧 Yay</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_yay">
+            <item>
+             <layout class="QHBoxLayout" name="yaySearchLayout">
+              <item>
+               <widget class="QLineEdit" name="yaySearch">
+                <property name="placeholderText">
+                 <string>Search packages...</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="yaySearchMode">
+                <property name="toolTip">
+                 <string>Search mode</string>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>Package Name</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Description</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Both (Name or Desc)</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="yaySearchType">
+                <property name="toolTip">
+                 <string>Search type</string>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>Exact</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Contains</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="yaySearchButton">
+                <property name="text">
+                 <string>🔍 Search</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QTableWidget" name="yayTable">
+              <property name="alternatingRowColors">
+               <bool>true</bool>
+              </property>
+              <property name="selectionBehavior">
+               <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+              </property>
+              <property name="sortingEnabled">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="yayActionsLayout">
+              <item>
+               <widget class="QPushButton" name="yayInstallPackageButton">
+                <property name="text">
+                 <string>Install Selected</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="yayUninstallPackageButton">
+                <property name="text">
+                 <string>Uninstall Selected</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="yaySpacer">
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="paruTab">
+           <attribute name="title">
+            <string>⚡ Paru</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_paru">
+            <item>
+             <layout class="QHBoxLayout" name="paruSearchLayout">
+              <item>
+               <widget class="QLineEdit" name="paruSearch">
+                <property name="placeholderText">
+                 <string>Search packages...</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="paruSearchMode">
+                <property name="toolTip">
+                 <string>Search mode</string>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>Package Name</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Description</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Both (Name or Desc)</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="paruSearchType">
+                <property name="toolTip">
+                 <string>Search type</string>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>Exact</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Contains</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="paruSearchButton">
+                <property name="text">
+                 <string>🔍 Search</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QTableWidget" name="paruTable">
+              <property name="alternatingRowColors">
+               <bool>true</bool>
+              </property>
+              <property name="selectionBehavior">
+               <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+              </property>
+              <property name="sortingEnabled">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="paruActionsLayout">
+              <item>
+               <widget class="QPushButton" name="paruInstallPackageButton">
+                <property name="text">
+                 <string>Install Selected</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="paruUninstallPackageButton">
+                <property name="text">
+                 <string>Uninstall Selected</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="paruSpacer">
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTextEdit" name="packageOutputText">
+          <property name="maximumHeight">
+           <number>150</number>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+          <property name="placeholderText">
+           <string>Package operation output will appear here...</string>
+          </property>
+          <property name="font">
+           <font>
+            <family>Monospace</family>
+            <pointsize>9</pointsize>
+           </font>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -1672,6 +2766,12 @@ The resulting ISO can be used to:
     </property>
     <addaction name="actionExit"/>
    </widget>
+   <widget class="QMenu" name="menuPreferences">
+    <property name="title">
+     <string>Preferences</string>
+    </property>
+    <addaction name="actionShowHideTabs"/>
+   </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
      <string>Help</string>
@@ -1679,6 +2779,7 @@ The resulting ISO can be used to:
     <addaction name="actionAbout"/>
    </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuPreferences"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -1690,6 +2791,11 @@ The resulting ISO can be used to:
   <action name="actionAbout">
    <property name="text">
     <string>About</string>
+   </property>
+  </action>
+  <action name="actionShowHideTabs">
+   <property name="text">
+    <string>Show/Hide Tabs</string>
    </property>
   </action>
  </widget>

@@ -1,28 +1,41 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) , ui(new Ui::MainWindow) , currentProcess(nullptr)
 {
     ui->setupUi(this);
+    
+    // Set current tab first before applying visibility preferences
     ui->tabWidget->setCurrentWidget(ui->driveToolsTab);
+    
+    // Load all preferences after UI is fully set up and all connections are made
+    // Use a longer delay to ensure all signal connections are established before modifying tabs
+    QTimer::singleShot(500, this, [this]() {
+        loadAllPreferences();
+    });
     
     //hellow world 
     qDebug() << "Hello World";
 
     // Set window title
-    setWindowTitle("CachyOS Tools - Linux System Manager");
+    setWindowTitle("Arch OS Tools - Linux System Manager");
     
-    // Center the window on the primary screen
-    QScreen *primaryScreen = QGuiApplication::primaryScreen();
-    if (primaryScreen) {
-        QRect screenGeometry = primaryScreen->geometry();
-        QRect windowGeometry = this->geometry();
-        
-        int x = (screenGeometry.width() - windowGeometry.width()) / 2;
-        int y = (screenGeometry.height() - windowGeometry.height()) / 2;
-        
-        // Ensure the window stays within screen bounds
-        x = qMax(0, qMin(x, screenGeometry.width() - windowGeometry.width()));
-        y = qMax(0, qMin(y, screenGeometry.height() - windowGeometry.height()));
-        
-        this->move(x, y);
+    // Load window geometry if enabled, otherwise center the window
+    if (loadWindowSizeEnabled()) {
+        loadWindowGeometry();
+    } else {
+        // Center the window on the primary screen
+        QScreen *primaryScreen = QGuiApplication::primaryScreen();
+        if (primaryScreen) {
+            QRect screenGeometry = primaryScreen->geometry();
+            QRect windowGeometry = this->geometry();
+            
+            int x = (screenGeometry.width() - windowGeometry.width()) / 2;
+            int y = (screenGeometry.height() - windowGeometry.height()) / 2;
+            
+            // Ensure the window stays within screen bounds
+            x = qMax(0, qMin(x, screenGeometry.width() - windowGeometry.width()));
+            y = qMax(0, qMin(y, screenGeometry.height() - windowGeometry.height()));
+            
+            this->move(x, y);
+        }
     }
     
     // Setup the drive table
@@ -111,6 +124,29 @@ shellConfigFiles["ksh"] = QStringList()
     connect(ui->copyLogButton, &QPushButton::clicked, this, &MainWindow::on_copyLogButton_clicked);
     connect(ui->saveLogButton, &QPushButton::clicked, this, &MainWindow::on_saveLogButton_clicked);
     connect(ui->logFileComboBox, &QComboBox::currentTextChanged, this, &MainWindow::on_logFileComboBox_currentTextChanged);
+    
+    // Package Manager tab setup
+    checkAurHelpers();
+    
+    // Network tab initialization
+    refreshNetworkInfo();
+    refreshInterfaceStats();
+    refreshBridges();
+    refreshLibvirtNetworks();
+    refreshInterfaceConfig();
+    // Connect search buttons
+    connect(ui->pacmanAurSearchButton, &QPushButton::clicked, this, &MainWindow::on_pacmanAurSearchButton_clicked);
+    connect(ui->pacmanAurSearch, &QLineEdit::returnPressed, this, &MainWindow::on_pacmanAurSearch_returnPressed);
+    connect(ui->yaySearchButton, &QPushButton::clicked, this, &MainWindow::on_yaySearchButton_clicked);
+    connect(ui->yaySearch, &QLineEdit::returnPressed, this, &MainWindow::on_yaySearch_returnPressed);
+    connect(ui->paruSearchButton, &QPushButton::clicked, this, &MainWindow::on_paruSearchButton_clicked);
+    connect(ui->paruSearch, &QLineEdit::returnPressed, this, &MainWindow::on_paruSearch_returnPressed);
+    // Auto-refresh installed packages when Package Manager tab is opened
+    connect(ui->tabWidget, &QTabWidget::currentChanged, this, [this](int index) {
+        if (ui->tabWidget->widget(index) == ui->packageManagerTab) {
+            refreshPacmanInstalled();
+        }
+    });
 
     // Tweaks tab toggle button connections
     disconnect(ui->zramToggle, nullptr, nullptr, nullptr);
