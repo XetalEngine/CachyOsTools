@@ -129,27 +129,38 @@ private slots:
     // Tweaks tab slots
     void on_zramToggle_clicked();
     void on_zramConfigButton_clicked();
+    void on_zramApplyButton_clicked();
     void on_cpuGovernorToggle_clicked();
     void on_cpuGovernorConfigButton_clicked();
+    void on_cpuGovernorApplyButton_clicked();
     void on_ipv6Toggle_clicked();
     void on_ipv6ConfigButton_clicked();
+    void on_ipv6ApplyButton_clicked();
     void on_trimToggle_clicked();
     void on_trimConfigButton_clicked();
+    void on_trimApplyButton_clicked();
     void on_tmpfsToggle_clicked();
     void on_tmpfsConfigButton_clicked();
+    void on_tmpfsApplyButton_clicked();
     void on_dnsToggle_clicked();
     void on_dnsConfigButton_clicked();
+    void on_dnsApplyButton_clicked();
     void on_showHiddenFilesToggle_clicked();
     void on_showHiddenFilesConfigButton_clicked();
+    void on_showHiddenFilesApplyButton_clicked();
     void on_mitigationsToggle_clicked();
     void on_mitigationsConfigButton_clicked();
+    void on_mitigationsApplyButton_clicked();
     void on_performanceHacksToggle_clicked();
     void on_performanceHacksConfigButton1_clicked();
     void on_performanceHacksConfigButton2_clicked();
+    void on_performanceHacksApplyButton_clicked();
     void on_ptraceToggle_clicked();
     void on_ptraceConfigButton_clicked();
+    void on_ptraceApplyButton_clicked();
     void on_hidepidToggle_clicked();
     void on_hidepidConfigButton_clicked();
+    void on_hidepidApplyButton_clicked();
     void on_openBackupFolderButton_clicked();
     void on_zramBackupButton_clicked();
     void on_cpuGovernorBackupButton_clicked();
@@ -163,6 +174,36 @@ private slots:
     void on_performanceHacksBackupButton2_clicked();
     void on_ptraceBackupButton_clicked();
     void on_hidepidBackupButton_clicked();
+    void on_tweaksTabWidget_currentChanged(int index);
+    // New tweaks
+    void on_swappinessToggle_clicked();
+    void on_swappinessApplyButton_clicked();
+    void on_swappinessConfigButton_clicked();
+    void on_swappinessBackupButton_clicked();
+    void on_ioSchedulerToggle_clicked();
+    void on_ioSchedulerApplyButton_clicked();
+    void on_ioSchedulerConfigButton_clicked();
+    void on_ioSchedulerBackupButton_clicked();
+    void on_thpToggle_clicked();
+    void on_thpApplyButton_clicked();
+    void on_thpConfigButton_clicked();
+    void on_thpBackupButton_clicked();
+    void on_tcpOptimizationsToggle_clicked();
+    void on_tcpOptimizationsApplyButton_clicked();
+    void on_tcpOptimizationsConfigButton_clicked();
+    void on_tcpOptimizationsBackupButton_clicked();
+    void on_firewallToggle_clicked();
+    void on_firewallApplyButton_clicked();
+    void on_firewallConfigButton_clicked();
+    void on_firewallBackupButton_clicked();
+    void on_pacmanOptimizationsToggle_clicked();
+    void on_pacmanOptimizationsApplyButton_clicked();
+    void on_pacmanOptimizationsConfigButton_clicked();
+    void on_pacmanOptimizationsBackupButton_clicked();
+    void on_journaldToggle_clicked();
+    void on_journaldApplyButton_clicked();
+    void on_journaldConfigButton_clicked();
+    void on_journaldBackupButton_clicked();
     
 
     // KVM VM tab slots
@@ -310,7 +351,7 @@ private:
     void runSudoCommandInTerminal(const QString &cmd);
     
     // Tweaks tab state checking functions
-    void populateTweaksState();
+    void refreshTweaksStatus();
     void checkZramState();
     void checkCpuGovernorState();
     void checkIpv6State();
@@ -318,7 +359,18 @@ private:
     void checkTmpfsState();
     void checkShowHiddenFilesState();
     void checkMitigationsState();
-    void onTweakStateCheckFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void checkPtraceState();
+    void checkHidepidState();
+    void checkDnsState();
+    void checkPerformanceHacksState();
+    void checkSwappinessState();
+    void checkIoSchedulerState();
+    void checkThpState();
+    void checkTcpOptimizationsState();
+    void checkFirewallState();
+    void checkPacmanOptimizationsState();
+    void checkJournaldState();
+    void updateTweakStatusLabel(QLabel *label, const QString &status, bool enabled);
     // Backup tab helpers
     void populateBackupDrives();
     void updateSourcePathTree();

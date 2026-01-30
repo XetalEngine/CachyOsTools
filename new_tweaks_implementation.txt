@@ -1,0 +1,580 @@
+// New Arch Linux Tweaks Implementation
+
+// Swappiness
+void MainWindow::on_swappinessToggle_clicked() {
+    QString instructions = R"(
+# Swappiness Configuration Instructions
+# ===================================
+# 
+# Swappiness controls how aggressively the kernel swaps memory pages to disk.
+# Lower values keep more data in RAM, higher values swap more aggressively.
+# 
+# Recommended values:
+# - Desktop: 10-30 (less swapping, better responsiveness)
+# - Server: 1-10 (minimal swapping)
+# - Default: 60
+# 
+# To set swappiness:
+# Click the "Apply" button or edit /etc/sysctl.d/99-swappiness.conf:
+vm.swappiness=10
+
+# Then apply: sudo sysctl -p /etc/sysctl.d/99-swappiness.conf
+# 
+# To check current swappiness:
+# cat /proc/sys/vm/swappiness
+)";
+    showTweakInstructions("Swappiness Configuration", instructions);
+}
+
+void MainWindow::on_swappinessConfigButton_clicked() {
+    openConfigInNano("/etc/sysctl.d/99-swappiness.conf");
+}
+
+void MainWindow::on_swappinessBackupButton_clicked() {
+    backupConfigFile("/etc/sysctl.d/99-swappiness.conf", "Swappiness configuration");
+}
+
+void MainWindow::checkSwappinessState() {
+    QProcess proc;
+    proc.start("cat", QStringList() << "/proc/sys/vm/swappiness");
+    proc.waitForFinished();
+    QString swappiness = QString::fromUtf8(proc.readAllStandardOutput()).trimmed();
+    int value = swappiness.toInt();
+    bool optimized = (value <= 30);
+    updateTweakStatusLabel(ui->swappinessStatusLabel, QString("Value: %1").arg(swappiness), optimized);
+}
+
+void MainWindow::on_swappinessApplyButton_clicked() {
+    QDialog dialog(this);
+    dialog.setWindowTitle("Swappiness Configuration");
+    QVBoxLayout *layout = new QVBoxLayout(&dialog);
+    QLabel *label = new QLabel("Set swappiness value (1-100):", &dialog);
+    layout->addWidget(label);
+    QSpinBox *spinBox = new QSpinBox(&dialog);
+    spinBox->setRange(1, 100);
+    spinBox->setValue(10);
+    spinBox->setToolTip("Lower values = less swapping (recommended: 10-30)");
+    layout->addWidget(spinBox);
+    QPushButton *okButton = new QPushButton("Apply", &dialog);
+    QPushButton *cancelButton = new QPushButton("Cancel", &dialog);
+    QHBoxLayout *buttonLayout = new QHBoxLayout();
+    buttonLayout->addWidget(okButton);
+    buttonLayout->addWidget(cancelButton);
+    layout->addLayout(buttonLayout);
+    connect(okButton, &QPushButton::clicked, &dialog, &QDialog::accept);
+    connect(cancelButton, &QPushButton::clicked, &dialog, &QDialog::reject);
+    
+    if (dialog.exec() != QDialog::Accepted) return;
+    
+    int value = spinBox->value();
+    QString cmd = QString("sudo bash -c 'echo \"vm.swappiness=%1\" > /etc/sysctl.d/99-swappiness.conf && "
+                          "sysctl -p /etc/sysctl.d/99-swappiness.conf'").arg(value);
+    
+    QStringList terminals = {"konsole", "gnome-terminal", "xterm", "alacritty", "kitty"};
+    for (const QString &terminal : terminals) {
+        if (QProcess::startDetached(terminal, QStringList() << "-e" << "bash" << "-c" << cmd + " && echo 'Swappiness set to " + QString::number(value) + "!' && read")) {
+            QTimer::singleShot(2000, this, &MainWindow::refreshTweaksStatus);
+            return;
+        }
+    }
+    QMessageBox::warning(this, "Terminal Not Found", "Could not find a suitable terminal emulator.");
+}
+
+// I/O Scheduler
+void MainWindow::on_ioSchedulerToggle_clicked() {
+    QString instructions = R"(
+# I/O Scheduler Configuration Instructions
+# =======================================
+# 
+# I/O schedulers control how the kernel handles disk I/O requests.
+# Different schedulers are optimized for different storage types.
+# 
+# Recommended schedulers:
+# - NVMe SSDs: none, mq-deadline, kyber
+# - SATA SSDs: mq-deadline, bfq
+# - HDDs: bfq, mq-deadline
+# 
+# To set I/O scheduler:
+# Click the "Apply" button or create /etc/udev/rules.d/60-ioschedulers.rules:
+# ACTION=="add|change", KERNEL=="sd[a-z]|nvme[0-9]*", ATTR{queue/scheduler}="mq-deadline"
+# 
+# Then reload: sudo udevadm control --reload-rules
+# 
+# To check current scheduler:
+# cat /sys/block/nvme0n1/queue/scheduler
+)";
+    showTweakInstructions("I/O Scheduler Configuration", instructions);
+}
+
+void MainWindow::on_ioSchedulerConfigButton_clicked() {
+    openConfigInNano("/etc/udev/rules.d/60-ioschedulers.rules");
+}
+
+void MainWindow::on_ioSchedulerBackupButton_clicked() {
+    backupConfigFile("/etc/udev/rules.d/60-ioschedulers.rules", "I/O Scheduler configuration");
+}
+
+void MainWindow::checkIoSchedulerState() {
+    QProcess proc;
+    proc.start("cat", QStringList() << "/sys/block/nvme0n1/queue/scheduler");
+    proc.waitForFinished();
+    QString scheduler = QString::fromUtf8(proc.readAllStandardOutput()).trimmed();
+    if (scheduler.isEmpty()) {
+        proc.start("cat", QStringList() << "/sys/block/sda/queue/scheduler");
+        proc.waitForFinished();
+        scheduler = QString::fromUtf8(proc.readAllStandardOutput()).trimmed();
+    }
+    QString current = scheduler;
+    if (scheduler.contains("[")) {
+        QRegularExpression re("\\[([^\\]]+)\\]");
+        QRegularExpressionMatch match = re.match(scheduler);
+        if (match.hasMatch()) {
+            current = match.captured(1);
+        }
+    }
+    bool optimized = (current == "none" || current == "mq-deadline" || current == "kyber");
+    updateTweakStatusLabel(ui->ioSchedulerStatusLabel, current.isEmpty() ? "Unknown" : current, optimized);
+}
+
+void MainWindow::on_ioSchedulerApplyButton_clicked() {
+    QDialog dialog(this);
+    dialog.setWindowTitle("I/O Scheduler Configuration");
+    QVBoxLayout *layout = new QVBoxLayout(&dialog);
+    QLabel *label = new QLabel("Select I/O Scheduler:", &dialog);
+    layout->addWidget(label);
+    QComboBox *combo = new QComboBox(&dialog);
+    combo->addItems({"none", "mq-deadline", "kyber", "bfq"});
+    combo->setCurrentText("mq-deadline");
+    combo->setToolTip("none/mq-deadline/kyber for NVMe, mq-deadline/bfq for SATA");
+    layout->addWidget(combo);
+    QPushButton *okButton = new QPushButton("Apply", &dialog);
+    QPushButton *cancelButton = new QPushButton("Cancel", &dialog);
+    QHBoxLayout *buttonLayout = new QHBoxLayout();
+    buttonLayout->addWidget(okButton);
+    buttonLayout->addWidget(cancelButton);
+    layout->addLayout(buttonLayout);
+    connect(okButton, &QPushButton::clicked, &dialog, &QDialog::accept);
+    connect(cancelButton, &QPushButton::clicked, &dialog, &QDialog::reject);
+    
+    if (dialog.exec() != QDialog::Accepted) return;
+    
+    QString scheduler = combo->currentText();
+    QString cmd = QString("sudo bash -c 'echo \"ACTION==\\\"add|change\\\", KERNEL==\\\"sd[a-z]|nvme[0-9]*\\\", ATTR{queue/scheduler}=\\\"%1\\\"\" > /etc/udev/rules.d/60-ioschedulers.rules && "
+                          "udevadm control --reload-rules && "
+                          "udevadm trigger'").arg(scheduler);
+    
+    QStringList terminals = {"konsole", "gnome-terminal", "xterm", "alacritty", "kitty"};
+    for (const QString &terminal : terminals) {
+        if (QProcess::startDetached(terminal, QStringList() << "-e" << "bash" << "-c" << cmd + " && echo 'I/O Scheduler set to " + scheduler + "!' && read")) {
+            QTimer::singleShot(2000, this, &MainWindow::refreshTweaksStatus);
+            return;
+        }
+    }
+    QMessageBox::warning(this, "Terminal Not Found", "Could not find a suitable terminal emulator.");
+}
+
+// Transparent Huge Pages
+void MainWindow::on_thpToggle_clicked() {
+    QString instructions = R"(
+# Transparent Huge Pages (THP) Configuration Instructions
+# ======================================================
+# 
+# THP improves performance by using larger memory pages, reducing TLB misses.
+# However, it can cause latency spikes in some workloads.
+# 
+# Options:
+# - always: Always use THP (may cause latency spikes)
+# - madvise: Use THP only for MADV_HUGEPAGE regions (recommended)
+# - never: Disable THP
+# 
+# To configure THP:
+# Click the "Apply" button or edit /etc/sysctl.d/99-thp.conf:
+vm.nr_hugepages=0
+kernel.shmmax=68719476736
+kernel.shmall=4194304
+# 
+# For madvise mode (recommended):
+# echo madvise | sudo tee /sys/kernel/mm/transparent_hugepage/enabled
+# echo madvise | sudo tee /sys/kernel/mm/transparent_hugepage/defrag
+# 
+# To check current THP status:
+# cat /sys/kernel/mm/transparent_hugepage/enabled
+)";
+    showTweakInstructions("Transparent Huge Pages Configuration", instructions);
+}
+
+void MainWindow::on_thpConfigButton_clicked() {
+    openConfigInNano("/etc/sysctl.d/99-thp.conf");
+}
+
+void MainWindow::on_thpBackupButton_clicked() {
+    backupConfigFile("/etc/sysctl.d/99-thp.conf", "THP configuration");
+}
+
+void MainWindow::checkThpState() {
+    QProcess proc;
+    proc.start("cat", QStringList() << "/sys/kernel/mm/transparent_hugepage/enabled");
+    proc.waitForFinished();
+    QString thp = QString::fromUtf8(proc.readAllStandardOutput()).trimmed();
+    bool enabled = thp.contains("[madvise]") || thp.contains("[always]");
+    QString status = "Disabled";
+    if (thp.contains("[madvise]")) status = "Madvise";
+    else if (thp.contains("[always]")) status = "Always";
+    else if (thp.contains("[never]")) status = "Never";
+    updateTweakStatusLabel(ui->thpStatusLabel, status, enabled);
+}
+
+void MainWindow::on_thpApplyButton_clicked() {
+    QDialog dialog(this);
+    dialog.setWindowTitle("Transparent Huge Pages");
+    QVBoxLayout *layout = new QVBoxLayout(&dialog);
+    QLabel *label = new QLabel("Select THP mode:", &dialog);
+    layout->addWidget(label);
+    QComboBox *combo = new QComboBox(&dialog);
+    combo->addItem("madvise (Recommended)", "madvise");
+    combo->addItem("always (May cause latency)", "always");
+    combo->addItem("never (Disabled)", "never");
+    layout->addWidget(combo);
+    QPushButton *okButton = new QPushButton("Apply", &dialog);
+    QPushButton *cancelButton = new QPushButton("Cancel", &dialog);
+    QHBoxLayout *buttonLayout = new QHBoxLayout();
+    buttonLayout->addWidget(okButton);
+    buttonLayout->addWidget(cancelButton);
+    layout->addLayout(buttonLayout);
+    connect(okButton, &QPushButton::clicked, &dialog, &QDialog::accept);
+    connect(cancelButton, &QPushButton::clicked, &dialog, &QDialog::reject);
+    
+    if (dialog.exec() != QDialog::Accepted) return;
+    
+    QString mode = combo->currentData().toString();
+    QString cmd = QString("sudo bash -c 'echo %1 > /sys/kernel/mm/transparent_hugepage/enabled && "
+                          "echo %1 > /sys/kernel/mm/transparent_hugepage/defrag'").arg(mode);
+    
+    QStringList terminals = {"konsole", "gnome-terminal", "xterm", "alacritty", "kitty"};
+    for (const QString &terminal : terminals) {
+        if (QProcess::startDetached(terminal, QStringList() << "-e" << "bash" << "-c" << cmd + " && echo 'THP set to " + mode + "!' && read")) {
+            QTimer::singleShot(2000, this, &MainWindow::refreshTweaksStatus);
+            return;
+        }
+    }
+    QMessageBox::warning(this, "Terminal Not Found", "Could not find a suitable terminal emulator.");
+}
+
+// TCP Optimizations
+void MainWindow::on_tcpOptimizationsToggle_clicked() {
+    QString instructions = R"(
+# TCP Optimizations Configuration Instructions
+# ===========================================
+# 
+# TCP optimizations improve network performance and reduce latency.
+# 
+# Common optimizations:
+# - TCP Fast Open: Reduces connection latency
+# - TCP Congestion Control: BBR for better throughput
+# - TCP Window Scaling: Better performance on high-latency links
+# 
+# To configure TCP optimizations:
+# Click the "Apply" button or edit /etc/sysctl.d/99-tcp-optimizations.conf:
+net.core.rmem_max = 134217728
+net.core.wmem_max = 134217728
+net.ipv4.tcp_rmem = 4096 87380 67108864
+net.ipv4.tcp_wmem = 4096 65536 67108864
+net.ipv4.tcp_fastopen = 3
+net.ipv4.tcp_congestion_control = bbr
+# 
+# Then apply: sudo sysctl -p /etc/sysctl.d/99-tcp-optimizations.conf
+# 
+# Note: BBR requires kernel 4.9+ and may need to be loaded: modprobe tcp_bbr
+)";
+    showTweakInstructions("TCP Optimizations Configuration", instructions);
+}
+
+void MainWindow::on_tcpOptimizationsConfigButton_clicked() {
+    openConfigInNano("/etc/sysctl.d/99-tcp-optimizations.conf");
+}
+
+void MainWindow::on_tcpOptimizationsBackupButton_clicked() {
+    backupConfigFile("/etc/sysctl.d/99-tcp-optimizations.conf", "TCP optimizations configuration");
+}
+
+void MainWindow::checkTcpOptimizationsState() {
+    QFile config("/etc/sysctl.d/99-tcp-optimizations.conf");
+    bool configured = config.exists();
+    updateTweakStatusLabel(ui->tcpOptimizationsStatusLabel, configured ? "Configured" : "Not Set", configured);
+}
+
+void MainWindow::on_tcpOptimizationsApplyButton_clicked() {
+    int ret = QMessageBox::question(this, "Apply TCP Optimizations", 
+        "This will create TCP optimization settings.\n\n"
+        "These optimizations improve network performance.\n\n"
+        "Continue?",
+        QMessageBox::Yes | QMessageBox::No);
+    if (ret != QMessageBox::Yes) return;
+    
+    QString cmd = "sudo bash -c 'cat > /etc/sysctl.d/99-tcp-optimizations.conf << EOF\n"
+                  "net.core.rmem_max = 134217728\n"
+                  "net.core.wmem_max = 134217728\n"
+                  "net.ipv4.tcp_rmem = 4096 87380 67108864\n"
+                  "net.ipv4.tcp_wmem = 4096 65536 67108864\n"
+                  "net.ipv4.tcp_fastopen = 3\n"
+                  "net.ipv4.tcp_congestion_control = bbr\n"
+                  "EOF\n"
+                  "sysctl -p /etc/sysctl.d/99-tcp-optimizations.conf'";
+    
+    QStringList terminals = {"konsole", "gnome-terminal", "xterm", "alacritty", "kitty"};
+    for (const QString &terminal : terminals) {
+        if (QProcess::startDetached(terminal, QStringList() << "-e" << "bash" << "-c" << cmd + " && echo 'TCP optimizations applied!' && read")) {
+            QTimer::singleShot(2000, this, &MainWindow::refreshTweaksStatus);
+            return;
+        }
+    }
+    QMessageBox::warning(this, "Terminal Not Found", "Could not find a suitable terminal emulator.");
+}
+
+// Firewall
+void MainWindow::on_firewallToggle_clicked() {
+    QString instructions = R"(
+# Firewall Configuration Instructions
+# ===================================
+# 
+# Firewalls protect your system from unauthorized network access.
+# 
+# Available firewalls:
+# - firewalld: Dynamic firewall daemon (recommended for desktop)
+# - ufw: Uncomplicated Firewall (simple to use)
+# - iptables: Traditional firewall (advanced)
+# 
+# To enable firewalld:
+# sudo systemctl enable --now firewalld
+# 
+# To enable ufw:
+# sudo systemctl enable --now ufw
+# sudo ufw enable
+# 
+# To check firewall status:
+# sudo firewall-cmd --state (for firewalld)
+# sudo ufw status (for ufw)
+)";
+    showTweakInstructions("Firewall Configuration", instructions);
+}
+
+void MainWindow::on_firewallConfigButton_clicked() {
+    QMessageBox::information(this, "Firewall Configuration", 
+        "Firewall configuration depends on which firewall you're using:\n\n"
+        "For firewalld:\n"
+        "sudo firewall-cmd --permanent --add-service=http\n"
+        "sudo firewall-cmd --reload\n\n"
+        "For ufw:\n"
+        "sudo ufw allow 22/tcp\n"
+        "sudo ufw reload");
+}
+
+void MainWindow::on_firewallBackupButton_clicked() {
+    QMessageBox::information(this, "Firewall Backup", 
+        "Firewall rules are stored in:\n"
+        "- firewalld: /etc/firewalld/\n"
+        "- ufw: /etc/ufw/\n\n"
+        "Backup these directories manually if needed.");
+}
+
+void MainWindow::checkFirewallState() {
+    QProcess proc;
+    proc.start("systemctl", QStringList() << "is-active" << "firewalld");
+    proc.waitForFinished();
+    bool firewalldActive = (proc.exitCode() == 0);
+    
+    if (!firewalldActive) {
+        proc.start("systemctl", QStringList() << "is-active" << "ufw");
+        proc.waitForFinished();
+        bool ufwActive = (proc.exitCode() == 0);
+        if (ufwActive) {
+            updateTweakStatusLabel(ui->firewallStatusLabel, "UFW Active", true);
+            return;
+        }
+    } else {
+        updateTweakStatusLabel(ui->firewallStatusLabel, "Firewalld Active", true);
+        return;
+    }
+    
+    updateTweakStatusLabel(ui->firewallStatusLabel, "Disabled", false);
+}
+
+void MainWindow::on_firewallApplyButton_clicked() {
+    QDialog dialog(this);
+    dialog.setWindowTitle("Firewall Configuration");
+    QVBoxLayout *layout = new QVBoxLayout(&dialog);
+    QLabel *label = new QLabel("Select firewall to enable:", &dialog);
+    layout->addWidget(label);
+    QComboBox *combo = new QComboBox(&dialog);
+    combo->addItem("firewalld (Recommended)", "firewalld");
+    combo->addItem("ufw (Simple)", "ufw");
+    layout->addWidget(combo);
+    QPushButton *okButton = new QPushButton("Apply", &dialog);
+    QPushButton *cancelButton = new QPushButton("Cancel", &dialog);
+    QHBoxLayout *buttonLayout = new QHBoxLayout();
+    buttonLayout->addWidget(okButton);
+    buttonLayout->addWidget(cancelButton);
+    layout->addLayout(buttonLayout);
+    connect(okButton, &QPushButton::clicked, &dialog, &QDialog::accept);
+    connect(cancelButton, &QPushButton::clicked, &dialog, &QDialog::reject);
+    
+    if (dialog.exec() != QDialog::Accepted) return;
+    
+    QString firewall = combo->currentData().toString();
+    QString cmd;
+    if (firewall == "firewalld") {
+        cmd = "sudo systemctl enable --now firewalld";
+    } else {
+        cmd = "sudo systemctl enable --now ufw && sudo ufw --force enable";
+    }
+    
+    QStringList terminals = {"konsole", "gnome-terminal", "xterm", "alacritty", "kitty"};
+    for (const QString &terminal : terminals) {
+        if (QProcess::startDetached(terminal, QStringList() << "-e" << "bash" << "-c" << cmd + " && echo 'Firewall enabled!' && read")) {
+            QTimer::singleShot(2000, this, &MainWindow::refreshTweaksStatus);
+            return;
+        }
+    }
+    QMessageBox::warning(this, "Terminal Not Found", "Could not find a suitable terminal emulator.");
+}
+
+// Pacman Optimizations
+void MainWindow::on_pacmanOptimizationsToggle_clicked() {
+    QString instructions = R"(
+# Pacman Optimizations Configuration Instructions
+# ==============================================
+# 
+# Pacman optimizations improve package management performance.
+# 
+# Recommended settings in /etc/pacman.conf:
+# - ParallelDownloads = 10 (faster downloads)
+# - Color (enabled by default)
+# - ILoveCandy (progress bar)
+# 
+# To configure Pacman:
+# Click the "Apply" button or edit /etc/pacman.conf:
+# 
+# Uncomment or add:
+# Color
+# ParallelDownloads = 10
+# 
+# In [options] section, add:
+# ILoveCandy
+)";
+    showTweakInstructions("Pacman Optimizations Configuration", instructions);
+}
+
+void MainWindow::on_pacmanOptimizationsConfigButton_clicked() {
+    openConfigInNano("/etc/pacman.conf");
+}
+
+void MainWindow::on_pacmanOptimizationsBackupButton_clicked() {
+    backupConfigFile("/etc/pacman.conf", "Pacman configuration");
+}
+
+void MainWindow::checkPacmanOptimizationsState() {
+    QFile pacman("/etc/pacman.conf");
+    bool hasParallel = false;
+    bool hasColor = false;
+    bool hasCandy = false;
+    
+    if (pacman.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&pacman);
+        QString content = in.readAll();
+        pacman.close();
+        hasParallel = content.contains("ParallelDownloads");
+        hasColor = content.contains("Color") && !content.contains("#Color");
+        hasCandy = content.contains("ILoveCandy");
+    }
+    
+    bool optimized = hasParallel && hasColor;
+    QString status = "Partial";
+    if (optimized && hasCandy) status = "Optimized";
+    else if (optimized) status = "Partial";
+    else status = "Default";
+    
+    updateTweakStatusLabel(ui->pacmanOptimizationsStatusLabel, status, optimized);
+}
+
+void MainWindow::on_pacmanOptimizationsApplyButton_clicked() {
+    int ret = QMessageBox::question(this, "Apply Pacman Optimizations", 
+        "This will add optimizations to /etc/pacman.conf:\n\n"
+        "- ParallelDownloads = 10\n"
+        "- Color (if not already enabled)\n"
+        "- ILoveCandy (progress bar)\n\n"
+        "Continue?",
+        QMessageBox::Yes | QMessageBox::No);
+    if (ret != QMessageBox::Yes) return;
+    
+    QMessageBox::information(this, "Manual Configuration", 
+        "Opening /etc/pacman.conf for editing...\n\n"
+        "Add these lines in the [options] section:\n"
+        "Color\n"
+        "ParallelDownloads = 10\n"
+        "ILoveCandy");
+    openConfigInNano("/etc/pacman.conf");
+}
+
+// Journald Settings
+void MainWindow::on_journaldToggle_clicked() {
+    QString instructions = R"(
+# Journald Settings Configuration Instructions
+# ============================================
+# 
+# Journald manages system logs. Limiting log size prevents disk space issues.
+# 
+# To configure journald:
+# Click the "Apply" button or edit /etc/systemd/journald.conf:
+# 
+# Set log size limits:
+# SystemMaxUse=500M
+# SystemKeepFree=1G
+# SystemMaxFileSize=50M
+# 
+# Then restart: sudo systemctl restart systemd-journald
+# 
+# To check current journal size:
+# journalctl --disk-usage
+)";
+    showTweakInstructions("Journald Settings Configuration", instructions);
+}
+
+void MainWindow::on_journaldConfigButton_clicked() {
+    openConfigInNano("/etc/systemd/journald.conf");
+}
+
+void MainWindow::on_journaldBackupButton_clicked() {
+    backupConfigFile("/etc/systemd/journald.conf", "Journald configuration");
+}
+
+void MainWindow::checkJournaldState() {
+    QFile journald("/etc/systemd/journald.conf");
+    bool configured = false;
+    if (journald.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&journald);
+        QString content = in.readAll();
+        journald.close();
+        configured = content.contains("SystemMaxUse") || content.contains("SystemKeepFree");
+    }
+    updateTweakStatusLabel(ui->journaldStatusLabel, configured ? "Configured" : "Default", configured);
+}
+
+void MainWindow::on_journaldApplyButton_clicked() {
+    int ret = QMessageBox::question(this, "Apply Journald Settings", 
+        "This will add log size limits to /etc/systemd/journald.conf:\n\n"
+        "SystemMaxUse=500M\n"
+        "SystemKeepFree=1G\n"
+        "SystemMaxFileSize=50M\n\n"
+        "Continue?",
+        QMessageBox::Yes | QMessageBox::No);
+    if (ret != QMessageBox::Yes) return;
+    
+    QMessageBox::information(this, "Manual Configuration", 
+        "Opening /etc/systemd/journald.conf for editing...\n\n"
+        "Uncomment and set:\n"
+        "SystemMaxUse=500M\n"
+        "SystemKeepFree=1G\n"
+        "SystemMaxFileSize=50M\n\n"
+        "Then restart: sudo systemctl restart systemd-journald");
+    openConfigInNano("/etc/systemd/journald.conf");
+}

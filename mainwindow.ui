@@ -523,7 +523,7 @@
            </size>
           </property>
           <property name="text">
-           <string>Click any option to see detailed instructions for manual configuration. This approach is safer as it doesn't automatically modify system files.</string>
+           <string>Click "Info" to see detailed instructions, "Apply" to execute the tweak, or "Edit Config" to manually edit configuration files.</string>
           </property>
           <property name="wordWrap">
            <bool>true</bool>
@@ -541,289 +541,1228 @@
          </widget>
         </item>
         <item>
-         <layout class="QGridLayout" name="tweaksGridLayout">
-          <item row="0" column="0">
-           <widget class="QPushButton" name="zramToggle">
-            <property name="text">
-             <string>ZRAM (compressed RAM swap)</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QPushButton" name="zramBackupButton">
-            <property name="text">
-             <string>Backup</string>
-            </property>
-            <property name="toolTip">
-             <string>Backup config file</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QPushButton" name="zramConfigButton">
-            <property name="text">
-             <string>Edit /etc/systemd/zram-generator.conf</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QPushButton" name="cpuGovernorToggle">
-            <property name="text">
-             <string>CPU Governor (performance/powersave)</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QPushButton" name="cpuGovernorBackupButton">
-            <property name="text">
-             <string>Backup</string>
-            </property>
-            <property name="toolTip">
-             <string>Backup config file</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QPushButton" name="cpuGovernorConfigButton">
-            <property name="text">
-             <string>Edit /etc/default/cpupower</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QPushButton" name="ipv6Toggle">
-            <property name="text">
-             <string>IPv6 system-wide</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QPushButton" name="ipv6BackupButton">
-            <property name="text">
-             <string>Backup</string>
-            </property>
-            <property name="toolTip">
-             <string>Backup config file</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2">
-           <widget class="QPushButton" name="ipv6ConfigButton">
-            <property name="text">
-             <string>Edit /etc/sysctl.d/40-ipv6.conf</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QPushButton" name="trimToggle">
-            <property name="text">
-             <string>TRIM for SSDs</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QPushButton" name="trimBackupButton">
-            <property name="text">
-             <string>Backup</string>
-            </property>
-            <property name="toolTip">
-             <string>Backup config file</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="2">
-           <widget class="QPushButton" name="trimConfigButton">
-            <property name="text">
-             <string>Edit /etc/fstab</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QPushButton" name="tmpfsToggle">
-            <property name="text">
-             <string>/tmp as tmpfs (RAM disk)</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="1">
-           <widget class="QPushButton" name="tmpfsBackupButton">
-            <property name="text">
-             <string>Backup</string>
-            </property>
-            <property name="toolTip">
-             <string>Backup config file</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="2">
-           <widget class="QPushButton" name="tmpfsConfigButton">
-            <property name="text">
-             <string>Edit /etc/fstab</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="0">
-           <widget class="QPushButton" name="dnsToggle">
-            <property name="text">
-             <string>DNS Configuration</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="1">
-           <widget class="QPushButton" name="dnsBackupButton">
-            <property name="text">
-             <string>Backup</string>
-            </property>
-            <property name="toolTip">
-             <string>Backup config file</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="2">
-           <widget class="QPushButton" name="dnsConfigButton">
-            <property name="text">
-             <string>Edit /etc/resolv.conf</string>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="0">
-           <widget class="QPushButton" name="showHiddenFilesToggle">
-            <property name="text">
-             <string>Show hidden files by default</string>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="1">
-           <widget class="QPushButton" name="showHiddenFilesBackupButton">
-            <property name="text">
-             <string>Backup</string>
-            </property>
-            <property name="toolTip">
-             <string>Backup config file</string>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="2">
-           <widget class="QPushButton" name="showHiddenFilesConfigButton">
-            <property name="text">
-             <string>Edit ~/.config/dolphinrc</string>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="0">
-           <widget class="QPushButton" name="mitigationsToggle">
-            <property name="text">
-             <string>Spectre/Meltdown mitigations</string>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="1">
-           <widget class="QPushButton" name="mitigationsBackupButton">
-            <property name="text">
-             <string>Backup</string>
-            </property>
-            <property name="toolTip">
-             <string>Backup config file</string>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="2">
-           <widget class="QPushButton" name="mitigationsConfigButton">
-            <property name="text">
-             <string>Edit /etc/default/grub</string>
-            </property>
-           </widget>
-          </item>
-          <item row="8" column="0">
-           <widget class="QPushButton" name="performanceHacksToggle">
-            <property name="text">
-             <string>Performance Hacks (by forAUR)</string>
-            </property>
-           </widget>
-          </item>
-          <item row="8" column="1">
-           <widget class="QPushButton" name="performanceHacksBackupButton1">
-            <property name="text">
-             <string>Backup</string>
-            </property>
-            <property name="toolTip">
-             <string>Backup updatedb.conf</string>
-            </property>
-           </widget>
-          </item>
-          <item row="8" column="2">
-           <widget class="QPushButton" name="performanceHacksConfigButton1">
-            <property name="text">
-             <string>Edit /etc/updatedb.conf</string>
-            </property>
-           </widget>
-          </item>
-          <item row="8" column="3">
-           <widget class="QPushButton" name="performanceHacksBackupButton2">
-            <property name="text">
-             <string>Backup</string>
-            </property>
-            <property name="toolTip">
-             <string>Backup mkinitcpio.conf</string>
-            </property>
-           </widget>
-          </item>
-          <item row="8" column="4">
-           <widget class="QPushButton" name="performanceHacksConfigButton2">
-            <property name="text">
-             <string>Edit /etc/mkinitcpio.conf</string>
-            </property>
-           </widget>
-          </item>
-          <item row="9" column="0">
-           <widget class="QPushButton" name="ptraceToggle">
-            <property name="text">
-             <string>ptrace for non-root users</string>
-            </property>
-           </widget>
-          </item>
-          <item row="9" column="1">
-           <widget class="QPushButton" name="ptraceBackupButton">
-            <property name="text">
-             <string>Backup</string>
-            </property>
-            <property name="toolTip">
-             <string>Backup config file</string>
-            </property>
-           </widget>
-          </item>
-          <item row="9" column="2">
-           <widget class="QPushButton" name="ptraceConfigButton">
-            <property name="text">
-             <string>Edit /etc/sysctl.d/10-ptrace.conf</string>
-            </property>
-           </widget>
-          </item>
-          <item row="10" column="0">
-           <widget class="QPushButton" name="hidepidToggle">
-            <property name="text">
-             <string>hidepid for /proc security</string>
-            </property>
-           </widget>
-          </item>
-          <item row="10" column="1">
-           <widget class="QPushButton" name="hidepidBackupButton">
-            <property name="text">
-             <string>Backup</string>
-            </property>
-            <property name="toolTip">
-             <string>Backup config file</string>
-            </property>
-           </widget>
-          </item>
-          <item row="10" column="2">
-           <widget class="QPushButton" name="hidepidConfigButton">
-            <property name="text">
-             <string>Edit /etc/fstab</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
+         <widget class="QTabWidget" name="tweaksTabWidget">
+          <property name="currentIndex">
+           <number>0</number>
+          </property>
+          <widget class="QWidget" name="performanceTab">
+           <attribute name="title">
+            <string>⚡ Performance</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="performanceLayout">
+            <item>
+             <widget class="QGroupBox" name="zramGroupBox">
+              <property name="title">
+               <string>ZRAM (Compressed RAM Swap)</string>
+              </property>
+              <layout class="QHBoxLayout" name="zramLayout">
+               <item>
+                <widget class="QLabel" name="zramStatusLabel">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>100</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Status</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="zramToggle">
+                 <property name="text">
+                  <string>ℹ️ Info</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="zramApplyButton">
+                 <property name="text">
+                  <string>✅ Apply</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="zramBackupButton">
+                 <property name="text">
+                  <string>💾 Backup</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="zramConfigButton">
+                 <property name="text">
+                  <string>✏️ Edit Config</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="cpuGovernorGroupBox">
+              <property name="title">
+               <string>CPU Governor (Performance/Powersave)</string>
+              </property>
+              <layout class="QHBoxLayout" name="cpuGovernorLayout">
+               <item>
+                <widget class="QLabel" name="cpuGovernorStatusLabel">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>100</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Status</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="cpuGovernorToggle">
+                 <property name="text">
+                  <string>ℹ️ Info</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="cpuGovernorApplyButton">
+                 <property name="text">
+                  <string>✅ Apply</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="cpuGovernorBackupButton">
+                 <property name="text">
+                  <string>💾 Backup</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="cpuGovernorConfigButton">
+                 <property name="text">
+                  <string>✏️ Edit Config</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="tmpfsGroupBox">
+              <property name="title">
+               <string>/tmp as tmpfs (RAM Disk)</string>
+              </property>
+              <layout class="QHBoxLayout" name="tmpfsLayout">
+               <item>
+                <widget class="QLabel" name="tmpfsStatusLabel">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>100</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Status</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="tmpfsToggle">
+                 <property name="text">
+                  <string>ℹ️ Info</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="tmpfsApplyButton">
+                 <property name="text">
+                  <string>✅ Apply</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="tmpfsBackupButton">
+                 <property name="text">
+                  <string>💾 Backup</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="tmpfsConfigButton">
+                 <property name="text">
+                  <string>✏️ Edit Config</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="performanceHacksGroupBox">
+              <property name="title">
+               <string>Performance Hacks (by forAUR)</string>
+              </property>
+              <layout class="QVBoxLayout" name="performanceHacksLayout">
+               <item>
+                <layout class="QHBoxLayout" name="performanceHacksMainLayout">
+                 <item>
+                  <widget class="QLabel" name="performanceHacksStatusLabel">
+                   <property name="minimumSize">
+                    <size>
+                     <width>100</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>100</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>Status</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="performanceHacksToggle">
+                   <property name="text">
+                    <string>ℹ️ Info</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="performanceHacksApplyButton">
+                   <property name="text">
+                    <string>✅ Apply</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="performanceHacksConfigLayout">
+                 <item>
+                  <spacer>
+                   <property name="orientation">
+                    <enum>Qt::Orientation::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>100</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="performanceHacksBackupButton1">
+                   <property name="text">
+                    <string>💾 Backup updatedb.conf</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="performanceHacksConfigButton1">
+                   <property name="text">
+                    <string>✏️ Edit /etc/updatedb.conf</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="performanceHacksBackupButton2">
+                   <property name="text">
+                    <string>💾 Backup mkinitcpio.conf</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="performanceHacksConfigButton2">
+                   <property name="text">
+                    <string>✏️ Edit /etc/mkinitcpio.conf</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <spacer>
+              <property name="orientation">
+               <enum>Qt::Orientation::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="securityTab">
+           <attribute name="title">
+            <string>🔒 Security</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="securityLayout">
+            <item>
+             <widget class="QGroupBox" name="mitigationsGroupBox">
+              <property name="title">
+               <string>Spectre/Meltdown Mitigations</string>
+              </property>
+              <layout class="QHBoxLayout" name="mitigationsLayout">
+               <item>
+                <widget class="QLabel" name="mitigationsStatusLabel">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>100</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Status</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="mitigationsToggle">
+                 <property name="text">
+                  <string>ℹ️ Info</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="mitigationsApplyButton">
+                 <property name="text">
+                  <string>✅ Apply</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="mitigationsBackupButton">
+                 <property name="text">
+                  <string>💾 Backup</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="mitigationsConfigButton">
+                 <property name="text">
+                  <string>✏️ Edit Config</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="ptraceGroupBox">
+              <property name="title">
+               <string>ptrace for Non-Root Users</string>
+              </property>
+              <layout class="QHBoxLayout" name="ptraceLayout">
+               <item>
+                <widget class="QLabel" name="ptraceStatusLabel">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>100</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Status</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="ptraceToggle">
+                 <property name="text">
+                  <string>ℹ️ Info</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="ptraceApplyButton">
+                 <property name="text">
+                  <string>✅ Apply</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="ptraceBackupButton">
+                 <property name="text">
+                  <string>💾 Backup</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="ptraceConfigButton">
+                 <property name="text">
+                  <string>✏️ Edit Config</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="hidepidGroupBox">
+              <property name="title">
+               <string>hidepid for /proc Security</string>
+              </property>
+              <layout class="QHBoxLayout" name="hidepidLayout">
+               <item>
+                <widget class="QLabel" name="hidepidStatusLabel">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>100</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Status</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="hidepidToggle">
+                 <property name="text">
+                  <string>ℹ️ Info</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="hidepidApplyButton">
+                 <property name="text">
+                  <string>✅ Apply</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="hidepidBackupButton">
+                 <property name="text">
+                  <string>💾 Backup</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="hidepidConfigButton">
+                 <property name="text">
+                  <string>✏️ Edit Config</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="firewallGroupBox">
+              <property name="title">
+               <string>Firewall (firewalld/ufw)</string>
+              </property>
+              <layout class="QHBoxLayout" name="firewallLayout">
+               <item>
+                <widget class="QLabel" name="firewallStatusLabel">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>100</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Status</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="firewallToggle">
+                 <property name="text">
+                  <string>ℹ️ Info</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="firewallApplyButton">
+                 <property name="text">
+                  <string>✅ Apply</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="firewallBackupButton">
+                 <property name="text">
+                  <string>💾 Backup</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="firewallConfigButton">
+                 <property name="text">
+                  <string>✏️ Edit Config</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <spacer>
+              <property name="orientation">
+               <enum>Qt::Orientation::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="networkTweaksTab">
+           <attribute name="title">
+            <string>🌐 Network</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="networkTweaksLayout">
+            <item>
+             <widget class="QGroupBox" name="ipv6GroupBox">
+              <property name="title">
+               <string>IPv6 System-Wide</string>
+              </property>
+              <layout class="QHBoxLayout" name="ipv6Layout">
+               <item>
+                <widget class="QLabel" name="ipv6StatusLabel">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>100</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Status</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="ipv6Toggle">
+                 <property name="text">
+                  <string>ℹ️ Info</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="ipv6ApplyButton">
+                 <property name="text">
+                  <string>✅ Apply</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="ipv6BackupButton">
+                 <property name="text">
+                  <string>💾 Backup</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="ipv6ConfigButton">
+                 <property name="text">
+                  <string>✏️ Edit Config</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="dnsGroupBox">
+              <property name="title">
+               <string>DNS Configuration</string>
+              </property>
+              <layout class="QHBoxLayout" name="dnsLayout">
+               <item>
+                <widget class="QLabel" name="dnsStatusLabel">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>100</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Status</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="dnsToggle">
+                 <property name="text">
+                  <string>ℹ️ Info</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="dnsApplyButton">
+                 <property name="text">
+                  <string>✅ Apply</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="dnsBackupButton">
+                 <property name="text">
+                  <string>💾 Backup</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="dnsConfigButton">
+                 <property name="text">
+                  <string>✏️ Edit Config</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="tcpOptimizationsGroupBox">
+              <property name="title">
+               <string>TCP Optimizations</string>
+              </property>
+              <layout class="QHBoxLayout" name="tcpOptimizationsLayout">
+               <item>
+                <widget class="QLabel" name="tcpOptimizationsStatusLabel">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>100</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Status</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="tcpOptimizationsToggle">
+                 <property name="text">
+                  <string>ℹ️ Info</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="tcpOptimizationsApplyButton">
+                 <property name="text">
+                  <string>✅ Apply</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="tcpOptimizationsBackupButton">
+                 <property name="text">
+                  <string>💾 Backup</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="tcpOptimizationsConfigButton">
+                 <property name="text">
+                  <string>✏️ Edit Config</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <spacer>
+              <property name="orientation">
+               <enum>Qt::Orientation::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="storageTab">
+           <attribute name="title">
+            <string>💾 Storage</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="storageLayout">
+            <item>
+             <widget class="QGroupBox" name="trimGroupBox">
+              <property name="title">
+               <string>TRIM for SSDs</string>
+              </property>
+              <layout class="QHBoxLayout" name="trimLayout">
+               <item>
+                <widget class="QLabel" name="trimStatusLabel">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>100</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Status</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="trimToggle">
+                 <property name="text">
+                  <string>ℹ️ Info</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="trimApplyButton">
+                 <property name="text">
+                  <string>✅ Apply</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="trimBackupButton">
+                 <property name="text">
+                  <string>💾 Backup</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="trimConfigButton">
+                 <property name="text">
+                  <string>✏️ Edit Config</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <spacer>
+              <property name="orientation">
+               <enum>Qt::Orientation::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="desktopTab">
+           <attribute name="title">
+            <string>🖥️ Desktop</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="desktopLayout">
+            <item>
+             <widget class="QGroupBox" name="showHiddenFilesGroupBox">
+              <property name="title">
+               <string>Show Hidden Files by Default</string>
+              </property>
+              <layout class="QHBoxLayout" name="showHiddenFilesLayout">
+               <item>
+                <widget class="QLabel" name="showHiddenFilesStatusLabel">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>100</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Status</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="showHiddenFilesToggle">
+                 <property name="text">
+                  <string>ℹ️ Info</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="showHiddenFilesApplyButton">
+                 <property name="text">
+                  <string>✅ Apply</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="showHiddenFilesBackupButton">
+                 <property name="text">
+                  <string>💾 Backup</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="showHiddenFilesConfigButton">
+                 <property name="text">
+                  <string>✏️ Edit Config</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <spacer>
+              <property name="orientation">
+               <enum>Qt::Orientation::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="systemTab">
+           <attribute name="title">
+            <string>⚙️ System</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="systemLayout">
+            <item>
+             <widget class="QGroupBox" name="swappinessGroupBox">
+              <property name="title">
+               <string>Swappiness (Swap Usage)</string>
+              </property>
+              <layout class="QHBoxLayout" name="swappinessLayout">
+               <item>
+                <widget class="QLabel" name="swappinessStatusLabel">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>100</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Status</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="swappinessToggle">
+                 <property name="text">
+                  <string>ℹ️ Info</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="swappinessApplyButton">
+                 <property name="text">
+                  <string>✅ Apply</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="swappinessBackupButton">
+                 <property name="text">
+                  <string>💾 Backup</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="swappinessConfigButton">
+                 <property name="text">
+                  <string>✏️ Edit Config</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="ioSchedulerGroupBox">
+              <property name="title">
+               <string>I/O Scheduler (SSD/NVMe Optimization)</string>
+              </property>
+              <layout class="QHBoxLayout" name="ioSchedulerLayout">
+               <item>
+                <widget class="QLabel" name="ioSchedulerStatusLabel">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>100</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Status</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="ioSchedulerToggle">
+                 <property name="text">
+                  <string>ℹ️ Info</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="ioSchedulerApplyButton">
+                 <property name="text">
+                  <string>✅ Apply</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="ioSchedulerBackupButton">
+                 <property name="text">
+                  <string>💾 Backup</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="ioSchedulerConfigButton">
+                 <property name="text">
+                  <string>✏️ Edit Config</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="thpGroupBox">
+              <property name="title">
+               <string>Transparent Huge Pages (THP)</string>
+              </property>
+              <layout class="QHBoxLayout" name="thpLayout">
+               <item>
+                <widget class="QLabel" name="thpStatusLabel">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>100</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Status</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="thpToggle">
+                 <property name="text">
+                  <string>ℹ️ Info</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="thpApplyButton">
+                 <property name="text">
+                  <string>✅ Apply</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="thpBackupButton">
+                 <property name="text">
+                  <string>💾 Backup</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="thpConfigButton">
+                 <property name="text">
+                  <string>✏️ Edit Config</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="pacmanOptimizationsGroupBox">
+              <property name="title">
+               <string>Pacman Optimizations</string>
+              </property>
+              <layout class="QHBoxLayout" name="pacmanOptimizationsLayout">
+               <item>
+                <widget class="QLabel" name="pacmanOptimizationsStatusLabel">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>100</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Status</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="pacmanOptimizationsToggle">
+                 <property name="text">
+                  <string>ℹ️ Info</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="pacmanOptimizationsApplyButton">
+                 <property name="text">
+                  <string>✅ Apply</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="pacmanOptimizationsBackupButton">
+                 <property name="text">
+                  <string>💾 Backup</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="pacmanOptimizationsConfigButton">
+                 <property name="text">
+                  <string>✏️ Edit Config</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="journaldGroupBox">
+              <property name="title">
+               <string>Journald Settings (Log Size Limit)</string>
+              </property>
+              <layout class="QHBoxLayout" name="journaldLayout">
+               <item>
+                <widget class="QLabel" name="journaldStatusLabel">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>100</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Status</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="journaldToggle">
+                 <property name="text">
+                  <string>ℹ️ Info</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="journaldApplyButton">
+                 <property name="text">
+                  <string>✅ Apply</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="journaldBackupButton">
+                 <property name="text">
+                  <string>💾 Backup</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="journaldConfigButton">
+                 <property name="text">
+                  <string>✏️ Edit Config</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <spacer>
+              <property name="orientation">
+               <enum>Qt::Orientation::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+         </widget>
         </item>
        </layout>
       </widget>

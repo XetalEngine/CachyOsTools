@@ -17,6 +17,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) , ui(new Ui::MainW
     // Set window title
     setWindowTitle("Arch OS Tools - Linux System Manager");
     
+    // Clear any minimum size constraints
+    setMinimumSize(0, 0);
+    
     // Load window geometry if enabled, otherwise center the window
     if (loadWindowSizeEnabled()) {
         loadWindowGeometry();
@@ -173,6 +176,19 @@ shellConfigFiles["ksh"] = QStringList()
     connect(ui->hidepidToggle, &QPushButton::clicked, this, &MainWindow::on_hidepidToggle_clicked);
     connect(ui->cpuGovernorToggle, &QPushButton::clicked, this, &MainWindow::on_cpuGovernorToggle_clicked);
 
+    // Tweaks tab Apply button connections
+    connect(ui->zramApplyButton, &QPushButton::clicked, this, &MainWindow::on_zramApplyButton_clicked);
+    connect(ui->cpuGovernorApplyButton, &QPushButton::clicked, this, &MainWindow::on_cpuGovernorApplyButton_clicked);
+    connect(ui->ipv6ApplyButton, &QPushButton::clicked, this, &MainWindow::on_ipv6ApplyButton_clicked);
+    connect(ui->trimApplyButton, &QPushButton::clicked, this, &MainWindow::on_trimApplyButton_clicked);
+    connect(ui->tmpfsApplyButton, &QPushButton::clicked, this, &MainWindow::on_tmpfsApplyButton_clicked);
+    connect(ui->dnsApplyButton, &QPushButton::clicked, this, &MainWindow::on_dnsApplyButton_clicked);
+    connect(ui->showHiddenFilesApplyButton, &QPushButton::clicked, this, &MainWindow::on_showHiddenFilesApplyButton_clicked);
+    connect(ui->mitigationsApplyButton, &QPushButton::clicked, this, &MainWindow::on_mitigationsApplyButton_clicked);
+    connect(ui->performanceHacksApplyButton, &QPushButton::clicked, this, &MainWindow::on_performanceHacksApplyButton_clicked);
+    connect(ui->ptraceApplyButton, &QPushButton::clicked, this, &MainWindow::on_ptraceApplyButton_clicked);
+    connect(ui->hidepidApplyButton, &QPushButton::clicked, this, &MainWindow::on_hidepidApplyButton_clicked);
+
     // Tweaks tab config button connections
     disconnect(ui->zramConfigButton, nullptr, nullptr, nullptr);
     disconnect(ui->cpuGovernorConfigButton, nullptr, nullptr, nullptr);
@@ -199,9 +215,74 @@ shellConfigFiles["ksh"] = QStringList()
     connect(ui->ptraceConfigButton, &QPushButton::clicked, this, &MainWindow::on_ptraceConfigButton_clicked);
     connect(ui->hidepidConfigButton, &QPushButton::clicked, this, &MainWindow::on_hidepidConfigButton_clicked);
     
-    // Tweak state process removed - now using instruction dialogs
+    // New tweaks connections - disconnect first to prevent double connections
+    disconnect(ui->swappinessToggle, nullptr, nullptr, nullptr);
+    disconnect(ui->swappinessApplyButton, nullptr, nullptr, nullptr);
+    disconnect(ui->swappinessConfigButton, nullptr, nullptr, nullptr);
+    disconnect(ui->swappinessBackupButton, nullptr, nullptr, nullptr);
+    disconnect(ui->ioSchedulerToggle, nullptr, nullptr, nullptr);
+    disconnect(ui->ioSchedulerApplyButton, nullptr, nullptr, nullptr);
+    disconnect(ui->ioSchedulerConfigButton, nullptr, nullptr, nullptr);
+    disconnect(ui->ioSchedulerBackupButton, nullptr, nullptr, nullptr);
+    disconnect(ui->thpToggle, nullptr, nullptr, nullptr);
+    disconnect(ui->thpApplyButton, nullptr, nullptr, nullptr);
+    disconnect(ui->thpConfigButton, nullptr, nullptr, nullptr);
+    disconnect(ui->thpBackupButton, nullptr, nullptr, nullptr);
+    disconnect(ui->tcpOptimizationsToggle, nullptr, nullptr, nullptr);
+    disconnect(ui->tcpOptimizationsApplyButton, nullptr, nullptr, nullptr);
+    disconnect(ui->tcpOptimizationsConfigButton, nullptr, nullptr, nullptr);
+    disconnect(ui->tcpOptimizationsBackupButton, nullptr, nullptr, nullptr);
+    disconnect(ui->firewallToggle, nullptr, nullptr, nullptr);
+    disconnect(ui->firewallApplyButton, nullptr, nullptr, nullptr);
+    disconnect(ui->firewallConfigButton, nullptr, nullptr, nullptr);
+    disconnect(ui->firewallBackupButton, nullptr, nullptr, nullptr);
+    disconnect(ui->pacmanOptimizationsToggle, nullptr, nullptr, nullptr);
+    disconnect(ui->pacmanOptimizationsApplyButton, nullptr, nullptr, nullptr);
+    disconnect(ui->pacmanOptimizationsConfigButton, nullptr, nullptr, nullptr);
+    disconnect(ui->pacmanOptimizationsBackupButton, nullptr, nullptr, nullptr);
+    disconnect(ui->journaldToggle, nullptr, nullptr, nullptr);
+    disconnect(ui->journaldApplyButton, nullptr, nullptr, nullptr);
+    disconnect(ui->journaldConfigButton, nullptr, nullptr, nullptr);
+    disconnect(ui->journaldBackupButton, nullptr, nullptr, nullptr);
     
-    // Tweaks state population removed - now using instruction dialogs instead
+    connect(ui->swappinessToggle, &QPushButton::clicked, this, &MainWindow::on_swappinessToggle_clicked);
+    connect(ui->swappinessApplyButton, &QPushButton::clicked, this, &MainWindow::on_swappinessApplyButton_clicked);
+    connect(ui->swappinessConfigButton, &QPushButton::clicked, this, &MainWindow::on_swappinessConfigButton_clicked);
+    connect(ui->swappinessBackupButton, &QPushButton::clicked, this, &MainWindow::on_swappinessBackupButton_clicked);
+    connect(ui->ioSchedulerToggle, &QPushButton::clicked, this, &MainWindow::on_ioSchedulerToggle_clicked);
+    connect(ui->ioSchedulerApplyButton, &QPushButton::clicked, this, &MainWindow::on_ioSchedulerApplyButton_clicked);
+    connect(ui->ioSchedulerConfigButton, &QPushButton::clicked, this, &MainWindow::on_ioSchedulerConfigButton_clicked);
+    connect(ui->ioSchedulerBackupButton, &QPushButton::clicked, this, &MainWindow::on_ioSchedulerBackupButton_clicked);
+    connect(ui->thpToggle, &QPushButton::clicked, this, &MainWindow::on_thpToggle_clicked);
+    connect(ui->thpApplyButton, &QPushButton::clicked, this, &MainWindow::on_thpApplyButton_clicked);
+    connect(ui->thpConfigButton, &QPushButton::clicked, this, &MainWindow::on_thpConfigButton_clicked);
+    connect(ui->thpBackupButton, &QPushButton::clicked, this, &MainWindow::on_thpBackupButton_clicked);
+    connect(ui->tcpOptimizationsToggle, &QPushButton::clicked, this, &MainWindow::on_tcpOptimizationsToggle_clicked);
+    connect(ui->tcpOptimizationsApplyButton, &QPushButton::clicked, this, &MainWindow::on_tcpOptimizationsApplyButton_clicked);
+    connect(ui->tcpOptimizationsConfigButton, &QPushButton::clicked, this, &MainWindow::on_tcpOptimizationsConfigButton_clicked);
+    connect(ui->tcpOptimizationsBackupButton, &QPushButton::clicked, this, &MainWindow::on_tcpOptimizationsBackupButton_clicked);
+    connect(ui->firewallToggle, &QPushButton::clicked, this, &MainWindow::on_firewallToggle_clicked);
+    connect(ui->firewallApplyButton, &QPushButton::clicked, this, &MainWindow::on_firewallApplyButton_clicked);
+    connect(ui->firewallConfigButton, &QPushButton::clicked, this, &MainWindow::on_firewallConfigButton_clicked);
+    connect(ui->firewallBackupButton, &QPushButton::clicked, this, &MainWindow::on_firewallBackupButton_clicked);
+    connect(ui->pacmanOptimizationsToggle, &QPushButton::clicked, this, &MainWindow::on_pacmanOptimizationsToggle_clicked);
+    connect(ui->pacmanOptimizationsApplyButton, &QPushButton::clicked, this, &MainWindow::on_pacmanOptimizationsApplyButton_clicked);
+    connect(ui->pacmanOptimizationsConfigButton, &QPushButton::clicked, this, &MainWindow::on_pacmanOptimizationsConfigButton_clicked);
+    connect(ui->pacmanOptimizationsBackupButton, &QPushButton::clicked, this, &MainWindow::on_pacmanOptimizationsBackupButton_clicked);
+    connect(ui->journaldToggle, &QPushButton::clicked, this, &MainWindow::on_journaldToggle_clicked);
+    connect(ui->journaldApplyButton, &QPushButton::clicked, this, &MainWindow::on_journaldApplyButton_clicked);
+    connect(ui->journaldConfigButton, &QPushButton::clicked, this, &MainWindow::on_journaldConfigButton_clicked);
+    connect(ui->journaldBackupButton, &QPushButton::clicked, this, &MainWindow::on_journaldBackupButton_clicked);
+    
+    // Tweaks tab widget connection
+    connect(ui->tweaksTabWidget, &QTabWidget::currentChanged, this, &MainWindow::on_tweaksTabWidget_currentChanged);
+    
+    // Refresh tweaks status when tab is opened (deferred)
+    QTimer::singleShot(500, this, [this]() {
+        if (ui->tabWidget->currentWidget() == ui->tweaksTab) {
+            refreshTweaksStatus();
+        }
+    });
 
     // Backup tab setup
     backupProcess = nullptr;
@@ -237,6 +318,9 @@ shellConfigFiles["ksh"] = QStringList()
     connect(ui->tabWidget, &QTabWidget::currentChanged, this, [this](int index) {
         if (ui->tabWidget->widget(index)->objectName() == "backupTab") {
             populateBackupDrives();
+        }
+        if (ui->tabWidget->widget(index) == ui->tweaksTab) {
+            refreshTweaksStatus();
         }
         if (ui->tabWidget->widget(index)->objectName() == "restoreTab") {
             populateRestoreDrives();

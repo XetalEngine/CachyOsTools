@@ -361,3 +361,42 @@ void MainWindow::on_hidepidBackupButton_clicked()
 {
     backupConfigFile("/etc/fstab", "fstab (for hidepid configuration)");
 }
+
+void MainWindow::on_swappinessBackupButton_clicked()
+{
+    backupConfigFile("/etc/sysctl.d/99-swappiness.conf", "Swappiness configuration");
+}
+
+void MainWindow::on_ioSchedulerBackupButton_clicked()
+{
+    backupConfigFile("/etc/udev/rules.d/60-ioschedulers.rules", "I/O Scheduler configuration");
+}
+
+void MainWindow::on_thpBackupButton_clicked()
+{
+    backupConfigFile("/etc/sysctl.d/99-thp.conf", "THP configuration");
+}
+
+void MainWindow::on_tcpOptimizationsBackupButton_clicked()
+{
+    backupConfigFile("/etc/sysctl.d/99-tcp-optimizations.conf", "TCP optimizations configuration");
+}
+
+void MainWindow::on_firewallBackupButton_clicked()
+{
+    QMessageBox::information(this, "Firewall Backup", 
+        "Firewall rules are stored in:\n"
+        "- firewalld: /etc/firewalld/\n"
+        "- ufw: /etc/ufw/\n\n"
+        "Backup these directories manually if needed.");
+}
+
+void MainWindow::on_pacmanOptimizationsBackupButton_clicked()
+{
+    backupConfigFile("/etc/pacman.conf", "Pacman configuration");
+}
+
+void MainWindow::on_journaldBackupButton_clicked()
+{
+    backupConfigFile("/etc/systemd/journald.conf", "Journald configuration");
+}

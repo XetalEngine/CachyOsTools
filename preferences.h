@@ -422,6 +422,9 @@ void MainWindow::loadWindowGeometry() {
     if (!state.isEmpty()) {
         restoreState(state);
     }
+    
+    // Clear any minimum size constraints that might have been restored
+    setMinimumSize(0, 0);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
