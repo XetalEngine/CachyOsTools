@@ -2,8 +2,17 @@
 
 # CachyOsTools Build Script
 # This script builds the Qt application using CMake with various compiler options
+# Optional: --install-iso-deps  Auto-install ISO creator deps (archiso, rsync, tar, zstd) when missing
 
 set -e  # Exit on any error
+
+# Parse flags
+INSTALL_ISO_DEPS=
+for arg in "$@"; do
+    case "$arg" in
+        --install-iso-deps) INSTALL_ISO_DEPS=1 ;;
+    esac
+done
 
 # Colors for output
 RED='\033[0;31m'
@@ -240,18 +249,32 @@ check_dependencies() {
 }
 
 
+# Auto-install missing ISO deps via pacman (Arch/CachyOS/Manjaro only). Returns 0 if installed or nothing to do.
+try_install_iso_deps() {
+    local missing=("$@")
+    [ ${#missing[@]} -eq 0 ] && return 0
+
+    if ! command -v pacman &>/dev/null; then
+        print_warning "Not an Arch-based system (no pacman). ISO deps must be installed manually."
+        return 1
+    fi
+    print_status "Installing ISO dependencies with pacman: ${missing[*]}"
+    sudo pacman -S --noconfirm --needed "${missing[@]}" || return 1
+    return 0
+}
+
 check_runtime_dependencies() {
     print_status "Checking runtime dependencies for ISO creation feature..."
     
     local missing_runtime_deps=()
     local optional_missing=()
     
-    # Required for ISO creation
+    # Required for ISO creation (archiso provides mkarchiso)
     if ! command_exists mkarchiso; then
         missing_runtime_deps+=("archiso")
     fi
     
-    # Usually installed by default, but check anyway
+    # Required for archiso/sync when building ISO
     if ! command_exists rsync; then
         missing_runtime_deps+=("rsync")
     fi
@@ -277,18 +300,34 @@ check_runtime_dependencies() {
         echo ""
         echo -e "${BRIGHT_RED}${BOLD}Missing packages:${NC} ${BRIGHT_YELLOW}${BOLD}${missing_runtime_deps[*]}${NC}"
         echo ""
+
+        # Auto-install when requested or when flag is set
+        local do_install=
+        if [ -n "$INSTALL_ISO_DEPS" ]; then
+            do_install=1
+        else
+            echo -e "${BRIGHT_CYAN}${BOLD}Install these packages now? (sudo required) [y/N]${NC} "
+            read -r -n 1 reply
+            echo
+            [[ "$reply" =~ ^[yY]$ ]] && do_install=1
+        fi
+
+        if [ -n "$do_install" ]; then
+            if try_install_iso_deps "${missing_runtime_deps[@]}"; then
+                print_success "ISO dependencies installed. Re-checking..."
+                check_runtime_dependencies
+                return
+            else
+                print_warning "Auto-install failed. Install manually with commands below."
+            fi
+        fi
+
+        echo ""
         echo -e "${BRIGHT_CYAN}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-        echo -e "${BRIGHT_CYAN}${BOLD}  📦 INSTALL COMMANDS:${NC}"
+        echo -e "${BRIGHT_CYAN}${BOLD}  📦 INSTALL (pacman):${NC}"
         echo -e "${BRIGHT_CYAN}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
         echo ""
-        echo -e "${BRIGHT_GREEN}${BOLD}Arch/Manjaro/CachyOS:${NC}"
         echo -e "${BRIGHT_YELLOW}${BOLD}  sudo pacman -S ${missing_runtime_deps[*]}${NC}"
-        echo ""
-        echo -e "${BRIGHT_GREEN}${BOLD}Ubuntu/Debian:${NC}"
-        echo -e "${BRIGHT_YELLOW}${BOLD}  sudo apt install ${missing_runtime_deps[*]}${NC}"
-        echo ""
-        echo -e "${BRIGHT_GREEN}${BOLD}Fedora:${NC}"
-        echo -e "${BRIGHT_YELLOW}${BOLD}  sudo dnf install ${missing_runtime_deps[*]}${NC}"
         echo ""
         echo -e "${BRIGHT_RED}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
         echo -e "${BRIGHT_RED}${BOLD}  ⛔ WARNING: ISO creation feature will NOT work without these!${NC}"

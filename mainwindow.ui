@@ -2545,26 +2545,21 @@
                 <widget class="QTextEdit" name="isoInfoText">
                  <property name="plainText">
                   <string>• Instructions after the ISO is ready:
-• Burn the ISO with BalenaEtcher
+• Burn the ISO with BalenaEtcher or Ventoy
+--- WARNING ---
+If you use ventoy, make sure you EJECT the usb drive before removing the usb drive from the computer.
+Otherwise I found my ISO's were corrupting, and not bootable.
 • Boot into the live environment with our ISO
-• Type: sudo install.sh
+• Type: the following commands:
+
+cd /
+sudo chmod +x xetal.sh
+sudo ./xetal.sh
+
 • DONE ! From here, just follow the instructions on the screen.
-• **** After the installation is done, if grub is unable to boot into the OS, try all other grub entries, one of them should work!                  
 • **** THIS ISO WILL KEEP ALL OF YOUR PERSONAL DATA AND GOOGLE LOGINS, DISCORD LOGINS, ETC. 
 • **** IF YOU WANT TO MAKE A ISO FOR YOUR FRIENDS, MAKE SURE YOU REMOVE ALL OF YOUR PERSONAL DATA AND GOOGLE LOGINS, DISCORD LOGINS, ETC.
-
-• Complete system snapshot (all files, configurations, installed packages)
-• Bootable live environment with installer
-• Automatic system restoration tool
-• UEFI/GPT partitioning support
-• NetworkManager and essential tools
-• Your exact system state as of creation time
-
-The resulting ISO can be used to:
-• Boot into a live environment
-• Install an exact copy of your system to any compatible hardware
-• Restore your system to any point in time
-• Create backup installations</string>
+</string>
                  </property>
                  <property name="readOnly">
                   <bool>true</bool>
