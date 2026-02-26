@@ -2544,22 +2544,27 @@
                <item>
                 <widget class="QTextEdit" name="isoInfoText">
                  <property name="plainText">
-                  <string>• Instructions after the ISO is ready:
-• Burn the ISO with BalenaEtcher or Ventoy
---- WARNING ---
-If you use ventoy, make sure you EJECT the usb drive before removing the usb drive from the computer.
-Otherwise I found my ISO's were corrupting, and not bootable.
-• Boot into the live environment with our ISO
-• Type: the following commands:
+                  <string>After the ISO is ready:
 
-cd /
-sudo chmod +x xetal.sh
-sudo ./xetal.sh
+1. Burn the ISO to a USB drive using Balena Etcher or Ventoy.
 
-• DONE ! From here, just follow the instructions on the screen.
-• **** THIS ISO WILL KEEP ALL OF YOUR PERSONAL DATA AND GOOGLE LOGINS, DISCORD LOGINS, ETC. 
-• **** IF YOU WANT TO MAKE A ISO FOR YOUR FRIENDS, MAKE SURE YOU REMOVE ALL OF YOUR PERSONAL DATA AND GOOGLE LOGINS, DISCORD LOGINS, ETC.
-</string>
+   ⚠ WARNING (Ventoy): Eject the USB drive from your system before unplugging it. Removing it without ejecting can corrupt the ISO and make it unbootable.
+
+2. Boot your target machine from the USB (live environment).
+
+3. In the live session, run:
+
+   cd /
+   sudo chmod +x xetal.sh
+   sudo ./xetal.sh
+
+4. Follow the on-screen instructions.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PRIVACY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• This ISO contains a full clone of your system, including personal data and saved logins (e.g. browser, Discord). Keep it private.
+• Before sharing an ISO with others, remove all personal data and sign out of all accounts (Google, Discord, etc.) from the system you cloned.</string>
                  </property>
                  <property name="readOnly">
                   <bool>true</bool>
