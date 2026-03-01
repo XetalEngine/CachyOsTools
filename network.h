@@ -18,6 +18,16 @@
 #include <QGroupBox>
 #include <QRadioButton>
 #include <QGridLayout>
+#include <QDialog>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QComboBox>
+#include <QLabel>
+#include <QPushButton>
+#include <QProcess>
+#include <QFile>
+#include <QDir>
+#include <QCoreApplication>
 
 void MainWindow::refreshNetworkInfo() {
     // Clear and setup IP address table
@@ -169,65 +179,53 @@ void MainWindow::refreshInterfaceStats() {
         procFile.close();
     }
     
-    // Now iterate through network interfaces and match with stats
-    QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
-    
-    for (const QNetworkInterface &interface : interfaces) {
-        // Skip loopback
-        if (interface.flags().testFlag(QNetworkInterface::IsLoopBack)) {
+    // Iterate over every interface that has stats in /proc/net/dev (don't rely on Qt's list,
+    // which can omit bridge slaves or differ by platform and leave the table empty)
+    for (auto it = statsMap.begin(); it != statsMap.end(); ++it) {
+        QString interfaceName = it.key();
+        QStringList statsParts = it.value();
+        if (statsParts.size() < 16) {
             continue;
         }
-        
-        QString interfaceName = interface.name(); // Use raw name for /proc/net/dev matching
-        QString displayName = interface.humanReadableName();
-        if (displayName.isEmpty()) {
-            displayName = interfaceName;
-        }
-        
-        QNetworkInterface::InterfaceFlags flags = interface.flags();
-        bool isUp = flags.testFlag(QNetworkInterface::IsUp) && flags.testFlag(QNetworkInterface::IsRunning);
-        
-        // Check if we have stats for this interface
-        if (!statsMap.contains(interfaceName)) {
+        // Skip loopback by name
+        if (interfaceName == "lo") {
             continue;
         }
-        
-        QStringList statsParts = statsMap[interfaceName];
-        if (statsParts.size() >= 16) {
-            // Format: rx_bytes rx_packets rx_errs rx_drop rx_fifo rx_frame rx_compressed rx_multicast
-            //         tx_bytes tx_packets tx_errs tx_drop tx_fifo tx_colls tx_carrier tx_compressed
-            qint64 rxBytes = statsParts[0].toLongLong();
-            qint64 rxPackets = statsParts[1].toLongLong();
-            qint64 rxErrors = statsParts[2].toLongLong();
-            qint64 txBytes = statsParts[8].toLongLong();
-            qint64 txPackets = statsParts[9].toLongLong();
-            qint64 txErrors = statsParts[10].toLongLong();
-            
-            // Get speed from ethtool if available
-            QString speed = "Unknown";
-            QProcess speedProc;
-            speedProc.start("ethtool", QStringList() << interfaceName);
-            speedProc.waitForFinished();
-            if (speedProc.exitCode() == 0) {
-                QString speedOutput = QString::fromUtf8(speedProc.readAllStandardOutput());
-                QRegularExpression speedRe("Speed:\\s+(\\S+)");
-                QRegularExpressionMatch speedMatch = speedRe.match(speedOutput);
-                if (speedMatch.hasMatch()) {
-                    speed = speedMatch.captured(1);
-                }
+        QString displayName = interfaceName;
+        QNetworkInterface iface = QNetworkInterface::interfaceFromName(interfaceName);
+        if (iface.isValid() && !iface.humanReadableName().isEmpty()) {
+            displayName = iface.humanReadableName();
+        }
+        // Format: rx_bytes rx_packets rx_errs rx_drop rx_fifo rx_frame rx_compressed rx_multicast
+        //         tx_bytes tx_packets tx_errs tx_drop tx_fifo tx_colls tx_carrier tx_compressed
+        qint64 rxBytes = statsParts[0].toLongLong();
+        qint64 rxPackets = statsParts[1].toLongLong();
+        qint64 rxErrors = statsParts[2].toLongLong();
+        qint64 txBytes = statsParts[8].toLongLong();
+        qint64 txPackets = statsParts[9].toLongLong();
+        qint64 txErrors = statsParts[10].toLongLong();
+        QString speed = "Unknown";
+        QProcess speedProc;
+        speedProc.start("ethtool", QStringList() << interfaceName);
+        speedProc.waitForFinished();
+        if (speedProc.exitCode() == 0) {
+            QString speedOutput = QString::fromUtf8(speedProc.readAllStandardOutput());
+            QRegularExpression speedRe("Speed:\\s+(\\S+)");
+            QRegularExpressionMatch speedMatch = speedRe.match(speedOutput);
+            if (speedMatch.hasMatch()) {
+                speed = speedMatch.captured(1);
             }
-            
-            int row = ui->interfaceStatsTable->rowCount();
-            ui->interfaceStatsTable->insertRow(row);
-            ui->interfaceStatsTable->setItem(row, 0, new QTableWidgetItem(displayName));
-            ui->interfaceStatsTable->setItem(row, 1, new QTableWidgetItem(formatBytes(rxBytes)));
-            ui->interfaceStatsTable->setItem(row, 2, new QTableWidgetItem(formatBytes(txBytes)));
-            ui->interfaceStatsTable->setItem(row, 3, new QTableWidgetItem(QString::number(rxPackets)));
-            ui->interfaceStatsTable->setItem(row, 4, new QTableWidgetItem(QString::number(txPackets)));
-            ui->interfaceStatsTable->setItem(row, 5, new QTableWidgetItem(QString::number(rxErrors)));
-            ui->interfaceStatsTable->setItem(row, 6, new QTableWidgetItem(QString::number(txErrors)));
-            ui->interfaceStatsTable->setItem(row, 7, new QTableWidgetItem(speed));
         }
+        int row = ui->interfaceStatsTable->rowCount();
+        ui->interfaceStatsTable->insertRow(row);
+        ui->interfaceStatsTable->setItem(row, 0, new QTableWidgetItem(displayName));
+        ui->interfaceStatsTable->setItem(row, 1, new QTableWidgetItem(formatBytes(rxBytes)));
+        ui->interfaceStatsTable->setItem(row, 2, new QTableWidgetItem(formatBytes(txBytes)));
+        ui->interfaceStatsTable->setItem(row, 3, new QTableWidgetItem(QString::number(rxPackets)));
+        ui->interfaceStatsTable->setItem(row, 4, new QTableWidgetItem(QString::number(txPackets)));
+        ui->interfaceStatsTable->setItem(row, 5, new QTableWidgetItem(QString::number(rxErrors)));
+        ui->interfaceStatsTable->setItem(row, 6, new QTableWidgetItem(QString::number(txErrors)));
+        ui->interfaceStatsTable->setItem(row, 7, new QTableWidgetItem(speed));
     }
 }
 
@@ -260,60 +258,58 @@ void MainWindow::refreshBridges() {
     ui->bridgeTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
     ui->bridgeTable->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
     
-    // Use a map to track bridges and avoid duplicates
+    // Map: bridge name -> list of slave interface names
     QMap<QString, QStringList> bridgeMap;
     
-    // First, try using brctl if available (more reliable for interface list)
-    QProcess brctlProc;
-    brctlProc.start("brctl", QStringList() << "show");
-    brctlProc.waitForFinished();
-    
-    if (brctlProc.exitCode() == 0) {
-        QString output = QString::fromUtf8(brctlProc.readAllStandardOutput());
-        QStringList lines = output.split('\n', Qt::SkipEmptyParts);
-        
-        // Skip header line
-        for (int i = 1; i < lines.size(); i++) {
-            QStringList parts = lines[i].split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
-            if (parts.size() >= 1) {
-                QString bridgeName = parts[0];
-                QStringList interfaces;
-                for (int j = 1; j < parts.size(); j++) {
-                    // Skip STP and other flags
-                    if (parts[j] != "yes" && parts[j] != "no" && !parts[j].isEmpty()) {
-                        interfaces << parts[j];
-                    }
-                }
-                bridgeMap[bridgeName] = interfaces;
+    // Get list of bridges from kernel (ip link type bridge)
+    QProcess ipProc;
+    ipProc.start("ip", QStringList() << "link" << "show" << "type" << "bridge");
+    ipProc.waitForFinished();
+    if (ipProc.exitCode() != 0) {
+        return;
+    }
+    QString ipOutput = QString::fromUtf8(ipProc.readAllStandardOutput());
+    QRegularExpression bridgeNameRe("^\\d+:\\s+(\\S+):");
+    for (const QString &line : ipOutput.split('\n', Qt::SkipEmptyParts)) {
+        QRegularExpressionMatch m = bridgeNameRe.match(line.trimmed());
+        if (m.hasMatch()) {
+            QString br = m.captured(1);
+            if (!bridgeMap.contains(br)) {
+                bridgeMap[br] = QStringList();
             }
         }
-    } else {
-        // Fallback to ip command if brctl is not available
-        QProcess proc;
-        proc.start("ip", QStringList() << "link" << "show" << "type" << "bridge");
-        proc.waitForFinished();
-        
-        if (proc.exitCode() == 0) {
-            QString output = QString::fromUtf8(proc.readAllStandardOutput());
-            QStringList lines = output.split('\n', Qt::SkipEmptyParts);
-            
-            QString currentBridge;
-            for (const QString &line : lines) {
-                QString trimmed = line.trimmed();
-                // Extract bridge name from lines like "2: br0: <BROADCAST,MULTICAST,UP,LOWER_UP>"
-                QRegularExpression re("^\\d+:\\s+(\\S+):");
-                QRegularExpressionMatch match = re.match(trimmed);
-                if (match.hasMatch()) {
-                    currentBridge = match.captured(1);
-                    if (!bridgeMap.contains(currentBridge)) {
-                        bridgeMap[currentBridge] = QStringList();
+    }
+    
+    // Get slave interfaces from "bridge link show" (iproute2; works without deprecated brctl)
+    QProcess bridgeProc;
+    bridgeProc.start("bridge", QStringList() << "link" << "show");
+    bridgeProc.waitForFinished();
+    if (bridgeProc.exitCode() == 0) {
+        // Lines like " 2: enp7s0: <...> ... master br0 ..."
+        QString blOutput = QString::fromUtf8(bridgeProc.readAllStandardOutput());
+        QRegularExpression masterRe("master\\s+(\\S+)");
+        for (const QString &line : blOutput.split('\n', Qt::SkipEmptyParts)) {
+            QString trimmed = line.trimmed();
+            if (trimmed.isEmpty()) continue;
+            QRegularExpressionMatch masterMatch = masterRe.match(trimmed);
+            if (masterMatch.hasMatch()) {
+                QString masterBr = masterMatch.captured(1);
+                // First token is "N: ifname:" - get ifname
+                QStringList parts = trimmed.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
+                if (parts.size() >= 2) {
+                    QString iface = parts[1].trimmed();
+                    if (iface.endsWith(':')) {
+                        iface.chop(1);
+                    }
+                    if (bridgeMap.contains(masterBr) && !iface.isEmpty()) {
+                        bridgeMap[masterBr] << iface;
                     }
                 }
             }
         }
     }
     
-    // Now populate the table with unique bridges
+    // Populate table
     for (auto it = bridgeMap.begin(); it != bridgeMap.end(); ++it) {
         QString bridgeName = it.key();
         QStringList interfaces = it.value();
@@ -323,12 +319,11 @@ void MainWindow::refreshBridges() {
         ui->bridgeTable->setItem(row, 0, new QTableWidgetItem(bridgeName));
         ui->bridgeTable->setItem(row, 1, new QTableWidgetItem(interfaces.join(", ")));
         
-        // Check if bridge is up
         QProcess statusProc;
         statusProc.start("ip", QStringList() << "link" << "show" << bridgeName);
         statusProc.waitForFinished();
         QString statusOutput = QString::fromUtf8(statusProc.readAllStandardOutput());
-        QString status = statusOutput.contains("UP") ? "Up" : "Down";
+        QString status = statusOutput.contains("state UP") ? "Up" : "Down";
         ui->bridgeTable->setItem(row, 2, new QTableWidgetItem(status));
     }
 }
@@ -338,17 +333,127 @@ void MainWindow::on_refreshBridgeButton_clicked() {
 }
 
 void MainWindow::on_createBridgeButton_clicked() {
-    bool ok;
-    QString bridgeName = QInputDialog::getText(this, "Create Bridge", "Enter bridge name:", QLineEdit::Normal, "br0", &ok);
-    
-    if (ok && !bridgeName.isEmpty()) {
-        QString command = QString("sudo ip link add name %1 type bridge").arg(bridgeName);
-        runSudoCommandInTerminal(command);
-        
-        QTimer::singleShot(2000, this, [this]() {
-            refreshBridges();
-        });
+    // Require NetworkManager for a bridge that gets DHCP and works for VMs
+    QProcess nmCheck;
+    nmCheck.start("which", QStringList() << "nmcli");
+    nmCheck.waitForFinished();
+    if (nmCheck.exitCode() != 0) {
+        QMessageBox::warning(this, "Create Bridge",
+                             "NetworkManager (nmcli) is required to create a managed bridge.\nInstall it (e.g. pacman -S networkmanager).");
+        return;
     }
+    
+    // Get ethernet interfaces (exclude virtual/bridge)
+    QStringList ethernetIfaces;
+    QProcess ipProc;
+    ipProc.start("ip", QStringList() << "-o" << "link" << "show" << "type" << "ethernet");
+    ipProc.waitForFinished();
+    if (ipProc.exitCode() == 0) {
+        QString out = QString::fromUtf8(ipProc.readAllStandardOutput());
+        for (const QString &line : out.split('\n', Qt::SkipEmptyParts)) {
+            // "2: enp7s0: <...>" -> enp7s0
+            QRegularExpression re("^\\d+:\\s+(\\S+):");
+            QRegularExpressionMatch m = re.match(line.trimmed());
+            if (m.hasMatch()) {
+                QString iface = m.captured(1);
+                if (!iface.startsWith("br") && !iface.startsWith("vir")) {
+                    ethernetIfaces << iface;
+                }
+            }
+        }
+    }
+    if (ethernetIfaces.isEmpty()) {
+        QMessageBox::warning(this, "Create Bridge", "No Ethernet interface found. Connect a cable or check your hardware.");
+        return;
+    }
+    
+    // Default route interface for pre-selection
+    QString defaultIface;
+    QProcess routeProc;
+    routeProc.start("ip", QStringList() << "route" << "show" << "default");
+    routeProc.waitForFinished();
+    if (routeProc.exitCode() == 0) {
+        QString out = QString::fromUtf8(routeProc.readAllStandardOutput()).trimmed();
+        QStringList parts = out.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
+        for (int i = 0; i < parts.size() - 1; i++) {
+            if (parts[i] == "dev" && i + 1 < parts.size()) {
+                defaultIface = parts[i + 1];
+                break;
+            }
+        }
+    }
+    
+    QDialog *dialog = new QDialog(this);
+    dialog->setWindowTitle("Create Bridge (NetworkManager)");
+    dialog->setMinimumWidth(400);
+    QVBoxLayout *layout = new QVBoxLayout(dialog);
+    
+    QLabel *infoLabel = new QLabel(
+        "Creates a bridge managed by NetworkManager with DHCP. "
+        "The selected Ethernet interface will be attached so the bridge gets an IP. "
+        "Use this for VM networking (e.g. libvirt).", dialog);
+    infoLabel->setWordWrap(true);
+    layout->addWidget(infoLabel);
+    
+    QHBoxLayout *brLayout = new QHBoxLayout();
+    brLayout->addWidget(new QLabel("Bridge name:", dialog));
+    QLineEdit *brEdit = new QLineEdit("br0", dialog);
+    brEdit->setPlaceholderText("br0");
+    brLayout->addWidget(brEdit);
+    layout->addLayout(brLayout);
+    
+    QHBoxLayout *ifLayout = new QHBoxLayout();
+    ifLayout->addWidget(new QLabel("Interface to attach:", dialog));
+    QComboBox *ifaceCombo = new QComboBox(dialog);
+    ifaceCombo->addItems(ethernetIfaces);
+    int defaultIdx = ethernetIfaces.indexOf(defaultIface);
+    if (defaultIdx >= 0) {
+        ifaceCombo->setCurrentIndex(defaultIdx);
+    }
+    ifLayout->addWidget(ifaceCombo);
+    layout->addLayout(ifLayout);
+    
+    QHBoxLayout *btnLayout = new QHBoxLayout();
+    QPushButton *okBtn = new QPushButton("Create", dialog);
+    QPushButton *cancelBtn = new QPushButton("Cancel", dialog);
+    btnLayout->addWidget(okBtn);
+    btnLayout->addWidget(cancelBtn);
+    layout->addLayout(btnLayout);
+    
+    connect(cancelBtn, &QPushButton::clicked, dialog, &QDialog::reject);
+    connect(okBtn, &QPushButton::clicked, [dialog, brEdit, ifaceCombo, this]() {
+        QString bridgeName = brEdit->text().trimmed();
+        QString iface = ifaceCombo->currentText().trimmed();
+        if (bridgeName.isEmpty()) {
+            bridgeName = "br0";
+        }
+        // Allow only safe chars (alphanumeric + underscore)
+        if (!QRegularExpression("^[a-zA-Z0-9_]+$").match(bridgeName).hasMatch()) {
+            QMessageBox::warning(dialog, "Invalid name", "Bridge name must contain only letters, numbers, and underscores.");
+            return;
+        }
+        if (iface.isEmpty()) {
+            QMessageBox::warning(dialog, "Invalid selection", "Please select an interface to attach.");
+            return;
+        }
+        
+        QString script = QString(
+            "conn=$(nmcli -t -g GENERAL.CONNECTION device show \"%1\" 2>/dev/null | head -1); "
+            "[ -n \"$conn\" ] && [ \"$conn\" != -- ] && nmcli connection delete \"$conn\" 2>/dev/null; "
+            "nmcli connection delete \"%2\" 2>/dev/null; "
+            "nmcli connection add type bridge ifname \"%2\" con-name \"%2\"; "
+            "nmcli connection add type bridge-slave ifname \"%1\" master \"%2\"; "
+            "nmcli connection modify \"%2\" ipv4.method auto ipv6.method auto connection.autoconnect yes; "
+            "nmcli connection up \"%2\"; "
+            "echo ''; echo 'Bridge %2 is up.'; echo 'Press Enter to close.'; read -r"
+        ).arg(iface, bridgeName);
+        runSudoCommandInTerminal("sudo bash -c '" + script + "'");
+        dialog->accept();
+        QTimer::singleShot(3000, this, [this]() { refreshBridges(); });
+    });
+    
+    dialog->exec();
+    dialog->deleteLater();
 }
 
 void MainWindow::on_deleteBridgeButton_clicked() {
@@ -359,20 +464,51 @@ void MainWindow::on_deleteBridgeButton_clicked() {
     }
     
     int row = selected[0]->row();
-    QString bridgeName = ui->bridgeTable->item(row, 0)->text();
-    
-    int ret = QMessageBox::question(this, "Delete Bridge", 
-                                     QString("Are you sure you want to delete bridge '%1'?").arg(bridgeName),
-                                     QMessageBox::Yes | QMessageBox::No);
-    
-    if (ret == QMessageBox::Yes) {
-        QString command = QString("sudo ip link delete %1").arg(bridgeName);
-        runSudoCommandInTerminal(command);
-        
-        QTimer::singleShot(2000, this, [this]() {
-            refreshBridges();
-        });
+    QString bridgeName = ui->bridgeTable->item(row, 0)->text().trimmed();
+    if (bridgeName.isEmpty()) {
+        return;
     }
+    
+    int ret = QMessageBox::question(this, "Delete Bridge",
+                                     QString("Are you sure you want to delete bridge '%1'?\n\n"
+                                             "If it is managed by NetworkManager it will be removed cleanly. "
+                                             "Otherwise slaves will be detached first.").arg(bridgeName),
+                                     QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+    
+    if (ret != QMessageBox::Yes) {
+        return;
+    }
+    
+    // Try NM first (clean teardown); then fallback: detach slaves and ip link delete
+    // Use temp script to avoid fragile quoting; script removes itself when done
+    QString scriptPath = QDir::tempPath() + "/cachyos_delete_bridge_" + QString::number(QCoreApplication::applicationPid()) + ".sh";
+    QString scriptContent = QString(
+        "#!/bin/bash\n"
+        "br=\"%1\"\n"
+        "nmcli connection delete \"$br\" 2>/dev/null\n"
+        "if ip link show \"$br\" &>/dev/null; then\n"
+        "  for s in $(bridge link show 2>/dev/null | grep \" master $br \" | awk '{gsub(/:$/,\"\",$2); print $2}'); do\n"
+        "    ip link set \"$s\" nomaster 2>/dev/null\n"
+        "  done\n"
+        "  ip link set \"$br\" down 2>/dev/null\n"
+        "  ip link delete \"$br\" 2>/dev/null\n"
+        "fi\n"
+        "echo ''; echo 'Done.'; echo 'Press Enter to close.'; read -r\n"
+        "rm -f \"$0\"\n"
+    ).arg(bridgeName);
+    QFile scriptFile(scriptPath);
+    if (!scriptFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QMessageBox::warning(this, "Error", "Could not create temporary script.");
+        return;
+    }
+    scriptFile.write(scriptContent.toUtf8());
+    scriptFile.close();
+    scriptFile.setPermissions(scriptFile.permissions() | QFile::ExeOwner);
+    runSudoCommandInTerminal("sudo " + scriptPath);
+    
+    QTimer::singleShot(3000, this, [this]() {
+        refreshBridges();
+    });
 }
 
 void MainWindow::refreshLibvirtNetworks() {
