@@ -1041,11 +1041,13 @@ void MainWindow::on_yayInstallButton_clicked() {
     
     ui->packageOutputText->setPlainText("Installing Yay...\n");
     
+    // makepkg must run as the real user, not root — use sudo -v so nested sudo from makepkg/pacman works.
     QString script = QString(
-        "cd /tmp && "
+        "cd /tmp && rm -rf yay && "
         "git clone https://aur.archlinux.org/yay.git && "
         "cd yay && "
-        "echo '%1' | sudo -S makepkg -si --noconfirm"
+        "echo '%1' | sudo -S -v && "
+        "makepkg -si --noconfirm"
     ).arg(sudoPassword);
     
     QProcess::startDetached("konsole", QStringList() << "-e" << "bash" << "-c" << script + "; read -p 'Press Enter to close...'");
@@ -1121,10 +1123,11 @@ void MainWindow::on_paruInstallButton_clicked() {
     ui->packageOutputText->setPlainText("Installing Paru...\n");
     
     QString script = QString(
-        "cd /tmp && "
+        "cd /tmp && rm -rf paru && "
         "git clone https://aur.archlinux.org/paru.git && "
         "cd paru && "
-        "echo '%1' | sudo -S makepkg -si --noconfirm"
+        "echo '%1' | sudo -S -v && "
+        "makepkg -si --noconfirm"
     ).arg(sudoPassword);
     
     QProcess::startDetached("konsole", QStringList() << "-e" << "bash" << "-c" << script + "; read -p 'Press Enter to close...'");
