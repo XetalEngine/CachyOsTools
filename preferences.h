@@ -82,8 +82,9 @@ void MainWindow::showPreferencesDialog() {
     tabNames["restoreTab"] = "Restore";
     tabNames["isoCreatorTab"] = "System ISO Creator";
     tabNames["packageManagerTab"] = "Package Manager";
+    tabNames["uninstallTab"] = "Uninstall";
     tabNames["networkTab"] = "Network";
-    
+
     for (auto it = tabNames.begin(); it != tabNames.end(); ++it) {
         QCheckBox *checkbox = new QCheckBox(it.value(), tabsTab);
         checkbox->setChecked(tabVisibilityMap.value(it.key(), true));
@@ -221,7 +222,7 @@ void MainWindow::loadTabVisibilityPreferences() {
     QStringList tabNames = {
         "driveToolsTab", "shellToolsTab", "servicesTab", "tweaksTab",
         "kvmTab", "configTab", "logsTab", "backupTab", "restoreTab",
-        "isoCreatorTab", "packageManagerTab", "networkTab"
+        "isoCreatorTab", "packageManagerTab", "uninstallTab", "networkTab"
     };
     
     for (const QString &tabName : tabNames) {
@@ -265,6 +266,7 @@ void MainWindow::applyTabVisibility() {
     tabs["restoreTab"] = ui->restoreTab;
     tabs["isoCreatorTab"] = ui->isoCreatorTab;
     tabs["packageManagerTab"] = ui->packageManagerTab;
+    tabs["uninstallTab"] = ui->uninstallTab;
     tabs["networkTab"] = ui->networkTab;
     
     // Verify all tabs exist before proceeding
@@ -302,12 +304,13 @@ void MainWindow::applyTabVisibility() {
     tabTitles["restoreTab"] = "Restore";
     tabTitles["isoCreatorTab"] = "System ISO Creator";
     tabTitles["packageManagerTab"] = "Package Manager";
+    tabTitles["uninstallTab"] = "Uninstall";
     tabTitles["networkTab"] = "Network";
-    
+
     QStringList tabOrder = {
         "driveToolsTab", "shellToolsTab", "servicesTab", "tweaksTab",
         "kvmTab", "configTab", "logsTab", "backupTab", "restoreTab",
-        "isoCreatorTab", "packageManagerTab", "networkTab"
+        "isoCreatorTab", "packageManagerTab", "uninstallTab", "networkTab"
     };
     
     // Store all widgets before removing tabs to prevent deletion

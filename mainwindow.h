@@ -301,6 +301,11 @@ private slots:
     void on_paruInstallButton_clicked();
     void on_paruReinstallButton_clicked();
     void on_paruUninstallButton_clicked();
+    // Uninstall tab slots
+    void on_uninstallRefreshButton_clicked();
+    void on_uninstallButton_clicked();
+    void on_uninstallSearch_textChanged(const QString &text);
+    void on_uninstallSourceFilter_currentIndexChanged(int index);
 
 private:
     Ui::MainWindow *ui;
@@ -406,6 +411,12 @@ private:
     QString offlinePackagePath;
     const QString OFFLINE_PACKAGE_FILENAME = "offline-iso-packages-complete.tar.gz";
     
+    // Uninstall tab helper functions
+    void refreshUninstallList();
+    void filterUninstallTable();
+    void updateUninstallSelectionInfo();
+    qint64 parsePacmanSizeToBytes(const QString &sizeStr);
+
     // Package Manager helper functions
     void checkAurHelpers();
     void refreshPacmanInstalled();

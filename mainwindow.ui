@@ -3686,6 +3686,164 @@ PRIVACY
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="uninstallTab">
+       <attribute name="title">
+        <string>Uninstall</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_uninstall">
+        <item>
+         <layout class="QHBoxLayout" name="uninstallTopLayout">
+          <item>
+           <widget class="QLineEdit" name="uninstallSearch">
+            <property name="placeholderText">
+             <string>Search installed software...</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="uninstallSourceFilter">
+            <property name="toolTip">
+             <string>Filter by package source</string>
+            </property>
+            <item>
+             <property name="text">
+              <string>All Sources</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Official Repos</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>AUR / Foreign</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="uninstallRefreshButton">
+            <property name="text">
+             <string>🔄 Refresh</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="uninstallTopSpacer">
+            <property name="orientation">
+             <enum>Qt::Orientation::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="uninstallCountLabel">
+            <property name="text">
+             <string>Click Refresh to load installed software.</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QTableWidget" name="uninstallTable">
+          <property name="alternatingRowColors">
+           <bool>true</bool>
+          </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+          </property>
+          <property name="selectionMode">
+           <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
+          </property>
+          <property name="sortingEnabled">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="uninstallActionsLayout">
+          <item>
+           <widget class="QLabel" name="uninstallHelperLabel">
+            <property name="text">
+             <string>Remove with:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="uninstallHelperCombo">
+            <property name="toolTip">
+             <string>Tool used to remove the selected packages. Auto picks pacman.</string>
+            </property>
+            <item>
+             <property name="text">
+              <string>Auto</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Pacman</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Yay</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Paru</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="uninstallDepsCheckBox">
+            <property name="text">
+             <string>Also remove unneeded dependencies (-Rns)</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="uninstallButton">
+            <property name="text">
+             <string>🗑️ Uninstall Selected</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="uninstallActionsSpacer">
+            <property name="orientation">
+             <enum>Qt::Orientation::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="uninstallSelectedSizeLabel">
+            <property name="text">
+             <string>Selected: 0 packages</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>

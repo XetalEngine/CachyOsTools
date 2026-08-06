@@ -151,6 +151,15 @@ shellConfigFiles["ksh"] = QStringList()
         }
     });
 
+    // Uninstall tab: load package list the first time the tab is opened
+    connect(ui->tabWidget, &QTabWidget::currentChanged, this, [this](int index) {
+        if (ui->tabWidget->widget(index) == ui->uninstallTab && ui->uninstallTable->rowCount() == 0) {
+            refreshUninstallList();
+        }
+    });
+    connect(ui->uninstallTable->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, [this]() { updateUninstallSelectionInfo(); });
+
     // Tweaks tab toggle button connections
     disconnect(ui->zramToggle, nullptr, nullptr, nullptr);
     disconnect(ui->ipv6Toggle, nullptr, nullptr, nullptr);

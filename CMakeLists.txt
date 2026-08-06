@@ -31,6 +31,7 @@ set(PROJECT_SOURCES
         current_system_iso_creator.h
         services.h
         includes.h
+        uninstalltab.h
         # Additional files (currently empty but may be implemented)
         drivetools.h
         drivetools.cpp
