@@ -3045,6 +3045,16 @@ PRIVACY
                </widget>
               </item>
               <item>
+               <widget class="QPushButton" name="fixBridgeButton">
+                <property name="text">
+                 <string>🔧 Fix Bridge (New Hardware)</string>
+                </property>
+                <property name="toolTip">
+                 <string>Re-attach the bridge to whatever network device this machine has. Use after installing a system image on different hardware.</string>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QPushButton" name="refreshBridgeButton">
                 <property name="text">
                  <string>🔄 Refresh</string>
@@ -3148,6 +3158,151 @@ PRIVACY
                  </size>
                 </property>
                </spacer>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="wifiTab">
+           <attribute name="title">
+            <string>Wi-Fi</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_wifi">
+            <item>
+             <layout class="QHBoxLayout" name="wifiTopLayout">
+              <item>
+               <widget class="QPushButton" name="wifiScanButton">
+                <property name="text">
+                 <string>📡 Scan Networks</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="wifiConnectButton">
+                <property name="text">
+                 <string>🔗 Connect</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="wifiDisconnectButton">
+                <property name="text">
+                 <string>❌ Disconnect</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="wifiRadioToggleButton">
+                <property name="text">
+                 <string>📶 Wi-Fi On/Off</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="wifiTopSpacer">
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QLabel" name="wifiStatusLabel">
+                <property name="text">
+                 <string>Click Scan to list nearby networks.</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QTableWidget" name="wifiTable">
+              <property name="alternatingRowColors">
+               <bool>true</bool>
+              </property>
+              <property name="selectionBehavior">
+               <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="connectionsTab">
+           <attribute name="title">
+            <string>Saved Connections</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_connections">
+            <item>
+             <widget class="QTableWidget" name="connectionsTable">
+              <property name="alternatingRowColors">
+               <bool>true</bool>
+              </property>
+              <property name="selectionBehavior">
+               <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="connectionsActionsLayout">
+              <item>
+               <widget class="QPushButton" name="connUpButton">
+                <property name="text">
+                 <string>⬆️ Activate</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="connDownButton">
+                <property name="text">
+                 <string>⬇️ Deactivate</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="connAutoconnectButton">
+                <property name="text">
+                 <string>♻️ Toggle Autoconnect</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="connDeleteButton">
+                <property name="text">
+                 <string>🗑️ Delete</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="connRefreshButton">
+                <property name="text">
+                 <string>🔄 Refresh</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="connectionsSpacer">
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="restartNetworkManagerButton">
+                <property name="text">
+                 <string>🔁 Restart NetworkManager</string>
+                </property>
+               </widget>
               </item>
              </layout>
             </item>

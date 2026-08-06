@@ -137,6 +137,8 @@ shellConfigFiles["ksh"] = QStringList()
     refreshBridges();
     refreshLibvirtNetworks();
     refreshInterfaceConfig();
+    refreshConnectionsList();
+    refreshWifiNetworks(false);
     // Connect search buttons
     connect(ui->pacmanAurSearchButton, &QPushButton::clicked, this, &MainWindow::on_pacmanAurSearchButton_clicked);
     connect(ui->pacmanAurSearch, &QLineEdit::returnPressed, this, &MainWindow::on_pacmanAurSearch_returnPressed);
@@ -333,6 +335,12 @@ shellConfigFiles["ksh"] = QStringList()
         }
         if (ui->tabWidget->widget(index)->objectName() == "restoreTab") {
             populateRestoreDrives();
+        }
+        if (ui->tabWidget->widget(index) == ui->networkTab) {
+            refreshNetworkInfo();
+            refreshBridges();
+            refreshConnectionsList();
+            refreshWifiNetworks(false);
         }
     });
 

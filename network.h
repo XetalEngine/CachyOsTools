@@ -850,64 +850,51 @@ void MainWindow::configureInterface(const QString &interfaceName) {
     layout->addLayout(buttonLayout);
     
     connect(okButton, &QPushButton::clicked, [this, dialog, interfaceName, automaticRadio, ipEdit, netmaskEdit, gatewayEdit, dnsEdit]() {
-        QString command;
-        
+        // Build the nmcli modify arguments
+        QString modifyArgs;
         if (automaticRadio->isChecked()) {
-            // Configure for DHCP
-            command = QString("sudo nmcli connection modify %1 ipv4.method auto").arg(interfaceName);
-            // If connection doesn't exist, create it
-            QProcess checkProc;
-            checkProc.start("nmcli", QStringList() << "connection" << "show" << interfaceName);
-            checkProc.waitForFinished();
-            if (checkProc.exitCode() != 0) {
-                command = QString("sudo nmcli connection add type ethernet con-name %1 ifname %2 ipv4.method auto").arg(interfaceName).arg(interfaceName);
-            }
+            modifyArgs = "ipv4.method auto ipv4.addresses '' ipv4.gateway '' ipv4.dns ''";
         } else {
-            // Configure for static IP
-            QString ip = ipEdit->text();
-            QString netmask = netmaskEdit->text();
-            QString gateway = gatewayEdit->text();
-            QString dns = dnsEdit->text();
-            
+            QString ip = ipEdit->text().trimmed();
+            QString netmask = netmaskEdit->text().trimmed();
+            QString gateway = gatewayEdit->text().trimmed();
+            QString dns = dnsEdit->text().trimmed().replace(" ", "");
+
             if (ip.isEmpty() || netmask.isEmpty()) {
                 QMessageBox::warning(dialog, "Invalid Input", "IP Address and Netmask are required for manual configuration.");
                 return;
             }
-            
+
             QString cidr = convertNetmaskToCIDR(netmask);
-            command = QString("sudo nmcli connection modify %1 ipv4.method manual ipv4.addresses %2/%3").arg(interfaceName).arg(ip).arg(cidr);
-            
+            modifyArgs = QString("ipv4.method manual ipv4.addresses %1/%2").arg(ip, cidr);
             if (!gateway.isEmpty()) {
-                command += QString(" ipv4.gateway %1").arg(gateway);
+                modifyArgs += QString(" ipv4.gateway %1").arg(gateway);
             }
             if (!dns.isEmpty()) {
-                command += QString(" ipv4.dns %1").arg(dns.replace(" ", ""));
+                modifyArgs += QString(" ipv4.dns %1").arg(dns);
             }
-            
-            // If connection doesn't exist, create it
-            QProcess checkProc;
-            checkProc.start("nmcli", QStringList() << "connection" << "show" << interfaceName);
-            checkProc.waitForFinished();
-            if (checkProc.exitCode() != 0) {
-                QString createCmd = QString("sudo nmcli connection add type ethernet con-name %1 ifname %2").arg(interfaceName).arg(interfaceName);
-                runSudoCommandInTerminal(createCmd + " && " + command);
-            } else {
-                runSudoCommandInTerminal(command);
-            }
-            
-            // Bring interface up
-            runSudoCommandInTerminal(QString("sudo nmcli connection up %1").arg(interfaceName));
         }
-        
-        if (!command.isEmpty()) {
-            runSudoCommandInTerminal(command);
-            QMessageBox::information(dialog, "Configuration Applied", 
-                                     QString("Configuration for %1 has been applied. The interface will be restarted.").arg(interfaceName));
-        }
-        
+
+        // The NM connection name usually differs from the interface name
+        // ("Wired connection 1" etc.), so resolve it from the device and
+        // apply everything in one terminal run.
+        QString script = QString(
+            "iface=\"%1\"\n"
+            "conn=$(nmcli -t -g GENERAL.CONNECTION device show \"$iface\" 2>/dev/null | head -1)\n"
+            "if [ -z \"$conn\" ] || [ \"$conn\" = \"--\" ]; then\n"
+            "  echo \"No connection profile for $iface - creating one.\"\n"
+            "  nmcli connection add type ethernet con-name \"$iface\" ifname \"$iface\"\n"
+            "  conn=\"$iface\"\n"
+            "fi\n"
+            "echo \"Applying configuration to connection '$conn'...\"\n"
+            "nmcli connection modify \"$conn\" %2 && nmcli connection up \"$conn\"\n"
+        ).arg(interfaceName, modifyArgs);
+        runScriptInTerminal(script, "configure_interface");
+
         dialog->accept();
-        QTimer::singleShot(2000, this, [this]() {
+        QTimer::singleShot(3000, this, [this]() {
             refreshInterfaceConfig();
+            refreshNetworkInfo();
         });
     });
     
@@ -960,20 +947,490 @@ void MainWindow::on_downInterfaceButton_clicked() {
         QMessageBox::warning(this, "No Selection", "Please select an interface to bring down.");
         return;
     }
-    
+
     int row = selected[0]->row();
     QString interfaceName = ui->interfaceConfigTable->item(row, 0)->text();
-    
-    int ret = QMessageBox::question(this, "Bring Interface Down", 
+
+    int ret = QMessageBox::question(this, "Bring Interface Down",
                                      QString("Are you sure you want to bring interface '%1' down?").arg(interfaceName),
                                      QMessageBox::Yes | QMessageBox::No);
-    
+
     if (ret == QMessageBox::Yes) {
         QString command = QString("sudo ip link set %1 down").arg(interfaceName);
         runSudoCommandInTerminal(command);
-        
+
         QTimer::singleShot(2000, this, [this]() {
             refreshInterfaceConfig();
         });
     }
+}
+
+// Writes a bash script to a temp file and runs it with sudo in a terminal.
+// Avoids fragile nested quoting; the script pauses at the end and deletes itself.
+void MainWindow::runScriptInTerminal(const QString &scriptContent, const QString &namePrefix) {
+    static int scriptRunId = 0;
+    QString scriptPath = QDir::tempPath() + QString("/cachyos_%1_%2_%3.sh")
+                         .arg(namePrefix).arg(QCoreApplication::applicationPid()).arg(++scriptRunId);
+    QFile scriptFile(scriptPath);
+    if (!scriptFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QMessageBox::warning(this, "Error", "Could not create temporary script.");
+        return;
+    }
+    scriptFile.write("#!/bin/bash\n");
+    scriptFile.write(scriptContent.toUtf8());
+    scriptFile.write("\necho ''; echo 'Done. Press Enter to close.'; read -r\nrm -f \"$0\"\n");
+    scriptFile.close();
+    scriptFile.setPermissions(scriptFile.permissions() | QFile::ExeOwner);
+    runSudoCommandInTerminal("sudo " + scriptPath);
+}
+
+// Splits one line of `nmcli -t` output on unescaped colons ("\:" inside
+// values like SSIDs is unescaped, "\\" becomes "\").
+QStringList MainWindow::splitNmcliLine(const QString &line) {
+    QStringList fields;
+    QString current;
+    for (int i = 0; i < line.size(); ++i) {
+        QChar c = line[i];
+        if (c == '\\' && i + 1 < line.size()) {
+            current += line[i + 1];
+            ++i;
+        } else if (c == ':') {
+            fields << current;
+            current.clear();
+        } else {
+            current += c;
+        }
+    }
+    fields << current;
+    return fields;
+}
+
+QString MainWindow::getWifiDevice() {
+    QProcess proc;
+    proc.start("nmcli", QStringList() << "-t" << "-f" << "DEVICE,TYPE" << "device");
+    proc.waitForFinished(10000);
+    if (proc.exitCode() != 0) {
+        return QString();
+    }
+    const QStringList lines = QString::fromUtf8(proc.readAllStandardOutput()).split('\n', Qt::SkipEmptyParts);
+    for (const QString &line : lines) {
+        QStringList parts = splitNmcliLine(line);
+        if (parts.size() >= 2 && parts[1] == "wifi") {
+            return parts[0];
+        }
+    }
+    return QString();
+}
+
+void MainWindow::refreshWifiNetworks(bool rescan) {
+    ui->wifiTable->setRowCount(0);
+    ui->wifiTable->setColumnCount(6);
+    QStringList headers;
+    headers << "In Use" << "SSID" << "Signal" << "Security" << "Channel" << "Rate";
+    ui->wifiTable->setHorizontalHeaderLabels(headers);
+    for (int i = 0; i < 5; i++) {
+        ui->wifiTable->horizontalHeader()->setSectionResizeMode(i, QHeaderView::ResizeToContents);
+    }
+    ui->wifiTable->horizontalHeader()->setSectionResizeMode(5, QHeaderView::Stretch);
+
+    QString wifiDev = getWifiDevice();
+    if (wifiDev.isEmpty()) {
+        ui->wifiStatusLabel->setText("No Wi-Fi adapter detected.");
+        return;
+    }
+
+    // Radio state drives the toggle button text
+    QProcess radioProc;
+    radioProc.start("nmcli", QStringList() << "radio" << "wifi");
+    radioProc.waitForFinished(10000);
+    QString radioState = QString::fromUtf8(radioProc.readAllStandardOutput()).trimmed();
+    ui->wifiRadioToggleButton->setText(radioState == "enabled" ? "📶 Turn Wi-Fi Off" : "📶 Turn Wi-Fi On");
+    if (radioState != "enabled") {
+        ui->wifiStatusLabel->setText(QString("Wi-Fi is turned off (device %1).").arg(wifiDev));
+        return;
+    }
+
+    if (rescan) {
+        ui->wifiStatusLabel->setText("Scanning...");
+        QApplication::processEvents();
+    }
+
+    QStringList args;
+    args << "-t" << "-f" << "IN-USE,SSID,SIGNAL,SECURITY,CHAN,RATE"
+         << "device" << "wifi" << "list" << "ifname" << wifiDev;
+    if (rescan) {
+        args << "--rescan" << "yes";
+    }
+    QProcess proc;
+    proc.start("nmcli", args);
+    proc.waitForFinished(rescan ? 30000 : 10000);
+    if (proc.exitCode() != 0) {
+        ui->wifiStatusLabel->setText("❌ Failed to list Wi-Fi networks.");
+        return;
+    }
+
+    const QStringList lines = QString::fromUtf8(proc.readAllStandardOutput()).split('\n', Qt::SkipEmptyParts);
+    for (const QString &line : lines) {
+        QStringList parts = splitNmcliLine(line);
+        if (parts.size() < 6 || parts[1].isEmpty()) continue; // skip hidden SSIDs
+
+        int row = ui->wifiTable->rowCount();
+        ui->wifiTable->insertRow(row);
+        ui->wifiTable->setItem(row, 0, new QTableWidgetItem(parts[0].contains('*') ? "✓" : ""));
+        ui->wifiTable->setItem(row, 1, new QTableWidgetItem(parts[1]));
+        ui->wifiTable->setItem(row, 2, new QTableWidgetItem(parts[2] + "%"));
+        ui->wifiTable->setItem(row, 3, new QTableWidgetItem(parts[3].isEmpty() ? "Open" : parts[3]));
+        ui->wifiTable->setItem(row, 4, new QTableWidgetItem(parts[4]));
+        ui->wifiTable->setItem(row, 5, new QTableWidgetItem(parts[5]));
+    }
+
+    ui->wifiStatusLabel->setText(QString("%1 networks found (device %2).")
+                                 .arg(ui->wifiTable->rowCount()).arg(wifiDev));
+}
+
+void MainWindow::on_wifiScanButton_clicked() {
+    refreshWifiNetworks(true);
+}
+
+void MainWindow::on_wifiConnectButton_clicked() {
+    int row = ui->wifiTable->currentRow();
+    if (row < 0) {
+        QMessageBox::warning(this, "No Selection", "Please select a Wi-Fi network to connect to.");
+        return;
+    }
+
+    QString ssid = ui->wifiTable->item(row, 1)->text();
+    QString security = ui->wifiTable->item(row, 3)->text();
+    QString wifiDev = getWifiDevice();
+
+    QString password;
+    if (security != "Open") {
+        bool ok;
+        password = QInputDialog::getText(this, "Wi-Fi Password",
+                                         QString("Password for '%1'\n(leave empty if it is already saved):").arg(ssid),
+                                         QLineEdit::Password, "", &ok);
+        if (!ok) {
+            return;
+        }
+    }
+
+    // nmcli talks to NetworkManager over D-Bus; no sudo or terminal needed,
+    // and passing args as a list keeps the password out of any shell.
+    QStringList args;
+    args << "device" << "wifi" << "connect" << ssid;
+    if (!password.isEmpty()) {
+        args << "password" << password;
+    }
+    if (!wifiDev.isEmpty()) {
+        args << "ifname" << wifiDev;
+    }
+
+    ui->wifiStatusLabel->setText(QString("Connecting to '%1'...").arg(ssid));
+
+    QProcess *process = new QProcess(this);
+    connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+            [this, process, ssid](int exitCode, QProcess::ExitStatus) {
+                QString output = QString::fromUtf8(process->readAllStandardOutput());
+                QString error = QString::fromUtf8(process->readAllStandardError());
+                if (exitCode == 0) {
+                    ui->wifiStatusLabel->setText(QString("✅ Connected to '%1'.").arg(ssid));
+                    refreshWifiNetworks(false);
+                    refreshNetworkInfo();
+                    refreshConnectionsList();
+                } else {
+                    ui->wifiStatusLabel->setText(QString("❌ Failed to connect to '%1'.").arg(ssid));
+                    QMessageBox::warning(this, "Connection Failed",
+                                         QString("Could not connect to '%1':\n%2").arg(ssid, (output + "\n" + error).trimmed()));
+                }
+                process->deleteLater();
+            });
+    process->start("nmcli", args);
+}
+
+void MainWindow::on_wifiDisconnectButton_clicked() {
+    QString wifiDev = getWifiDevice();
+    if (wifiDev.isEmpty()) {
+        QMessageBox::warning(this, "No Wi-Fi", "No Wi-Fi adapter detected.");
+        return;
+    }
+
+    QProcess proc;
+    proc.start("nmcli", QStringList() << "device" << "disconnect" << wifiDev);
+    proc.waitForFinished(15000);
+    if (proc.exitCode() == 0) {
+        ui->wifiStatusLabel->setText(QString("Disconnected %1.").arg(wifiDev));
+    } else {
+        ui->wifiStatusLabel->setText(QString("❌ Failed to disconnect %1.").arg(wifiDev));
+    }
+    refreshWifiNetworks(false);
+    refreshNetworkInfo();
+}
+
+void MainWindow::on_wifiRadioToggleButton_clicked() {
+    QProcess radioProc;
+    radioProc.start("nmcli", QStringList() << "radio" << "wifi");
+    radioProc.waitForFinished(10000);
+    QString radioState = QString::fromUtf8(radioProc.readAllStandardOutput()).trimmed();
+
+    QProcess proc;
+    proc.start("nmcli", QStringList() << "radio" << "wifi" << (radioState == "enabled" ? "off" : "on"));
+    proc.waitForFinished(10000);
+
+    QTimer::singleShot(1500, this, [this]() { refreshWifiNetworks(false); });
+}
+
+void MainWindow::refreshConnectionsList() {
+    ui->connectionsTable->setRowCount(0);
+    ui->connectionsTable->setColumnCount(5);
+    QStringList headers;
+    headers << "Name" << "Type" << "Device" << "Active" << "Autoconnect";
+    ui->connectionsTable->setHorizontalHeaderLabels(headers);
+    ui->connectionsTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+    for (int i = 1; i < 5; i++) {
+        ui->connectionsTable->horizontalHeader()->setSectionResizeMode(i, QHeaderView::ResizeToContents);
+    }
+
+    QProcess proc;
+    proc.start("nmcli", QStringList() << "-t" << "-f" << "NAME,UUID,TYPE,DEVICE,ACTIVE,AUTOCONNECT" << "connection" << "show");
+    proc.waitForFinished(10000);
+    if (proc.exitCode() != 0) {
+        return;
+    }
+
+    const QStringList lines = QString::fromUtf8(proc.readAllStandardOutput()).split('\n', Qt::SkipEmptyParts);
+    for (const QString &line : lines) {
+        QStringList parts = splitNmcliLine(line);
+        if (parts.size() < 6 || parts[2] == "loopback") continue;
+
+        QString type = parts[2];
+        if (type == "802-3-ethernet") type = "Ethernet";
+        else if (type == "802-11-wireless") type = "Wi-Fi";
+        else if (type == "bridge") type = "Bridge";
+
+        int row = ui->connectionsTable->rowCount();
+        ui->connectionsTable->insertRow(row);
+        QTableWidgetItem *nameItem = new QTableWidgetItem(parts[0]);
+        nameItem->setData(Qt::UserRole, parts[1]); // UUID for unambiguous nmcli targeting
+        ui->connectionsTable->setItem(row, 0, nameItem);
+        ui->connectionsTable->setItem(row, 1, new QTableWidgetItem(type));
+        ui->connectionsTable->setItem(row, 2, new QTableWidgetItem(parts[3].isEmpty() ? "--" : parts[3]));
+        ui->connectionsTable->setItem(row, 3, new QTableWidgetItem(parts[4]));
+        ui->connectionsTable->setItem(row, 4, new QTableWidgetItem(parts[5]));
+    }
+}
+
+void MainWindow::on_connRefreshButton_clicked() {
+    refreshConnectionsList();
+}
+
+void MainWindow::on_connUpButton_clicked() {
+    int row = ui->connectionsTable->currentRow();
+    if (row < 0) {
+        QMessageBox::warning(this, "No Selection", "Please select a connection to activate.");
+        return;
+    }
+    QString name = ui->connectionsTable->item(row, 0)->text();
+    QString uuid = ui->connectionsTable->item(row, 0)->data(Qt::UserRole).toString();
+
+    QProcess *process = new QProcess(this);
+    connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+            [this, process, name](int exitCode, QProcess::ExitStatus) {
+                if (exitCode != 0) {
+                    QString error = QString::fromUtf8(process->readAllStandardError());
+                    QMessageBox::warning(this, "Error", QString("Failed to activate '%1':\n%2").arg(name, error.trimmed()));
+                }
+                refreshConnectionsList();
+                refreshNetworkInfo();
+                process->deleteLater();
+            });
+    process->start("nmcli", QStringList() << "connection" << "up" << "uuid" << uuid);
+}
+
+void MainWindow::on_connDownButton_clicked() {
+    int row = ui->connectionsTable->currentRow();
+    if (row < 0) {
+        QMessageBox::warning(this, "No Selection", "Please select a connection to deactivate.");
+        return;
+    }
+    QString name = ui->connectionsTable->item(row, 0)->text();
+    QString uuid = ui->connectionsTable->item(row, 0)->data(Qt::UserRole).toString();
+
+    QProcess proc;
+    proc.start("nmcli", QStringList() << "connection" << "down" << "uuid" << uuid);
+    proc.waitForFinished(20000);
+    if (proc.exitCode() != 0) {
+        QString error = QString::fromUtf8(proc.readAllStandardError());
+        QMessageBox::warning(this, "Error", QString("Failed to deactivate '%1':\n%2").arg(name, error.trimmed()));
+    }
+    refreshConnectionsList();
+    refreshNetworkInfo();
+}
+
+void MainWindow::on_connDeleteButton_clicked() {
+    int row = ui->connectionsTable->currentRow();
+    if (row < 0) {
+        QMessageBox::warning(this, "No Selection", "Please select a connection to delete.");
+        return;
+    }
+    QString name = ui->connectionsTable->item(row, 0)->text();
+    QString uuid = ui->connectionsTable->item(row, 0)->data(Qt::UserRole).toString();
+
+    int ret = QMessageBox::question(this, "Delete Connection",
+                                    QString("Delete the saved connection '%1'?\n\n"
+                                            "If it is currently active it will be disconnected.").arg(name),
+                                    QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+    if (ret != QMessageBox::Yes) {
+        return;
+    }
+
+    QProcess proc;
+    proc.start("nmcli", QStringList() << "connection" << "delete" << "uuid" << uuid);
+    proc.waitForFinished(20000);
+    if (proc.exitCode() != 0) {
+        QString error = QString::fromUtf8(proc.readAllStandardError());
+        QMessageBox::warning(this, "Error", QString("Failed to delete '%1':\n%2").arg(name, error.trimmed()));
+    }
+    refreshConnectionsList();
+}
+
+void MainWindow::on_connAutoconnectButton_clicked() {
+    int row = ui->connectionsTable->currentRow();
+    if (row < 0) {
+        QMessageBox::warning(this, "No Selection", "Please select a connection.");
+        return;
+    }
+    QString name = ui->connectionsTable->item(row, 0)->text();
+    QString uuid = ui->connectionsTable->item(row, 0)->data(Qt::UserRole).toString();
+    QString current = ui->connectionsTable->item(row, 4)->text();
+    QString newValue = (current == "yes") ? "no" : "yes";
+
+    QProcess proc;
+    proc.start("nmcli", QStringList() << "connection" << "modify" << "uuid" << uuid
+                                      << "connection.autoconnect" << newValue);
+    proc.waitForFinished(15000);
+    if (proc.exitCode() != 0) {
+        QString error = QString::fromUtf8(proc.readAllStandardError());
+        QMessageBox::warning(this, "Error", QString("Failed to change autoconnect for '%1':\n%2").arg(name, error.trimmed()));
+    }
+    refreshConnectionsList();
+}
+
+void MainWindow::on_restartNetworkManagerButton_clicked() {
+    int ret = QMessageBox::question(this, "Restart NetworkManager",
+                                    "Restart the NetworkManager service?\n\n"
+                                    "All connections will briefly drop and reconnect.",
+                                    QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+    if (ret != QMessageBox::Yes) {
+        return;
+    }
+    runScriptInTerminal("systemctl restart NetworkManager\n"
+                        "sleep 2\n"
+                        "systemctl status NetworkManager --no-pager | head -5\n",
+                        "restart_nm");
+    QTimer::singleShot(5000, this, [this]() {
+        refreshNetworkInfo();
+        refreshConnectionsList();
+    });
+}
+
+void MainWindow::on_fixBridgeButton_clicked() {
+    // Bridge name: selected row if any, otherwise br0
+    QString bridgeName = "br0";
+    QList<QTableWidgetItem*> selected = ui->bridgeTable->selectedItems();
+    if (!selected.isEmpty()) {
+        bridgeName = ui->bridgeTable->item(selected[0]->row(), 0)->text().trimmed();
+    }
+
+    int ret = QMessageBox::question(this, "Fix Bridge",
+        QString("Repair bridge '%1' for this machine's hardware?\n\n"
+                "This is for when a system image was installed on a different PC and "
+                "the bridge is still bound to the old machine's network device.\n\n"
+                "• Stale slave profiles pointing at missing devices are removed\n"
+                "• If this machine has Ethernet, the bridge is re-attached to it\n"
+                "• If only Wi-Fi is available, the bridge switches to shared (NAT) mode, "
+                "since Wi-Fi adapters cannot join a bridge directly — VMs keep using "
+                "'%1' and reach the network through Wi-Fi").arg(bridgeName),
+        QMessageBox::Yes | QMessageBox::No);
+    if (ret != QMessageBox::Yes) {
+        return;
+    }
+
+    QString script = QString(
+        "br=\"%1\"\n"
+        "echo \"=== Fixing bridge '$br' for this hardware ===\"\n"
+        "\n"
+        "# Find a usable wired interface (prefer one with a cable plugged in)\n"
+        "eth=\"\"; first_eth=\"\"\n"
+        "while IFS=: read -r dev type state; do\n"
+        "  if [ \"$type\" = \"ethernet\" ]; then\n"
+        "    [ -n \"$first_eth\" ] || first_eth=\"$dev\"\n"
+        "    if [ \"$(cat /sys/class/net/$dev/carrier 2>/dev/null)\" = \"1\" ]; then eth=\"$dev\"; break; fi\n"
+        "  fi\n"
+        "done < <(nmcli -t -f DEVICE,TYPE,STATE device 2>/dev/null)\n"
+        "[ -n \"$eth\" ] || eth=\"$first_eth\"\n"
+        "wifi=$(nmcli -t -f DEVICE,TYPE device 2>/dev/null | awk -F: '$2==\"wifi\"{print $1; exit}')\n"
+        "\n"
+        "# Make sure the bridge profile itself exists\n"
+        "if ! nmcli connection show \"$br\" >/dev/null 2>&1; then\n"
+        "  echo \"Bridge profile '$br' not found - creating it.\"\n"
+        "  nmcli connection add type bridge ifname \"$br\" con-name \"$br\"\n"
+        "fi\n"
+        "bruuid=$(nmcli -t -g connection.uuid connection show \"$br\" 2>/dev/null | head -1)\n"
+        "\n"
+        "# Remove slave profiles that point at devices this machine does not have\n"
+        "for uuid in $(nmcli -t -f UUID connection show); do\n"
+        "  master=$(nmcli -g connection.master connection show uuid \"$uuid\" 2>/dev/null)\n"
+        "  if [ \"$master\" = \"$br\" ] || { [ -n \"$bruuid\" ] && [ \"$master\" = \"$bruuid\" ]; }; then\n"
+        "    ifname=$(nmcli -g connection.interface-name connection show uuid \"$uuid\" 2>/dev/null)\n"
+        "    if [ -n \"$ifname\" ] && ! ip link show \"$ifname\" >/dev/null 2>&1; then\n"
+        "      echo \"Removing stale slave profile for missing device '$ifname'.\"\n"
+        "      nmcli connection delete uuid \"$uuid\"\n"
+        "    fi\n"
+        "  fi\n"
+        "done\n"
+        "\n"
+        "if [ -n \"$eth\" ]; then\n"
+        "  echo \"Using wired interface: $eth\"\n"
+        "  # Free the interface from any competing profile (but keep it if the\n"
+        "  # active profile is already this bridge's own slave)\n"
+        "  conn=$(nmcli -t -g GENERAL.CONNECTION device show \"$eth\" 2>/dev/null | head -1)\n"
+        "  if [ -n \"$conn\" ] && [ \"$conn\" != \"--\" ] && [ \"$conn\" != \"$br\" ]; then\n"
+        "    cmaster=$(nmcli -g connection.master connection show \"$conn\" 2>/dev/null)\n"
+        "    if [ \"$cmaster\" != \"$br\" ] && { [ -z \"$bruuid\" ] || [ \"$cmaster\" != \"$bruuid\" ]; }; then\n"
+        "      echo \"Removing competing profile '$conn' from $eth.\"\n"
+        "      nmcli connection delete \"$conn\" 2>/dev/null\n"
+        "    fi\n"
+        "  fi\n"
+        "  # Enslave it unless a slave profile for it already exists\n"
+        "  have=\"\"\n"
+        "  for uuid in $(nmcli -t -f UUID connection show); do\n"
+        "    master=$(nmcli -g connection.master connection show uuid \"$uuid\" 2>/dev/null)\n"
+        "    if [ \"$master\" = \"$br\" ] || { [ -n \"$bruuid\" ] && [ \"$master\" = \"$bruuid\" ]; }; then\n"
+        "      [ \"$(nmcli -g connection.interface-name connection show uuid \"$uuid\" 2>/dev/null)\" = \"$eth\" ] && have=1\n"
+        "    fi\n"
+        "  done\n"
+        "  [ -n \"$have\" ] || nmcli connection add type bridge-slave ifname \"$eth\" master \"$br\"\n"
+        "  nmcli connection modify \"$br\" ipv4.method auto ipv6.method auto connection.autoconnect yes\n"
+        "  nmcli connection up \"$br\"\n"
+        "  echo \"Bridge '$br' is now attached to $eth.\"\n"
+        "elif [ -n \"$wifi\" ]; then\n"
+        "  echo \"No wired interface found - only Wi-Fi ($wifi) is available.\"\n"
+        "  echo \"Wi-Fi cannot join a bridge directly, so '$br' is switched to\"\n"
+        "  echo \"shared (NAT) mode: VMs keep using '$br' and reach the network\"\n"
+        "  echo \"through the Wi-Fi connection.\"\n"
+        "  nmcli connection modify \"$br\" ipv4.method shared ipv6.method ignore connection.autoconnect yes\n"
+        "  nmcli connection up \"$br\"\n"
+        "  echo \"Bridge '$br' is up in shared/NAT mode over Wi-Fi.\"\n"
+        "else\n"
+        "  echo \"ERROR: No Ethernet or Wi-Fi device found - nothing to attach.\"\n"
+        "fi\n"
+    ).arg(bridgeName);
+
+    runScriptInTerminal(script, "fix_bridge");
+
+    QTimer::singleShot(5000, this, [this]() {
+        refreshBridges();
+        refreshConnectionsList();
+        refreshNetworkInfo();
+    });
 }

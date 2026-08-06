@@ -269,12 +269,28 @@ private slots:
     void on_upInterfaceButton_clicked();
     void on_downInterfaceButton_clicked();
     void on_refreshInterfaceConfigButton_clicked();
+    void on_fixBridgeButton_clicked();
+    void on_wifiScanButton_clicked();
+    void on_wifiConnectButton_clicked();
+    void on_wifiDisconnectButton_clicked();
+    void on_wifiRadioToggleButton_clicked();
+    void on_connRefreshButton_clicked();
+    void on_connUpButton_clicked();
+    void on_connDownButton_clicked();
+    void on_connDeleteButton_clicked();
+    void on_connAutoconnectButton_clicked();
+    void on_restartNetworkManagerButton_clicked();
     void refreshNetworkInfo();
     void refreshBridges();
     void refreshLibvirtNetworks();
     void refreshInterfaceStats();
     void refreshInterfaceConfig();
+    void refreshWifiNetworks(bool rescan = false);
+    void refreshConnectionsList();
     void configureInterface(const QString &interfaceName);
+    QString getWifiDevice();
+    QStringList splitNmcliLine(const QString &line);
+    void runScriptInTerminal(const QString &scriptContent, const QString &namePrefix);
     QString formatBytes(qint64 bytes);
     QString convertNetmaskToCIDR(const QString &netmask);
     // Package Manager tab slots
