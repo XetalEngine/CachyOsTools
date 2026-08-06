@@ -822,6 +822,183 @@
              </widget>
             </item>
             <item>
+             <widget class="QGroupBox" name="gamingGroupBox">
+              <property name="title">
+               <string>Gaming Optimizations (vm.max_map_count)</string>
+              </property>
+              <layout class="QHBoxLayout" name="gamingLayout">
+               <item>
+                <widget class="QLabel" name="gamingStatusLabel">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>100</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Status</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="gamingToggle">
+                 <property name="text">
+                  <string>ℹ️ Info</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="gamingApplyButton">
+                 <property name="text">
+                  <string>✅ Apply</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="gamingBackupButton">
+                 <property name="text">
+                  <string>💾 Backup</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="gamingConfigButton">
+                 <property name="text">
+                  <string>✏️ Edit Config</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="cpuBoostGroupBox">
+              <property name="title">
+               <string>CPU Turbo Boost</string>
+              </property>
+              <layout class="QHBoxLayout" name="cpuBoostLayout">
+               <item>
+                <widget class="QLabel" name="cpuBoostStatusLabel">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>100</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Status</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="cpuBoostToggle">
+                 <property name="text">
+                  <string>ℹ️ Info</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="cpuBoostApplyButton">
+                 <property name="text">
+                  <string>✅ Apply</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="cpuBoostBackupButton">
+                 <property name="text">
+                  <string>💾 Backup</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="cpuBoostConfigButton">
+                 <property name="text">
+                  <string>✏️ Edit Config</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="nmiWatchdogGroupBox">
+              <property name="title">
+               <string>NMI Watchdog (disable = less overhead)</string>
+              </property>
+              <layout class="QHBoxLayout" name="nmiWatchdogLayout">
+               <item>
+                <widget class="QLabel" name="nmiWatchdogStatusLabel">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>100</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Status</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="nmiWatchdogToggle">
+                 <property name="text">
+                  <string>ℹ️ Info</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="nmiWatchdogApplyButton">
+                 <property name="text">
+                  <string>✅ Apply</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="nmiWatchdogBackupButton">
+                 <property name="text">
+                  <string>💾 Backup</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="nmiWatchdogConfigButton">
+                 <property name="text">
+                  <string>✏️ Edit Config</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
              <spacer>
               <property name="orientation">
                <enum>Qt::Orientation::Vertical</enum>
@@ -1069,6 +1246,65 @@
                </item>
                <item>
                 <widget class="QPushButton" name="firewallConfigButton">
+                 <property name="text">
+                  <string>✏️ Edit Config</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="coreDumpGroupBox">
+              <property name="title">
+               <string>Core Dumps (disable = privacy + disk space)</string>
+              </property>
+              <layout class="QHBoxLayout" name="coreDumpLayout">
+               <item>
+                <widget class="QLabel" name="coreDumpStatusLabel">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>100</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Status</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="coreDumpToggle">
+                 <property name="text">
+                  <string>ℹ️ Info</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="coreDumpApplyButton">
+                 <property name="text">
+                  <string>✅ Apply</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="coreDumpBackupButton">
+                 <property name="text">
+                  <string>💾 Backup</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="coreDumpConfigButton">
                  <property name="text">
                   <string>✏️ Edit Config</string>
                  </property>
@@ -1739,6 +1975,124 @@
                </item>
                <item>
                 <widget class="QPushButton" name="journaldConfigButton">
+                 <property name="text">
+                  <string>✏️ Edit Config</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="memoryTuningGroupBox">
+              <property name="title">
+               <string>Memory Cache Tuning (dirty ratio / cache pressure)</string>
+              </property>
+              <layout class="QHBoxLayout" name="memoryTuningLayout">
+               <item>
+                <widget class="QLabel" name="memoryTuningStatusLabel">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>100</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Status</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="memoryTuningToggle">
+                 <property name="text">
+                  <string>ℹ️ Info</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="memoryTuningApplyButton">
+                 <property name="text">
+                  <string>✅ Apply</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="memoryTuningBackupButton">
+                 <property name="text">
+                  <string>💾 Backup</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="memoryTuningConfigButton">
+                 <property name="text">
+                  <string>✏️ Edit Config</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="inotifyGroupBox">
+              <property name="title">
+               <string>Inotify Watch Limits (dev tools / file sync)</string>
+              </property>
+              <layout class="QHBoxLayout" name="inotifyLayout">
+               <item>
+                <widget class="QLabel" name="inotifyStatusLabel">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>100</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Status</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="inotifyToggle">
+                 <property name="text">
+                  <string>ℹ️ Info</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="inotifyApplyButton">
+                 <property name="text">
+                  <string>✅ Apply</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="inotifyBackupButton">
+                 <property name="text">
+                  <string>💾 Backup</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="inotifyConfigButton">
                  <property name="text">
                   <string>✏️ Edit Config</string>
                  </property>

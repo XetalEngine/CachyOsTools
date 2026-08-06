@@ -204,6 +204,31 @@ private slots:
     void on_journaldApplyButton_clicked();
     void on_journaldConfigButton_clicked();
     void on_journaldBackupButton_clicked();
+    // Buffed tweaks
+    void on_gamingToggle_clicked();
+    void on_gamingApplyButton_clicked();
+    void on_gamingConfigButton_clicked();
+    void on_gamingBackupButton_clicked();
+    void on_cpuBoostToggle_clicked();
+    void on_cpuBoostApplyButton_clicked();
+    void on_cpuBoostConfigButton_clicked();
+    void on_cpuBoostBackupButton_clicked();
+    void on_nmiWatchdogToggle_clicked();
+    void on_nmiWatchdogApplyButton_clicked();
+    void on_nmiWatchdogConfigButton_clicked();
+    void on_nmiWatchdogBackupButton_clicked();
+    void on_coreDumpToggle_clicked();
+    void on_coreDumpApplyButton_clicked();
+    void on_coreDumpConfigButton_clicked();
+    void on_coreDumpBackupButton_clicked();
+    void on_memoryTuningToggle_clicked();
+    void on_memoryTuningApplyButton_clicked();
+    void on_memoryTuningConfigButton_clicked();
+    void on_memoryTuningBackupButton_clicked();
+    void on_inotifyToggle_clicked();
+    void on_inotifyApplyButton_clicked();
+    void on_inotifyConfigButton_clicked();
+    void on_inotifyBackupButton_clicked();
     
 
     // KVM VM tab slots
@@ -391,6 +416,12 @@ private:
     void checkFirewallState();
     void checkPacmanOptimizationsState();
     void checkJournaldState();
+    void checkGamingState();
+    void checkCpuBoostState();
+    void checkNmiWatchdogState();
+    void checkCoreDumpState();
+    void checkMemoryTuningState();
+    void checkInotifyState();
     void updateTweakStatusLabel(QLabel *label, const QString &status, bool enabled);
     // Backup tab helpers
     void populateBackupDrives();

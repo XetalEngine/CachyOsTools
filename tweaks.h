@@ -566,6 +566,12 @@ void MainWindow::refreshTweaksStatus() {
     checkFirewallState();
     checkPacmanOptimizationsState();
     checkJournaldState();
+    checkGamingState();
+    checkCpuBoostState();
+    checkNmiWatchdogState();
+    checkCoreDumpState();
+    checkMemoryTuningState();
+    checkInotifyState();
 }
 
 void MainWindow::updateTweakStatusLabel(QLabel *label, const QString &status, bool enabled) {
@@ -1503,7 +1509,7 @@ void MainWindow::on_journaldApplyButton_clicked() {
         QMessageBox::Yes | QMessageBox::No);
     if (ret != QMessageBox::Yes) return;
     
-    QMessageBox::information(this, "Manual Configuration", 
+    QMessageBox::information(this, "Manual Configuration",
         "Opening /etc/systemd/journald.conf for editing...\n\n"
         "Uncomment and set:\n"
         "SystemMaxUse=500M\n"
@@ -1511,4 +1517,435 @@ void MainWindow::on_journaldApplyButton_clicked() {
         "SystemMaxFileSize=50M\n\n"
         "Then restart: sudo systemctl restart systemd-journald");
     openConfigInNano("/etc/systemd/journald.conf");
+}
+
+// ============================================================
+// Buffed tweaks: gaming, CPU boost, NMI watchdog, core dumps,
+// memory cache tuning, inotify limits
+// ============================================================
+
+// --- Gaming Optimizations (vm.max_map_count) ---
+void MainWindow::on_gamingToggle_clicked() {
+    QString instructions = R"(
+# Gaming Optimizations
+# ====================
+#
+# Many modern games (via Steam/Proton, and some native titles) need far more
+# memory map areas than the kernel default of 65530. Too low a value causes
+# crashes and stutter in games like Hogwarts Legacy, Counter-Strike 2, DayZ...
+#
+# SteamOS and CachyOS both raise this limit by default:
+vm.max_map_count = 2147483642
+
+# The Apply button writes this to /etc/sysctl.d/80-gaming.conf and loads it.
+#
+# To check the current value:
+# sysctl vm.max_map_count
+#
+# To revert: delete /etc/sysctl.d/80-gaming.conf and reboot.
+)";
+    showTweakInstructions("Gaming Optimizations", instructions);
+}
+
+void MainWindow::on_gamingConfigButton_clicked() {
+    openConfigInNano("/etc/sysctl.d/80-gaming.conf");
+}
+
+void MainWindow::on_gamingBackupButton_clicked() {
+    backupConfigFile("/etc/sysctl.d/80-gaming.conf", "Gaming optimizations");
+}
+
+void MainWindow::checkGamingState() {
+    QProcess proc;
+    proc.start("sysctl", QStringList() << "-n" << "vm.max_map_count");
+    proc.waitForFinished();
+    qlonglong value = QString::fromUtf8(proc.readAllStandardOutput()).trimmed().toLongLong();
+    bool tuned = (value >= 1048576);
+    updateTweakStatusLabel(ui->gamingStatusLabel, tuned ? "Enabled" : "Default", tuned);
+}
+
+void MainWindow::on_gamingApplyButton_clicked() {
+    int ret = QMessageBox::question(this, "Apply Gaming Optimizations",
+        "This raises vm.max_map_count to 2147483642 (the SteamOS/CachyOS value).\n\n"
+        "Many Proton/Steam games need this to avoid crashes and stutter.\n"
+        "It is safe for normal desktop use.\n\n"
+        "Continue?",
+        QMessageBox::Yes | QMessageBox::No);
+    if (ret != QMessageBox::Yes) return;
+
+    runScriptInTerminal(
+        "cat > /etc/sysctl.d/80-gaming.conf << 'EOF'\n"
+        "# Gaming optimizations - required by many Steam/Proton games\n"
+        "vm.max_map_count = 2147483642\n"
+        "EOF\n"
+        "sysctl -p /etc/sysctl.d/80-gaming.conf\n",
+        "gaming_tweak");
+    QTimer::singleShot(3000, this, &MainWindow::refreshTweaksStatus);
+}
+
+// --- CPU Turbo Boost ---
+void MainWindow::on_cpuBoostToggle_clicked() {
+    QString instructions = R"(
+# CPU Turbo Boost
+# ===============
+#
+# Turbo boost lets the CPU clock above its base frequency under load.
+# Enabled = maximum performance. Disabled = cooler, quieter, better battery.
+#
+# The control file depends on your CPU driver:
+# - intel_pstate:   /sys/devices/system/cpu/intel_pstate/no_turbo   (0 = boost on)
+# - acpi/amd:       /sys/devices/system/cpu/cpufreq/boost           (1 = boost on)
+#
+# The Apply button sets the value immediately AND persists it across
+# reboots via /etc/tmpfiles.d/cpu-boost.conf.
+#
+# To check current state:
+# cat /sys/devices/system/cpu/intel_pstate/no_turbo   (Intel)
+# cat /sys/devices/system/cpu/cpufreq/boost           (AMD/others)
+)";
+    showTweakInstructions("CPU Turbo Boost", instructions);
+}
+
+void MainWindow::on_cpuBoostConfigButton_clicked() {
+    openConfigInNano("/etc/tmpfiles.d/cpu-boost.conf");
+}
+
+void MainWindow::on_cpuBoostBackupButton_clicked() {
+    backupConfigFile("/etc/tmpfiles.d/cpu-boost.conf", "CPU boost persistence");
+}
+
+void MainWindow::checkCpuBoostState() {
+    QFile noTurbo("/sys/devices/system/cpu/intel_pstate/no_turbo");
+    if (noTurbo.exists() && noTurbo.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QString value = QString::fromUtf8(noTurbo.readAll()).trimmed();
+        noTurbo.close();
+        bool enabled = (value == "0");
+        updateTweakStatusLabel(ui->cpuBoostStatusLabel, enabled ? "Enabled" : "Disabled", enabled);
+        return;
+    }
+    QFile boost("/sys/devices/system/cpu/cpufreq/boost");
+    if (boost.exists() && boost.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QString value = QString::fromUtf8(boost.readAll()).trimmed();
+        boost.close();
+        bool enabled = (value == "1");
+        updateTweakStatusLabel(ui->cpuBoostStatusLabel, enabled ? "Enabled" : "Disabled", enabled);
+        return;
+    }
+    updateTweakStatusLabel(ui->cpuBoostStatusLabel, "Unsupported", false);
+}
+
+void MainWindow::on_cpuBoostApplyButton_clicked() {
+    QDialog dialog(this);
+    dialog.setWindowTitle("CPU Turbo Boost");
+    QVBoxLayout *layout = new QVBoxLayout(&dialog);
+    layout->addWidget(new QLabel("Turbo boost setting:", &dialog));
+    QComboBox *combo = new QComboBox(&dialog);
+    combo->addItem("Enable (maximum performance)", "on");
+    combo->addItem("Disable (cooler / quieter / battery)", "off");
+    layout->addWidget(combo);
+    QPushButton *okButton = new QPushButton("Apply", &dialog);
+    QPushButton *cancelButton = new QPushButton("Cancel", &dialog);
+    QHBoxLayout *buttonLayout = new QHBoxLayout();
+    buttonLayout->addWidget(okButton);
+    buttonLayout->addWidget(cancelButton);
+    layout->addLayout(buttonLayout);
+    connect(okButton, &QPushButton::clicked, &dialog, &QDialog::accept);
+    connect(cancelButton, &QPushButton::clicked, &dialog, &QDialog::reject);
+    if (dialog.exec() != QDialog::Accepted) return;
+
+    bool enable = (combo->currentData().toString() == "on");
+    // intel_pstate uses inverted logic (no_turbo: 0 = boost on)
+    QString noTurboValue = enable ? "0" : "1";
+    QString boostValue = enable ? "1" : "0";
+
+    runScriptInTerminal(QString(
+        "if [ -f /sys/devices/system/cpu/intel_pstate/no_turbo ]; then\n"
+        "  echo %1 > /sys/devices/system/cpu/intel_pstate/no_turbo\n"
+        "  echo 'w- /sys/devices/system/cpu/intel_pstate/no_turbo - - - - %1' > /etc/tmpfiles.d/cpu-boost.conf\n"
+        "  echo 'Turbo boost updated (intel_pstate) and persisted.'\n"
+        "elif [ -f /sys/devices/system/cpu/cpufreq/boost ]; then\n"
+        "  echo %2 > /sys/devices/system/cpu/cpufreq/boost\n"
+        "  echo 'w- /sys/devices/system/cpu/cpufreq/boost - - - - %2' > /etc/tmpfiles.d/cpu-boost.conf\n"
+        "  echo 'Turbo boost updated (cpufreq) and persisted.'\n"
+        "else\n"
+        "  echo 'ERROR: No turbo boost control found on this CPU.'\n"
+        "fi\n").arg(noTurboValue, boostValue),
+        "cpu_boost");
+    QTimer::singleShot(3000, this, &MainWindow::refreshTweaksStatus);
+}
+
+// --- NMI Watchdog ---
+void MainWindow::on_nmiWatchdogToggle_clicked() {
+    QString instructions = R"(
+# NMI Watchdog
+# ============
+#
+# The NMI watchdog fires a periodic interrupt to detect hard kernel lockups.
+# On desktops it is rarely useful and costs a small amount of CPU and power
+# (it keeps a timer tick running on every core).
+#
+# Disabling it is a common laptop/desktop optimization:
+kernel.nmi_watchdog = 0
+
+# The Apply button writes this to /etc/sysctl.d/99-nmi-watchdog.conf.
+#
+# To check current state:
+# sysctl kernel.nmi_watchdog     (0 = off, 1 = on)
+#
+# Keep it ENABLED if you are debugging kernel hangs.
+)";
+    showTweakInstructions("NMI Watchdog", instructions);
+}
+
+void MainWindow::on_nmiWatchdogConfigButton_clicked() {
+    openConfigInNano("/etc/sysctl.d/99-nmi-watchdog.conf");
+}
+
+void MainWindow::on_nmiWatchdogBackupButton_clicked() {
+    backupConfigFile("/etc/sysctl.d/99-nmi-watchdog.conf", "NMI watchdog configuration");
+}
+
+void MainWindow::checkNmiWatchdogState() {
+    QProcess proc;
+    proc.start("sysctl", QStringList() << "-n" << "kernel.nmi_watchdog");
+    proc.waitForFinished();
+    QString value = QString::fromUtf8(proc.readAllStandardOutput()).trimmed();
+    if (value.isEmpty()) {
+        updateTweakStatusLabel(ui->nmiWatchdogStatusLabel, "Unsupported", false);
+        return;
+    }
+    bool off = (value == "0");
+    updateTweakStatusLabel(ui->nmiWatchdogStatusLabel, off ? "Off (tuned)" : "On (default)", off);
+}
+
+void MainWindow::on_nmiWatchdogApplyButton_clicked() {
+    QDialog dialog(this);
+    dialog.setWindowTitle("NMI Watchdog");
+    QVBoxLayout *layout = new QVBoxLayout(&dialog);
+    layout->addWidget(new QLabel("NMI watchdog setting:", &dialog));
+    QComboBox *combo = new QComboBox(&dialog);
+    combo->addItem("Disable (recommended for desktops)", "0");
+    combo->addItem("Enable (kernel lockup debugging)", "1");
+    layout->addWidget(combo);
+    QPushButton *okButton = new QPushButton("Apply", &dialog);
+    QPushButton *cancelButton = new QPushButton("Cancel", &dialog);
+    QHBoxLayout *buttonLayout = new QHBoxLayout();
+    buttonLayout->addWidget(okButton);
+    buttonLayout->addWidget(cancelButton);
+    layout->addLayout(buttonLayout);
+    connect(okButton, &QPushButton::clicked, &dialog, &QDialog::accept);
+    connect(cancelButton, &QPushButton::clicked, &dialog, &QDialog::reject);
+    if (dialog.exec() != QDialog::Accepted) return;
+
+    QString value = combo->currentData().toString();
+    runScriptInTerminal(QString(
+        "echo 'kernel.nmi_watchdog = %1' > /etc/sysctl.d/99-nmi-watchdog.conf\n"
+        "sysctl -p /etc/sysctl.d/99-nmi-watchdog.conf\n").arg(value),
+        "nmi_watchdog");
+    QTimer::singleShot(3000, this, &MainWindow::refreshTweaksStatus);
+}
+
+// --- Core Dumps ---
+void MainWindow::on_coreDumpToggle_clicked() {
+    QString instructions = R"(
+# Core Dumps
+# ==========
+#
+# When a program crashes, the kernel can write a "core dump" - a full copy of
+# the program's memory - to disk. Dumps can contain passwords and other
+# sensitive data, and large programs can dump gigabytes into /var.
+#
+# To DISABLE core dumps, the Apply button writes /etc/sysctl.d/50-coredump.conf:
+kernel.core_pattern = |/bin/false
+
+# To ENABLE them again, choose Enable in the Apply dialog (the file is
+# removed and the systemd default is restored).
+#
+# To check the current handler:
+# sysctl kernel.core_pattern
+#
+# Keep core dumps ENABLED if you debug crashing programs (coredumpctl).
+)";
+    showTweakInstructions("Core Dumps", instructions);
+}
+
+void MainWindow::on_coreDumpConfigButton_clicked() {
+    openConfigInNano("/etc/sysctl.d/50-coredump.conf");
+}
+
+void MainWindow::on_coreDumpBackupButton_clicked() {
+    backupConfigFile("/etc/sysctl.d/50-coredump.conf", "Core dump configuration");
+}
+
+void MainWindow::checkCoreDumpState() {
+    QProcess proc;
+    proc.start("sysctl", QStringList() << "-n" << "kernel.core_pattern");
+    proc.waitForFinished();
+    QString pattern = QString::fromUtf8(proc.readAllStandardOutput()).trimmed();
+    bool disabled = (pattern == "|/bin/false" || pattern == "/dev/null");
+    updateTweakStatusLabel(ui->coreDumpStatusLabel, disabled ? "Disabled" : "Enabled", disabled);
+}
+
+void MainWindow::on_coreDumpApplyButton_clicked() {
+    QDialog dialog(this);
+    dialog.setWindowTitle("Core Dumps");
+    QVBoxLayout *layout = new QVBoxLayout(&dialog);
+    layout->addWidget(new QLabel("Core dump setting:", &dialog));
+    QComboBox *combo = new QComboBox(&dialog);
+    combo->addItem("Disable (privacy + saves disk space)", "disable");
+    combo->addItem("Enable (systemd default, for debugging)", "enable");
+    layout->addWidget(combo);
+    QPushButton *okButton = new QPushButton("Apply", &dialog);
+    QPushButton *cancelButton = new QPushButton("Cancel", &dialog);
+    QHBoxLayout *buttonLayout = new QHBoxLayout();
+    buttonLayout->addWidget(okButton);
+    buttonLayout->addWidget(cancelButton);
+    layout->addLayout(buttonLayout);
+    connect(okButton, &QPushButton::clicked, &dialog, &QDialog::accept);
+    connect(cancelButton, &QPushButton::clicked, &dialog, &QDialog::reject);
+    if (dialog.exec() != QDialog::Accepted) return;
+
+    if (combo->currentData().toString() == "disable") {
+        runScriptInTerminal(
+            "echo 'kernel.core_pattern = |/bin/false' > /etc/sysctl.d/50-coredump.conf\n"
+            "sysctl -p /etc/sysctl.d/50-coredump.conf\n"
+            "echo 'Core dumps disabled.'\n",
+            "coredump");
+    } else {
+        runScriptInTerminal(
+            "rm -f /etc/sysctl.d/50-coredump.conf\n"
+            "sysctl --system >/dev/null\n"
+            "echo 'Core dump override removed - systemd default restored.'\n"
+            "echo 'A reboot fully restores the default handler if needed.'\n",
+            "coredump");
+    }
+    QTimer::singleShot(3000, this, &MainWindow::refreshTweaksStatus);
+}
+
+// --- Memory Cache Tuning ---
+void MainWindow::on_memoryTuningToggle_clicked() {
+    QString instructions = R"(
+# Memory Cache Tuning
+# ===================
+#
+# Three kernel knobs that improve desktop responsiveness:
+#
+# vm.vfs_cache_pressure = 50   (default 100)
+#   Keeps directory/inode caches in RAM longer -> faster file browsing.
+#
+# vm.dirty_ratio = 10          (default 20)
+# vm.dirty_background_ratio = 5 (default 10)
+#   Writes dirty data to disk sooner and in smaller batches, avoiding the
+#   multi-second stalls that happen when a huge writeback kicks in at once
+#   (noticeable when copying big files to slow drives).
+#
+# The Apply button writes these to /etc/sysctl.d/99-memory-tuning.conf.
+#
+# To check current values:
+# sysctl vm.vfs_cache_pressure vm.dirty_ratio vm.dirty_background_ratio
+)";
+    showTweakInstructions("Memory Cache Tuning", instructions);
+}
+
+void MainWindow::on_memoryTuningConfigButton_clicked() {
+    openConfigInNano("/etc/sysctl.d/99-memory-tuning.conf");
+}
+
+void MainWindow::on_memoryTuningBackupButton_clicked() {
+    backupConfigFile("/etc/sysctl.d/99-memory-tuning.conf", "Memory cache tuning");
+}
+
+void MainWindow::checkMemoryTuningState() {
+    bool configured = QFile::exists("/etc/sysctl.d/99-memory-tuning.conf");
+    QProcess proc;
+    proc.start("sysctl", QStringList() << "-n" << "vm.vfs_cache_pressure");
+    proc.waitForFinished();
+    QString pressure = QString::fromUtf8(proc.readAllStandardOutput()).trimmed();
+    bool tuned = configured && (pressure.toInt() <= 50);
+    updateTweakStatusLabel(ui->memoryTuningStatusLabel, tuned ? "Tuned" : "Default", tuned);
+}
+
+void MainWindow::on_memoryTuningApplyButton_clicked() {
+    int ret = QMessageBox::question(this, "Apply Memory Cache Tuning",
+        "This applies desktop-friendly memory settings:\n\n"
+        "vm.vfs_cache_pressure = 50\n"
+        "vm.dirty_ratio = 10\n"
+        "vm.dirty_background_ratio = 5\n\n"
+        "Faster file browsing and fewer stalls during big file copies.\n\n"
+        "Continue?",
+        QMessageBox::Yes | QMessageBox::No);
+    if (ret != QMessageBox::Yes) return;
+
+    runScriptInTerminal(
+        "cat > /etc/sysctl.d/99-memory-tuning.conf << 'EOF'\n"
+        "# Desktop memory cache tuning\n"
+        "vm.vfs_cache_pressure = 50\n"
+        "vm.dirty_ratio = 10\n"
+        "vm.dirty_background_ratio = 5\n"
+        "EOF\n"
+        "sysctl -p /etc/sysctl.d/99-memory-tuning.conf\n",
+        "memory_tuning");
+    QTimer::singleShot(3000, this, &MainWindow::refreshTweaksStatus);
+}
+
+// --- Inotify Watch Limits ---
+void MainWindow::on_inotifyToggle_clicked() {
+    QString instructions = R"(
+# Inotify Watch Limits
+# ====================
+#
+# Inotify is how programs watch files for changes. The kernel default of
+# 8192 watches is easily exhausted by IDEs (VS Code, JetBrains), file sync
+# tools (Syncthing, Dropbox, Nextcloud), and game launchers - causing
+# "unable to watch for changes" errors or silently broken live-reload.
+#
+# The Apply button raises the limits in /etc/sysctl.d/40-inotify.conf:
+fs.inotify.max_user_watches = 524288
+fs.inotify.max_user_instances = 1024
+
+# To check current values:
+# sysctl fs.inotify.max_user_watches fs.inotify.max_user_instances
+#
+# Memory cost is negligible (~1 KB per used watch, only while in use).
+)";
+    showTweakInstructions("Inotify Watch Limits", instructions);
+}
+
+void MainWindow::on_inotifyConfigButton_clicked() {
+    openConfigInNano("/etc/sysctl.d/40-inotify.conf");
+}
+
+void MainWindow::on_inotifyBackupButton_clicked() {
+    backupConfigFile("/etc/sysctl.d/40-inotify.conf", "Inotify limits configuration");
+}
+
+void MainWindow::checkInotifyState() {
+    QProcess proc;
+    proc.start("sysctl", QStringList() << "-n" << "fs.inotify.max_user_watches");
+    proc.waitForFinished();
+    qlonglong watches = QString::fromUtf8(proc.readAllStandardOutput()).trimmed().toLongLong();
+    bool raised = (watches >= 524288);
+    updateTweakStatusLabel(ui->inotifyStatusLabel, raised ? "Raised" : QString("Low (%1)").arg(watches), raised);
+}
+
+void MainWindow::on_inotifyApplyButton_clicked() {
+    int ret = QMessageBox::question(this, "Apply Inotify Limits",
+        "This raises the file-watching limits:\n\n"
+        "fs.inotify.max_user_watches = 524288\n"
+        "fs.inotify.max_user_instances = 1024\n\n"
+        "Fixes 'unable to watch for changes' errors in IDEs,\n"
+        "sync tools, and some game launchers.\n\n"
+        "Continue?",
+        QMessageBox::Yes | QMessageBox::No);
+    if (ret != QMessageBox::Yes) return;
+
+    runScriptInTerminal(
+        "cat > /etc/sysctl.d/40-inotify.conf << 'EOF'\n"
+        "# Raised file-watching limits for IDEs and sync tools\n"
+        "fs.inotify.max_user_watches = 524288\n"
+        "fs.inotify.max_user_instances = 1024\n"
+        "EOF\n"
+        "sysctl -p /etc/sysctl.d/40-inotify.conf\n",
+        "inotify");
+    QTimer::singleShot(3000, this, &MainWindow::refreshTweaksStatus);
 }
