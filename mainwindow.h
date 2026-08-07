@@ -495,6 +495,7 @@ private:
     void rebuildIsoBigTree();
     void onIsoExcludeItemChanged(QTreeWidgetItem *item, int column);
     void updateIsoExcludeSummary();
+    void refreshIsoExcludedSizes();
     QStringList collectIsoExcludePaths() const;
     void saveIsoExcludeProfile();
     void loadIsoExcludeProfile();

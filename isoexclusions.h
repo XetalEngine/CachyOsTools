@@ -48,6 +48,7 @@ void MainWindow::startIsoHomeScan() {
                 isoHomeScanDone = true;
                 ui->isoRescanButton->setEnabled(true);
                 rebuildIsoBigTree();
+                refreshIsoExcludedSizes();
                 proc->deleteLater();
             });
     proc->start("bash", QStringList() << "-c" << script);
@@ -168,6 +169,22 @@ void MainWindow::onIsoExcludeItemChanged(QTreeWidgetItem *item, int column) {
     } else {
         isoExcludedPaths.remove(path);
         isoExcludedSizes.remove(path);
+    }
+    updateIsoExcludeSummary();
+}
+
+// Back-fills sizes for excluded paths from the scan cache. A profile loaded
+// before the first scan finishes stores 0 for directories (the cache is still
+// empty), which undercounts the savings label — the exclusions themselves are
+// path-based and unaffected. Never downgrades a known size to 0.
+void MainWindow::refreshIsoExcludedSizes() {
+    for (auto it = isoExcludedSizes.begin(); it != isoExcludedSizes.end(); ++it) {
+        qint64 bytes = isoHomeDirSizes.value(it.key(), 0);
+        if (bytes == 0) {
+            QFileInfo info(it.key());
+            if (info.isFile()) bytes = info.size();
+        }
+        if (bytes > 0) it.value() = bytes;
     }
     updateIsoExcludeSummary();
 }
