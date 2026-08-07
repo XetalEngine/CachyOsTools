@@ -2438,7 +2438,14 @@
        <attribute name="title">
         <string>KVM</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_kvm">
+       <layout class="QVBoxLayout" name="verticalLayout_kvmOuter">
+        <item>
+         <widget class="QTabWidget" name="kvmSubTabs">
+          <widget class="QWidget" name="dualGpuSubTab">
+           <attribute name="title">
+            <string>🖥️ Dual GPU</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_kvm">
         <item>
          <layout class="QHBoxLayout" name="kvmHeaderLayout">
           <item>
@@ -2499,6 +2506,13 @@
           </property>
           <property name="frameShadow">
            <enum>QFrame::Sunken</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTextBrowser" name="dualGpuGuideBrowser">
+          <property name="openExternalLinks">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -2673,6 +2687,114 @@
            </widget>
           </item>
          </layout>
+        </item>
+       </layout>
+          </widget>
+          <widget class="QWidget" name="singleGpuSubTab">
+           <attribute name="title">
+            <string>🎯 Single GPU</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_singleGpu">
+            <item>
+             <widget class="QTextBrowser" name="singleGpuGuideBrowser">
+              <property name="openExternalLinks">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="oneClickKvmSubTab">
+           <attribute name="title">
+            <string>⚡ 1-Click KVM</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_oneClick">
+            <item>
+             <spacer name="oneClickTopSpacer">
+              <property name="orientation">
+               <enum>Qt::Orientation::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QLabel" name="oneClickEmojiLabel">
+              <property name="font">
+               <font>
+                <pointsize>56</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>🚧</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignmentFlag::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="oneClickTitleLabel">
+              <property name="font">
+               <font>
+                <pointsize>20</pointsize>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>Under Construction</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignmentFlag::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="oneClickSubtitleLabel">
+              <property name="text">
+               <string>One click will do it all: build QEMU &amp; EDK2 from source, set up libvirt, dump &amp; patch your vBIOS, write the hook scripts, and configure single- or dual-GPU passthrough automatically.</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignmentFlag::AlignCenter</set>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="oneClickHintLabel">
+              <property name="text">
+               <string>Until then, the Dual GPU and Single GPU tabs walk you through every step manually.</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignmentFlag::AlignCenter</set>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="oneClickBottomSpacer">
+              <property name="orientation">
+               <enum>Qt::Orientation::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+         </widget>
         </item>
        </layout>
       </widget>

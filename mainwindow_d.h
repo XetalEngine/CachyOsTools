@@ -6,6 +6,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) , ui(new Ui::MainW
     loadThemeSettings();
     applyAppTheme();
 
+    // KVM tab: fill the Single/Dual GPU passthrough guides (static rich-text content)
+    setupSingleGpuGuide();
+    setupDualGpuGuide();
+
     // Set current tab first before applying visibility preferences
     ui->tabWidget->setCurrentWidget(ui->dashboardTab);
     

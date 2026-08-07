@@ -19,6 +19,7 @@ set(PROJECT_SOURCES
         mainwindow.ui
         # Header files containing implementations
         dual_gpu_kvm.h
+        single_gpu_kvm.h
         drive.h
         mainwindow_d.h
         systembackup.h

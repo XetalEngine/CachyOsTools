@@ -1,10 +1,11 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE TS>
 <TS version="2.1" language="de_DE">
 <context>
     <name>MainWindow</name>
     <message>
         <source>Arch OS Tools</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Dashboard</source>
@@ -16,7 +17,7 @@
     </message>
     <message>
         <source>Language / Idioma / Sprache</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>🔄 Refresh</source>
@@ -76,7 +77,7 @@
     </message>
     <message>
         <source> MB</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Available Drives &amp; Partitions</source>
@@ -140,7 +141,7 @@
     </message>
     <message>
         <source>Shell</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Detected Shell: </source>
@@ -219,8 +220,8 @@
         <translation>Konfig-Backups öffnen</translation>
     </message>
     <message>
-        <source>Click "Info" to see detailed instructions, "Apply" to execute the tweak, or "Edit Config" to manually edit configuration files.</source>
-        <translation>Klicke auf "Info" für Details, "Anwenden" zum Ausführen oder "Konfig bearbeiten" zum manuellen Bearbeiten der Konfigurationsdateien.</translation>
+        <source>Click &quot;Info&quot; to see detailed instructions, &quot;Apply&quot; to execute the tweak, or &quot;Edit Config&quot; to manually edit configuration files.</source>
+        <translation>Klicke auf &quot;Info&quot; für Details, &quot;Anwenden&quot; zum Ausführen oder &quot;Konfig bearbeiten&quot; zum manuellen Bearbeiten der Konfigurationsdateien.</translation>
     </message>
     <message>
         <source>⚡ Performance</source>
@@ -236,7 +237,7 @@
     </message>
     <message>
         <source>ℹ️ Info</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>✅ Apply</source>
@@ -244,7 +245,7 @@
     </message>
     <message>
         <source>💾 Backup</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>✏️ Edit Config</source>
@@ -264,7 +265,7 @@
     </message>
     <message>
         <source>💾 Backup updatedb.conf</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>✏️ Edit /etc/updatedb.conf</source>
@@ -272,7 +273,7 @@
     </message>
     <message>
         <source>💾 Backup mkinitcpio.conf</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>✏️ Edit /etc/mkinitcpio.conf</source>
@@ -284,7 +285,7 @@
     </message>
     <message>
         <source>CPU Turbo Boost</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>NMI Watchdog (disable = less overhead)</source>
@@ -308,7 +309,7 @@
     </message>
     <message>
         <source>Firewall (firewalld/ufw)</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Core Dumps (disable = privacy + disk space)</source>
@@ -340,7 +341,7 @@
     </message>
     <message>
         <source>🖥️ Desktop</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show Hidden Files by Default</source>
@@ -360,7 +361,7 @@
     </message>
     <message>
         <source>Transparent Huge Pages (THP)</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Pacman Optimizations</source>
@@ -380,14 +381,18 @@
     </message>
     <message>
         <source>KVM</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>🖥️ Dual GPU</source>
+        <translation>🖥️ Dual-GPU</translation>
     </message>
     <message>
         <source>KVM Virtual Machine Setup and GPU Passthrough</source>
         <translation>KVM-VM-Einrichtung und GPU-Passthrough</translation>
     </message>
     <message>
-        <source>Click any option to see detailed instructions for KVM setup and GPU passthrough configuration. This approach is safer as it doesn't automatically modify system files.</source>
+        <source>Click any option to see detailed instructions for KVM setup and GPU passthrough configuration. This approach is safer as it doesn&apos;t automatically modify system files.</source>
         <translation>Klicke auf eine Option für detaillierte Anleitungen zur KVM- und GPU-Passthrough-Einrichtung. Dieser Ansatz ist sicherer, da keine Systemdateien automatisch geändert werden.</translation>
     </message>
     <message>
@@ -479,6 +484,30 @@
         <translation>Huge Pages konfigurieren</translation>
     </message>
     <message>
+        <source>🎯 Single GPU</source>
+        <translation>🎯 Einzel-GPU</translation>
+    </message>
+    <message>
+        <source>⚡ 1-Click KVM</source>
+        <translation>⚡ 1-Klick-KVM</translation>
+    </message>
+    <message>
+        <source>🚧</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Under Construction</source>
+        <translation>Im Aufbau</translation>
+    </message>
+    <message>
+        <source>One click will do it all: build QEMU &amp; EDK2 from source, set up libvirt, dump &amp; patch your vBIOS, write the hook scripts, and configure single- or dual-GPU passthrough automatically.</source>
+        <translation>Ein Klick erledigt alles: QEMU &amp; EDK2 aus dem Quellcode bauen, libvirt einrichten, vBIOS auslesen &amp; patchen, die Hook-Skripte schreiben und Einzel- oder Dual-GPU-Passthrough automatisch konfigurieren.</translation>
+    </message>
+    <message>
+        <source>Until then, the Dual GPU and Single GPU tabs walk you through every step manually.</source>
+        <translation>Bis dahin führen dich die Tabs Dual-GPU und Einzel-GPU manuell durch jeden Schritt.</translation>
+    </message>
+    <message>
         <source>System Config</source>
         <translation>Systemkonfig.</translation>
     </message>
@@ -488,19 +517,19 @@
     </message>
     <message>
         <source>nano</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>kate</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>mousepad</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>geany</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>📝 Edit Selected (Built-in, sudo-capable)</source>
@@ -791,7 +820,7 @@
 PRIVACY
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 • This ISO contains a full clone of your system, including personal data and saved logins (e.g. browser, Discord). Keep it private.
-• Before sharing an ISO, use the exclusion panels above: drop big folders you don't need, and exclude app configs (Discord, browsers...) so your logins don't ship with the ISO.</source>
+• Before sharing an ISO, use the exclusion panels above: drop big folders you don&apos;t need, and exclude app configs (Discord, browsers...) so your logins don&apos;t ship with the ISO.</source>
         <translation>Wenn die ISO fertig ist:
 
 1. Brenne die ISO mit Balena Etcher, Rufus oder Ventoy auf einen USB-Stick.
@@ -864,7 +893,7 @@ PRIVATSPHÄRE
     </message>
     <message>
         <source>Hostname:</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>DNS Servers:</source>
@@ -876,27 +905,27 @@ PRIVATSPHÄRE
     </message>
     <message>
         <source>RX Bytes</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>TX Bytes</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>RX Packets</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>TX Packets</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>RX Errors</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>TX Errors</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Speed</source>
@@ -912,7 +941,7 @@ PRIVATSPHÄRE
     </message>
     <message>
         <source>Gateway</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>⚙️ Configure Interface</source>
@@ -936,7 +965,7 @@ PRIVATSPHÄRE
     </message>
     <message>
         <source>Interfaces</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>➕ Create Bridge</source>
@@ -988,7 +1017,7 @@ PRIVATSPHÄRE
     </message>
     <message>
         <source>Wi-Fi</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>📡 Scan Networks</source>
@@ -1092,7 +1121,7 @@ PRIVATSPHÄRE
     </message>
     <message>
         <source>📦 Pacman</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Installed Packages</source>
@@ -1156,7 +1185,7 @@ PRIVATSPHÄRE
     </message>
     <message>
         <source>🔧 Yay</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Search packages...</source>
@@ -1164,7 +1193,7 @@ PRIVATSPHÄRE
     </message>
     <message>
         <source>⚡ Paru</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>🔍 Check for Updates</source>
@@ -1228,19 +1257,19 @@ PRIVATSPHÄRE
     </message>
     <message>
         <source>Auto</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Pacman</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Yay</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Paru</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Also remove unneeded dependencies (-Rns)</source>
@@ -1280,27 +1309,27 @@ PRIVATSPHÄRE
     </message>
     <message>
         <source>XETAL Dark</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>XETAL Red</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Midnight Blue</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Matrix</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Solar Light</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Purple Haze</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Custom</source>
@@ -1411,8 +1440,8 @@ CachyOsTools jetzt neu starten?</translation>
         <translation>ausstehende(s) Update(s)</translation>
     </message>
     <message>
-        <source>&lt;p style='color:#888;'&gt;Install &lt;b&gt;pacman-contrib&lt;/b&gt; to enable update checks.&lt;/p&gt;</source>
-        <translation>&lt;p style='color:#888;'&gt;Installiere &lt;b&gt;pacman-contrib&lt;/b&gt;, um Update-Prüfungen zu aktivieren.&lt;/p&gt;</translation>
+        <source>&lt;p style=&apos;color:#888;&apos;&gt;Install &lt;b&gt;pacman-contrib&lt;/b&gt; to enable update checks.&lt;/p&gt;</source>
+        <translation>&lt;p style=&apos;color:#888;&apos;&gt;Installiere &lt;b&gt;pacman-contrib&lt;/b&gt;, um Update-Prüfungen zu aktivieren.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>No safety ISO yet</source>
@@ -1439,12 +1468,12 @@ CachyOsTools jetzt neu starten?</translation>
         <translation>letzte Sicherheits-ISO</translation>
     </message>
     <message>
-        <source>&lt;p style='color:#888;'&gt;🔒 Health checks need a sudo session.&lt;br&gt;&lt;br&gt;Use &lt;b&gt;Load Labels&lt;/b&gt; or &lt;b&gt;Health Check&lt;/b&gt; in the Drives tab once, then Refresh here.&lt;/p&gt;</source>
-        <translation>&lt;p style='color:#888;'&gt;🔒 Zustandsprüfungen benötigen eine sudo-Sitzung.&lt;br&gt;&lt;br&gt;Nutze einmal &lt;b&gt;Labels laden&lt;/b&gt; oder &lt;b&gt;Zustandsprüfung&lt;/b&gt; im Laufwerke-Tab und klicke dann hier auf Aktualisieren.&lt;/p&gt;</translation>
+        <source>&lt;p style=&apos;color:#888;&apos;&gt;🔒 Health checks need a sudo session.&lt;br&gt;&lt;br&gt;Use &lt;b&gt;Load Labels&lt;/b&gt; or &lt;b&gt;Health Check&lt;/b&gt; in the Drives tab once, then Refresh here.&lt;/p&gt;</source>
+        <translation>&lt;p style=&apos;color:#888;&apos;&gt;🔒 Zustandsprüfungen benötigen eine sudo-Sitzung.&lt;br&gt;&lt;br&gt;Nutze einmal &lt;b&gt;Labels laden&lt;/b&gt; oder &lt;b&gt;Zustandsprüfung&lt;/b&gt; im Laufwerke-Tab und klicke dann hier auf Aktualisieren.&lt;/p&gt;</translation>
     </message>
     <message>
-        <source>&lt;p style='color:#888;'&gt;No SMART data&lt;br&gt;(is smartmontools installed?)&lt;/p&gt;</source>
-        <translation>&lt;p style='color:#888;'&gt;Keine SMART-Daten&lt;br&gt;(ist smartmontools installiert?)&lt;/p&gt;</translation>
+        <source>&lt;p style=&apos;color:#888;&apos;&gt;No SMART data&lt;br&gt;(is smartmontools installed?)&lt;/p&gt;</source>
+        <translation>&lt;p style=&apos;color:#888;&apos;&gt;Keine SMART-Daten&lt;br&gt;(ist smartmontools installiert?)&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Terminal Not Found</source>
@@ -1637,8 +1666,8 @@ Installieren mit: sudo pacman -S smartmontools</translation>
         <translation>Dies ändert rekursiv Besitzer und Berechtigungen aller Dateien auf dem Laufwerk auf deinen Benutzer (chown -R und chmod -R 777). Fortfahren?</translation>
     </message>
     <message>
-        <source>Please select a valid destination. The source is automatically set to '/' for system backup.</source>
-        <translation>Bitte wähle ein gültiges Ziel. Die Quelle wird für die Systemsicherung automatisch auf '/' gesetzt.</translation>
+        <source>Please select a valid destination. The source is automatically set to &apos;/&apos; for system backup.</source>
+        <translation>Bitte wähle ein gültiges Ziel. Die Quelle wird für die Systemsicherung automatisch auf &apos;/&apos; gesetzt.</translation>
     </message>
     <message>
         <source>Could not launch a terminal emulator. Please install konsole, gnome-terminal, xterm, alacritty, or kitty.</source>
@@ -1733,21 +1762,21 @@ Mit der Systemwiederherstellung fortfahren?</translation>
     <message>
         <source>TRIM is managed via systemd timer, not a config file.
 
-To enable/disable TRIM, use the 'Apply' button or run:
+To enable/disable TRIM, use the &apos;Apply&apos; button or run:
 sudo systemctl enable fstrim.timer
 sudo systemctl start fstrim.timer
 
 TRIM can also be enabled via mount options in /etc/fstab
-by adding 'discard' option, but this is not recommended
+by adding &apos;discard&apos; option, but this is not recommended
 as it can impact performance.</source>
         <translation>TRIM wird über einen systemd-Timer verwaltet, nicht über eine Konfigdatei.
 
-Zum Aktivieren/Deaktivieren nutze den 'Anwenden'-Button oder führe aus:
+Zum Aktivieren/Deaktivieren nutze den &apos;Anwenden&apos;-Button oder führe aus:
 sudo systemctl enable fstrim.timer
 sudo systemctl start fstrim.timer
 
 TRIM kann auch über Mount-Optionen in /etc/fstab aktiviert werden
-(Option 'discard'), was aber nicht empfohlen wird,
+(Option &apos;discard&apos;), was aber nicht empfohlen wird,
 da es die Leistung beeinträchtigen kann.</translation>
     </message>
     <message>
@@ -1905,12 +1934,12 @@ Mitigationen DEAKTIVIEREN?</translation>
     <message>
         <source>Opening /etc/default/grub for editing...
 
-Add 'mitigations=off' to GRUB_CMDLINE_LINUX,
+Add &apos;mitigations=off&apos; to GRUB_CMDLINE_LINUX,
 then run: sudo grub-mkconfig -o /boot/grub/grub.cfg
 and REBOOT.</source>
         <translation>Öffne /etc/default/grub zum Bearbeiten...
 
-Füge 'mitigations=off' zu GRUB_CMDLINE_LINUX hinzu,
+Füge &apos;mitigations=off&apos; zu GRUB_CMDLINE_LINUX hinzu,
 dann ausführen: sudo grub-mkconfig -o /boot/grub/grub.cfg
 und NEU STARTEN.</translation>
     </message>
@@ -2002,7 +2031,7 @@ Dann ausführen: sudo mount -o remount /proc</translation>
     </message>
     <message>
         <source>Transparent Huge Pages</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Select THP mode:</source>
@@ -2029,7 +2058,7 @@ Fortfahren?</translation>
         <translation>Firewall-Konfiguration</translation>
     </message>
     <message>
-        <source>Firewall configuration depends on which firewall you're using:
+        <source>Firewall configuration depends on which firewall you&apos;re using:
 
 For firewalld:
 sudo firewall-cmd --permanent --add-service=http
@@ -2152,7 +2181,7 @@ Fortfahren?</translation>
     </message>
     <message>
         <source>NMI Watchdog</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>NMI watchdog setting:</source>
@@ -2160,7 +2189,7 @@ Fortfahren?</translation>
     </message>
     <message>
         <source>Core Dumps</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Core dump setting:</source>
@@ -2200,7 +2229,7 @@ Fortfahren?</translation>
 fs.inotify.max_user_watches = 524288
 fs.inotify.max_user_instances = 1024
 
-Fixes 'unable to watch for changes' errors in IDEs,
+Fixes &apos;unable to watch for changes&apos; errors in IDEs,
 sync tools, and some game launchers.
 
 Continue?</source>
@@ -2209,7 +2238,7 @@ Continue?</source>
 fs.inotify.max_user_watches = 524288
 fs.inotify.max_user_instances = 1024
 
-Behebt 'unable to watch for changes'-Fehler in IDEs,
+Behebt &apos;unable to watch for changes&apos;-Fehler in IDEs,
 Sync-Tools und manchen Spiele-Launchern.
 
 Fortfahren?</translation>
@@ -2355,8 +2384,8 @@ Exit-Code: </translation>
         <translation>Wähle den USB-Datenträger zum Brennen (den Datenträger, keine Partition).</translation>
     </message>
     <message>
-        <source>Select the whole disk (type 'disk'), not a partition.</source>
-        <translation>Wähle den ganzen Datenträger (Typ 'disk'), keine Partition.</translation>
+        <source>Select the whole disk (type &apos;disk&apos;), not a partition.</source>
+        <translation>Wähle den ganzen Datenträger (Typ &apos;disk&apos;), keine Partition.</translation>
     </message>
     <message>
         <source>Refused</source>
@@ -2431,24 +2460,24 @@ Exit-Code: </translation>
         <translation>Paket</translation>
     </message>
     <message>
-        <source>Current Version</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
         <source>New Version</source>
         <translation>Neue Version</translation>
+    </message>
+    <message>
+        <source>Current Version</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Checking official repos...</source>
         <translation>Prüfe offizielle Repos...</translation>
     </message>
     <message>
-        <source>⚠️ 'checkupdates' not found — install it with: sudo pacman -S pacman-contrib</source>
-        <translation>⚠️ 'checkupdates' nicht gefunden — installieren mit: sudo pacman -S pacman-contrib</translation>
+        <source>⚠️ &apos;checkupdates&apos; not found — install it with: sudo pacman -S pacman-contrib</source>
+        <translation>⚠️ &apos;checkupdates&apos; nicht gefunden — installieren mit: sudo pacman -S pacman-contrib</translation>
     </message>
     <message>
-        <source>⚠️ checkupdates failed (install 'pacman-contrib').</source>
-        <translation>⚠️ checkupdates fehlgeschlagen ('pacman-contrib' installieren).</translation>
+        <source>⚠️ checkupdates failed (install &apos;pacman-contrib&apos;).</source>
+        <translation>⚠️ checkupdates fehlgeschlagen (&apos;pacman-contrib&apos; installieren).</translation>
     </message>
     <message>
         <source>✅ System is up to date!</source>
@@ -2499,12 +2528,12 @@ Tipp: Vorher die Arch-News prüfen — gelegentlich erfordern Upgrades manuelle 
         <translation>Port</translation>
     </message>
     <message>
-        <source>PID</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
         <source>Process</source>
         <translation>Prozess</translation>
+    </message>
+    <message>
+        <source>PID</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>⏳ Scanning home folder sizes (first scan can take a minute)...</source>
@@ -2570,7 +2599,7 @@ Hake zuerst Ordner/Dateien an, dann speichern.</translation>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>About Arch OS Tools</source>
@@ -2620,7 +2649,7 @@ Installieren (z.B. pacman -S networkmanager).</translation>
     </message>
     <message>
         <source>br0</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Interface to attach:</source>
@@ -2660,7 +2689,7 @@ Installieren (z.B. pacman -S networkmanager).</translation>
     </message>
     <message>
         <source>192.168.1.100</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Netmask:</source>
@@ -2668,19 +2697,19 @@ Installieren (z.B. pacman -S networkmanager).</translation>
     </message>
     <message>
         <source>255.255.255.0</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Gateway:</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>192.168.1.1</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>8.8.8.8, 8.8.4.4</source>
-        <translation type="unfinished" />
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Please select an interface to bring up.</source>
@@ -2693,10 +2722,6 @@ Installieren (z.B. pacman -S networkmanager).</translation>
     <message>
         <source>In Use</source>
         <translation>In Benutzung</translation>
-    </message>
-    <message>
-        <source>SSID</source>
-        <translation type="unfinished" />
     </message>
     <message>
         <source>Signal</source>
@@ -2713,6 +2738,10 @@ Installieren (z.B. pacman -S networkmanager).</translation>
     <message>
         <source>Rate</source>
         <translation>Rate</translation>
+    </message>
+    <message>
+        <source>SSID</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No Wi-Fi adapter detected.</source>
@@ -2743,12 +2772,12 @@ Installieren (z.B. pacman -S networkmanager).</translation>
         <translation>Gerät</translation>
     </message>
     <message>
-        <source>Active</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
         <source>Autoconnect</source>
         <translation>Autoverbinden</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Please select a connection to activate.</source>

@@ -490,6 +490,8 @@ private:
     QString formatSize(qint64 bytes);
 
     // ISO exclusion panels (big folders / ~/.config)
+    void setupSingleGpuGuide();
+    void setupDualGpuGuide();
     void startIsoHomeScan();
     void startIsoConfigScan();
     void rebuildIsoBigTree();
