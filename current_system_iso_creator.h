@@ -358,6 +358,10 @@ QString MainWindow::createIsoScript(const QString &isoName, const QString &outpu
     out << "# === Keep stock releng boot entries; just fix bootmodes to a single line ===\n";
     out << "sed -i 's/\\r$//' \"$PROFILE/profiledef.sh\"\n";
     out << "sed -i -E 's/^iso_name=.*/iso_name=\"archlinux\"/; s/^iso_label=.*/iso_label=\"ARCH_CLONE\"/' \"$PROFILE/profiledef.sh\"\n";
+    out << "# squashfs with zstd instead of releng's xz: 3-6x faster build (and faster\n";
+    out << "# live boot). Matters hugely here because the airootfs contains the big\n";
+    out << "# already-compressed snapshot tar, which xz would slowly re-compress for nothing.\n";
+    out << "sed -i -E \"s/^airootfs_image_tool_options=.*/airootfs_image_tool_options=('-comp' 'zstd' '-Xcompression-level' '15' '-b' '1M')/\" \"$PROFILE/profiledef.sh\"\n";
     out << "awk 'BEGIN{skip=0}\n";
     out << "     /^bootmodes=\\(/ {skip=1; next}\n";
     out << "     skip==1 { if ($0 ~ /\\)/) {skip=0; next} else next }\n";
@@ -427,8 +431,10 @@ QString MainWindow::createIsoScript(const QString &isoName, const QString &outpu
     out << "# regenerate on target\n";
     out << "run_sudo rm -f \"$SNAPDIR/etc/machine-id\" \"$SNAPDIR/etc/fstab\" \"$SNAPDIR/var/lib/systemd/random-seed\" || true\n\n";
 
-    out << "echo \"[*] Packing snapshot to $SNAP_TAR (zstd -19)…\"\n";
-    out << "run_sudo tar --xattrs --acls --numeric-owner -C \"$SNAPDIR\" -I 'zstd -19 -T0' -cpf \"$SNAP_TAR\" .\n";
+    // zstd -10 instead of -19: several times faster on all cores for a ~5%
+    // size penalty; the frame format (and the installer's decompress) is identical.
+    out << "echo \"[*] Packing snapshot to $SNAP_TAR (zstd -10, all cores)…\"\n";
+    out << "run_sudo tar --xattrs --acls --numeric-owner -C \"$SNAPDIR\" -I 'zstd -10 -T0' -cpf \"$SNAP_TAR\" .\n";
     out << "run_sudo chown \"$USER:$USER\" \"$SNAP_TAR\"\n";
     out << "echo \"[*] Snapshot compressed. Available space:\"\n";
     out << "df -h . | tail -1\n\n";
