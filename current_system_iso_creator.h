@@ -51,6 +51,7 @@ void MainWindow::on_createIsoButton_clicked()
         firstBoot.fixGpu = ui->isoCompatGpuCheck->isChecked();
         firstBoot.changeUser = ui->isoCompatUserCheck->isChecked();
         firstBoot.regenSsh = ui->isoCompatSshCheck->isChecked();
+        firstBoot.regenMachineId = ui->isoCompatMachineIdCheck->isChecked();
     }
 
     // Confirm with user
@@ -63,6 +64,7 @@ void MainWindow::on_createIsoButton_clicked()
         if (firstBoot.fixGpu) opts << "GPU";
         if (firstBoot.changeUser) opts << "user/password";
         if (firstBoot.regenSsh) opts << "SSH keys";
+        if (firstBoot.regenMachineId) opts << "NEW machine-id";
         excludeSummary += QString("• First-boot hardware adaptation: %1\n").arg(opts.join(", "));
     } else {
         excludeSummary += "• Exact clone mode (no first-boot changes)\n";
@@ -429,7 +431,10 @@ QString MainWindow::createIsoScript(const QString &isoName, const QString &outpu
     out << "fi\n\n";
 
     out << "# regenerate on target\n";
-    out << "run_sudo rm -f \"$SNAPDIR/etc/machine-id\" \"$SNAPDIR/etc/fstab\" \"$SNAPDIR/var/lib/systemd/random-seed\" || true\n\n";
+    // machine-id STAYS in the snapshot: exact clones keep their identity so
+    // systemd encrypted credentials (libvirt etc.) still decrypt after restore.
+    // Option e) regenerates it at install time instead.
+    out << "run_sudo rm -f \"$SNAPDIR/etc/fstab\" \"$SNAPDIR/var/lib/systemd/random-seed\" || true\n\n";
 
     // zstd -10 instead of -19: several times faster on all cores for a ~5%
     // size penalty; the frame format (and the installer's decompress) is identical.
@@ -460,6 +465,7 @@ QString MainWindow::createIsoScript(const QString &isoName, const QString &outpu
         out << "FIX_GPU=" << (firstBoot.fixGpu ? "1" : "0") << "\n";
         out << "CHANGE_USER=" << (firstBoot.changeUser ? "1" : "0") << "\n";
         out << "REGEN_SSH=" << (firstBoot.regenSsh ? "1" : "0") << "\n";
+        out << "REGEN_MACHINE_ID=" << (firstBoot.regenMachineId ? "1" : "0") << "\n";
         out << "FBCONF\n\n";
 
         out << "cat > \"$PROFILE/airootfs/opt/clone/xetal-firstboot.service\" <<'FBUNIT'\n";
@@ -724,8 +730,7 @@ QString MainWindow::createIsoScript(const QString &isoName, const QString &outpu
 
     out << "echo \"${BLU}[4/6] Restoring snapshot to target…${CLR}\"\n";
     out << "tar --xattrs --acls --numeric-owner -I zstd -xpf \"$SNAP\" -C /mnt\n";
-    out << "genfstab -U /mnt > /mnt/etc/fstab\n";
-    out << ": > /mnt/etc/machine-id\n\n";
+    out << "genfstab -U /mnt > /mnt/etc/fstab\n\n";
 
     out << "# First-boot hardware adaptation (only present if selected at build time)\n";
     out << "if [ -f /opt/clone/firstboot.conf ]; then\n";
@@ -736,10 +741,25 @@ QString MainWindow::createIsoScript(const QString &isoName, const QString &outpu
     out << "fi\n\n";
 
     out << "echo \"${BLU}[5/6] Finalize inside chroot…${CLR}\"\n";
+    out << "# machine-id policy comes from the app (option e). Exact clones keep the\n";
+    out << "# original id so machine-bound state (systemd encrypted credentials, e.g.\n";
+    out << "# hardened libvirt secrets) keeps decrypting on the restored system.\n";
+    out << "[ -f /opt/clone/firstboot.conf ] && . /opt/clone/firstboot.conf || true\n";
     out << "arch-chroot /mnt /bin/bash -e <<CHROOT\n";
     out << "set -euo pipefail\n";
-    out << "rm -f /etc/machine-id\n";
-    out << "systemd-machine-id-setup\n";
+    // Unquoted heredoc: ${REGEN_MACHINE_ID:-0} expands in the installer shell,
+    // so the chroot receives a literal 0/1 in the condition below.
+    out << "if [ \"${REGEN_MACHINE_ID:-0}\" = \"1\" ]; then\n";
+    out << "  echo \"[id] Generating a NEW machine-id (option e)\"\n";
+    out << "  rm -f /etc/machine-id\n";
+    out << "  systemd-machine-id-setup\n";
+    out << "  # Encrypted credentials were bound to the old id and are now\n";
+    out << "  # undecryptable - drop the stale libvirt key so its init service\n";
+    out << "  # can regenerate a fresh one on first boot\n";
+    out << "  rm -f /var/lib/libvirt/secrets/secrets-encryption-key || true\n";
+    out << "else\n";
+    out << "  echo \"[id] Keeping the original machine-id (exact clone identity)\"\n";
+    out << "fi\n";
     out << "rm -f /var/lib/systemd/random-seed || true\n\n";
 
     out << "mkdir -p /boot/efi\n";

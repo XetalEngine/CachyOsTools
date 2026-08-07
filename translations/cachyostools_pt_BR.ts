@@ -71,6 +71,96 @@
         <translation>⏪ Pontos de Restauração</translation>
     </message>
     <message>
+        <source>1) Exact Clone (default) — restore the system exactly as it is. Flawless on same/similar hardware. ❓</source>
+        <translation>1) Clone Exato (padrão) — restaura o sistema exatamente como está. Perfeito em hardware igual/semelhante. ❓</translation>
+    </message>
+    <message>
+        <source>A byte-for-byte restore: same users, same SSH keys, same machine-id.
+Everything bound to the machine identity keeps working — including systemd
+encrypted credentials (e.g. hardened libvirt secret setups).
+The right choice for disaster recovery onto the same or similar hardware.</source>
+        <translation>Uma restauração idêntica: mesmos usuários, mesmas chaves SSH, mesmo machine-id.
+Tudo que depende da identidade da máquina continua funcionando — inclusive
+credenciais criptografadas do systemd (ex.: setups de segredos do libvirt).
+A escolha certa para recuperação de desastre no mesmo hardware ou similar.</translation>
+    </message>
+    <message>
+        <source>    a) Auto-detect network cards — repair bridges &amp; adapter bindings on first boot ❓</source>
+        <translation>    a) Autodetectar placas de rede — reparar bridges e vínculos de adaptadores no primeiro boot ❓</translation>
+    </message>
+    <message>
+        <source>On first boot, re-detects the network adapters actually present and re-binds
+NetworkManager profiles and bridges (br0 etc.) to them.
+Pick this when the target machine has different network hardware.</source>
+        <translation>No primeiro boot, redetecta os adaptadores de rede presentes e revincula
+os perfis do NetworkManager e as bridges (br0 etc.) a eles.
+Escolha quando a máquina de destino tiver hardware de rede diferente.</translation>
+    </message>
+    <message>
+        <source>    b) Auto-detect GPU — NVIDIA: leave untouched; AMD: install drivers + configure X11 &amp; Wayland ❓</source>
+        <translation>    b) Autodetectar GPU — NVIDIA: não mexer; AMD: instalar drivers + configurar X11 e Wayland ❓</translation>
+    </message>
+    <message>
+        <source>On first boot, detects the GPU. NVIDIA cards are left untouched (your drivers stay).
+AMD cards get drivers installed and X11 &amp; Wayland configured.
+Pick this when the target machine has a different graphics card.</source>
+        <translation>No primeiro boot, detecta a GPU. Placas NVIDIA ficam intocadas (seus drivers permanecem).
+Placas AMD recebem drivers e configuração de X11 e Wayland.
+Escolha quando a máquina de destino tiver outra placa de vídeo.</translation>
+    </message>
+    <message>
+        <source>    c) Offer username &amp; password change on first boot ❓</source>
+        <translation>    c) Oferecer troca de usuário e senha no primeiro boot ❓</translation>
+    </message>
+    <message>
+        <source>On first boot, offers to rename the user account and set a new password —
+useful when handing the cloned system to someone else.
+Home directory and group memberships are migrated to the new name.</source>
+        <translation>No primeiro boot, oferece renomear a conta de usuário e definir nova senha —
+útil ao entregar o sistema clonado para outra pessoa.
+O diretório home e os grupos são migrados para o novo nome.</translation>
+    </message>
+    <message>
+        <source>    d) Regenerate SSH host keys ❓</source>
+        <translation>    d) Regenerar chaves SSH do host ❓</translation>
+    </message>
+    <message>
+        <source>Deletes /etc/ssh/ssh_host_* and generates fresh keys on first boot, so the clone
+does not impersonate the original machine over SSH.
+People connecting will see a one-time "host key changed" warning — that is expected.</source>
+        <translation>Apaga /etc/ssh/ssh_host_* e gera chaves novas no primeiro boot, para que o clone
+não se passe pela máquina original via SSH.
+Quem conectar verá um aviso único de "host key changed" — isso é esperado.</translation>
+    </message>
+    <message>
+        <source>    e) Regenerate machine-id (new systemd identity) — ⚠ read the tooltip! ❓</source>
+        <translation>    e) Regenerar machine-id (nova identidade systemd) — ⚠ leia o tooltip! ❓</translation>
+    </message>
+    <message>
+        <source>⚠ Gives the install a brand-new /etc/machine-id — applied during installation.
+
+BREAKS anything bound to the old identity, most notably systemd ENCRYPTED
+CREDENTIALS (LoadCredentialEncrypted): services like hardened libvirt secret
+setups will fail with decryption errors until their credentials are re-created.
+(A stale libvirt secrets-encryption-key is removed automatically so its init
+service can regenerate it — but secrets encrypted under the old key are lost.)
+Journald history also splits at the identity change.
+
+Leave OFF for exact restores. Turn ON when the clone will live on the same
+network as the original long-term (avoids duplicate DHCP/systemd identity).</source>
+        <translation>⚠ Dá à instalação um /etc/machine-id totalmente novo — aplicado durante a instalação.
+
+QUEBRA tudo que estiver vinculado à identidade antiga, principalmente CREDENCIAIS
+CRIPTOGRAFADAS do systemd (LoadCredentialEncrypted): serviços como setups de
+segredos do libvirt falharão com erros de descriptografia até recriar as credenciais.
+(Uma secrets-encryption-key antiga do libvirt é removida automaticamente para o
+serviço de init regenerá-la — mas segredos criptografados com a chave antiga são perdidos.)
+O histórico do journald também se divide na troca de identidade.
+
+Deixe DESLIGADO para restaurações exatas. Ligue quando o clone for viver na mesma
+rede que o original por muito tempo (evita identidade DHCP/systemd duplicada).</translation>
+    </message>
+    <message>
         <source>🛡️ Firewall</source>
         <translation>🛡️ Firewall</translation>
     </message>
@@ -780,7 +870,7 @@
     </message>
     <message>
         <source>1) Exact Clone (default) — restore the system exactly as it is. Flawless on same/similar hardware.</source>
-        <translation>1) Clone Exato (padrão) — restaura o sistema exatamente como está. Perfeito em hardware igual/semelhante.</translation>
+        <translation type="vanished">1) Clone Exato (padrão) — restaura o sistema exatamente como está. Perfeito em hardware igual/semelhante.</translation>
     </message>
     <message>
         <source>2) Hardware Compatibility Options — first-boot adaptation for DIFFERENT hardware (each optional):</source>
@@ -788,19 +878,19 @@
     </message>
     <message>
         <source>    a) Auto-detect network cards — repair bridges &amp; adapter bindings on first boot</source>
-        <translation>    a) Autodetectar placas de rede — reparar bridges e vínculos de adaptadores no primeiro boot</translation>
+        <translation type="vanished">    a) Autodetectar placas de rede — reparar bridges e vínculos de adaptadores no primeiro boot</translation>
     </message>
     <message>
         <source>    b) Auto-detect GPU — NVIDIA: leave untouched; AMD: install drivers + configure X11 &amp; Wayland</source>
-        <translation>    b) Autodetectar GPU — NVIDIA: não mexer; AMD: instalar drivers + configurar X11 e Wayland</translation>
+        <translation type="vanished">    b) Autodetectar GPU — NVIDIA: não mexer; AMD: instalar drivers + configurar X11 e Wayland</translation>
     </message>
     <message>
         <source>    c) Offer username &amp; password change on first boot</source>
-        <translation>    c) Oferecer troca de usuário e senha no primeiro boot</translation>
+        <translation type="vanished">    c) Oferecer troca de usuário e senha no primeiro boot</translation>
     </message>
     <message>
         <source>    d) Regenerate SSH host keys (new machine identity)</source>
-        <translation>    d) Regenerar chaves SSH do host (nova identidade de máquina)</translation>
+        <translation type="vanished">    d) Regenerar chaves SSH do host (nova identidade de máquina)</translation>
     </message>
     <message>
         <source>Download Mode</source>

@@ -3562,7 +3562,13 @@
                <item>
                 <widget class="QCheckBox" name="isoExactCloneCheck">
                  <property name="text">
-                  <string>1) Exact Clone (default) — restore the system exactly as it is. Flawless on same/similar hardware.</string>
+                  <string>1) Exact Clone (default) — restore the system exactly as it is. Flawless on same/similar hardware. ❓</string>
+                 </property>
+                 <property name="toolTip">
+                  <string>A byte-for-byte restore: same users, same SSH keys, same machine-id.
+Everything bound to the machine identity keeps working — including systemd
+encrypted credentials (e.g. hardened libvirt secret setups).
+The right choice for disaster recovery onto the same or similar hardware.</string>
                  </property>
                  <property name="checked">
                   <bool>true</bool>
@@ -3579,28 +3585,68 @@
                <item>
                 <widget class="QCheckBox" name="isoCompatNetworkCheck">
                  <property name="text">
-                  <string>    a) Auto-detect network cards — repair bridges &amp; adapter bindings on first boot</string>
+                  <string>    a) Auto-detect network cards — repair bridges &amp; adapter bindings on first boot ❓</string>
+                 </property>
+                 <property name="toolTip">
+                  <string>On first boot, re-detects the network adapters actually present and re-binds
+NetworkManager profiles and bridges (br0 etc.) to them.
+Pick this when the target machine has different network hardware.</string>
                  </property>
                 </widget>
                </item>
                <item>
                 <widget class="QCheckBox" name="isoCompatGpuCheck">
                  <property name="text">
-                  <string>    b) Auto-detect GPU — NVIDIA: leave untouched; AMD: install drivers + configure X11 &amp; Wayland</string>
+                  <string>    b) Auto-detect GPU — NVIDIA: leave untouched; AMD: install drivers + configure X11 &amp; Wayland ❓</string>
+                 </property>
+                 <property name="toolTip">
+                  <string>On first boot, detects the GPU. NVIDIA cards are left untouched (your drivers stay).
+AMD cards get drivers installed and X11 &amp; Wayland configured.
+Pick this when the target machine has a different graphics card.</string>
                  </property>
                 </widget>
                </item>
                <item>
                 <widget class="QCheckBox" name="isoCompatUserCheck">
                  <property name="text">
-                  <string>    c) Offer username &amp; password change on first boot</string>
+                  <string>    c) Offer username &amp; password change on first boot ❓</string>
+                 </property>
+                 <property name="toolTip">
+                  <string>On first boot, offers to rename the user account and set a new password —
+useful when handing the cloned system to someone else.
+Home directory and group memberships are migrated to the new name.</string>
                  </property>
                 </widget>
                </item>
                <item>
                 <widget class="QCheckBox" name="isoCompatSshCheck">
                  <property name="text">
-                  <string>    d) Regenerate SSH host keys (new machine identity)</string>
+                  <string>    d) Regenerate SSH host keys ❓</string>
+                 </property>
+                 <property name="toolTip">
+                  <string>Deletes /etc/ssh/ssh_host_* and generates fresh keys on first boot, so the clone
+does not impersonate the original machine over SSH.
+People connecting will see a one-time &quot;host key changed&quot; warning — that is expected.</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="isoCompatMachineIdCheck">
+                 <property name="text">
+                  <string>    e) Regenerate machine-id (new systemd identity) — ⚠ read the tooltip! ❓</string>
+                 </property>
+                 <property name="toolTip">
+                  <string>⚠ Gives the install a brand-new /etc/machine-id — applied during installation.
+
+BREAKS anything bound to the old identity, most notably systemd ENCRYPTED
+CREDENTIALS (LoadCredentialEncrypted): services like hardened libvirt secret
+setups will fail with decryption errors until their credentials are re-created.
+(A stale libvirt secrets-encryption-key is removed automatically so its init
+service can regenerate it — but secrets encrypted under the old key are lost.)
+Journald history also splits at the identity change.
+
+Leave OFF for exact restores. Turn ON when the clone will live on the same
+network as the original long-term (avoids duplicate DHCP/systemd identity).</string>
                  </property>
                 </widget>
                </item>

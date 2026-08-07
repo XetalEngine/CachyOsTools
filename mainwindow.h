@@ -86,7 +86,8 @@ struct IsoFirstBootOptions {
     bool fixGpu = false;
     bool changeUser = false;
     bool regenSsh = false;
-    bool any() const { return fixNetwork || fixGpu || changeUser || regenSsh; }
+    bool regenMachineId = false;
+    bool any() const { return fixNetwork || fixGpu || changeUser || regenSsh || regenMachineId; }
 };
 
 class MainWindow : public QMainWindow
