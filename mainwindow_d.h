@@ -10,6 +10,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) , ui(new Ui::MainW
     setupSingleGpuGuide();
     setupDualGpuGuide();
 
+    // Dashboard control-panel sub-tabs (Devices, Users, Restore, Firewall, Kernels, Env, SysProps)
+    setupControlPanelTabs();
+
     // Set current tab first before applying visibility preferences
     ui->tabWidget->setCurrentWidget(ui->dashboardTab);
     

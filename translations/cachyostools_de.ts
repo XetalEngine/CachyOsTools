@@ -1,15 +1,18 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
+<?xml version='1.0' encoding='utf-8'?>
 <TS version="2.1" language="de_DE">
 <context>
     <name>MainWindow</name>
     <message>
         <source>Arch OS Tools</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>Dashboard</source>
         <translation>Übersicht</translation>
+    </message>
+    <message>
+        <source>🏠 Welcome</source>
+        <translation>🏠 Start</translation>
     </message>
     <message>
         <source>System at a glance</source>
@@ -17,7 +20,7 @@
     </message>
     <message>
         <source>Language / Idioma / Sprache</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>🔄 Refresh</source>
@@ -56,6 +59,34 @@
         <translation>🧠 System</translation>
     </message>
     <message>
+        <source>🔌 Devices</source>
+        <translation>🔌 Geräte</translation>
+    </message>
+    <message>
+        <source>👥 Users &amp; Groups</source>
+        <translation>👥 Benutzer &amp; Gruppen</translation>
+    </message>
+    <message>
+        <source>⏪ Restore Points</source>
+        <translation>⏪ Wiederherstellungspunkte</translation>
+    </message>
+    <message>
+        <source>🛡️ Firewall</source>
+        <translation>🛡️ Firewall</translation>
+    </message>
+    <message>
+        <source>🧬 Kernels</source>
+        <translation>🧬 Kernel</translation>
+    </message>
+    <message>
+        <source>🌱 Environment</source>
+        <translation>🌱 Umgebung</translation>
+    </message>
+    <message>
+        <source>🪪 System Properties</source>
+        <translation>🪪 Systemeigenschaften</translation>
+    </message>
+    <message>
         <source>Drives</source>
         <translation>Laufwerke</translation>
     </message>
@@ -77,7 +108,7 @@
     </message>
     <message>
         <source> MB</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>Available Drives &amp; Partitions</source>
@@ -141,7 +172,7 @@
     </message>
     <message>
         <source>Shell</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>Detected Shell: </source>
@@ -220,8 +251,8 @@
         <translation>Konfig-Backups öffnen</translation>
     </message>
     <message>
-        <source>Click &quot;Info&quot; to see detailed instructions, &quot;Apply&quot; to execute the tweak, or &quot;Edit Config&quot; to manually edit configuration files.</source>
-        <translation>Klicke auf &quot;Info&quot; für Details, &quot;Anwenden&quot; zum Ausführen oder &quot;Konfig bearbeiten&quot; zum manuellen Bearbeiten der Konfigurationsdateien.</translation>
+        <source>Click "Info" to see detailed instructions, "Apply" to execute the tweak, or "Edit Config" to manually edit configuration files.</source>
+        <translation>Klicke auf "Info" für Details, "Anwenden" zum Ausführen oder "Konfig bearbeiten" zum manuellen Bearbeiten der Konfigurationsdateien.</translation>
     </message>
     <message>
         <source>⚡ Performance</source>
@@ -237,7 +268,7 @@
     </message>
     <message>
         <source>ℹ️ Info</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>✅ Apply</source>
@@ -245,7 +276,7 @@
     </message>
     <message>
         <source>💾 Backup</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>✏️ Edit Config</source>
@@ -265,7 +296,7 @@
     </message>
     <message>
         <source>💾 Backup updatedb.conf</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>✏️ Edit /etc/updatedb.conf</source>
@@ -273,7 +304,7 @@
     </message>
     <message>
         <source>💾 Backup mkinitcpio.conf</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>✏️ Edit /etc/mkinitcpio.conf</source>
@@ -285,7 +316,7 @@
     </message>
     <message>
         <source>CPU Turbo Boost</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>NMI Watchdog (disable = less overhead)</source>
@@ -309,7 +340,7 @@
     </message>
     <message>
         <source>Firewall (firewalld/ufw)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>Core Dumps (disable = privacy + disk space)</source>
@@ -341,7 +372,7 @@
     </message>
     <message>
         <source>🖥️ Desktop</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>Show Hidden Files by Default</source>
@@ -361,7 +392,7 @@
     </message>
     <message>
         <source>Transparent Huge Pages (THP)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>Pacman Optimizations</source>
@@ -381,7 +412,7 @@
     </message>
     <message>
         <source>KVM</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>🖥️ Dual GPU</source>
@@ -392,7 +423,7 @@
         <translation>KVM-VM-Einrichtung und GPU-Passthrough</translation>
     </message>
     <message>
-        <source>Click any option to see detailed instructions for KVM setup and GPU passthrough configuration. This approach is safer as it doesn&apos;t automatically modify system files.</source>
+        <source>Click any option to see detailed instructions for KVM setup and GPU passthrough configuration. This approach is safer as it doesn't automatically modify system files.</source>
         <translation>Klicke auf eine Option für detaillierte Anleitungen zur KVM- und GPU-Passthrough-Einrichtung. Dieser Ansatz ist sicherer, da keine Systemdateien automatisch geändert werden.</translation>
     </message>
     <message>
@@ -493,7 +524,7 @@
     </message>
     <message>
         <source>🚧</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>Under Construction</source>
@@ -517,19 +548,19 @@
     </message>
     <message>
         <source>nano</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>kate</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>mousepad</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>geany</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>📝 Edit Selected (Built-in, sudo-capable)</source>
@@ -820,7 +851,7 @@
 PRIVACY
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 • This ISO contains a full clone of your system, including personal data and saved logins (e.g. browser, Discord). Keep it private.
-• Before sharing an ISO, use the exclusion panels above: drop big folders you don&apos;t need, and exclude app configs (Discord, browsers...) so your logins don&apos;t ship with the ISO.</source>
+• Before sharing an ISO, use the exclusion panels above: drop big folders you don't need, and exclude app configs (Discord, browsers...) so your logins don't ship with the ISO.</source>
         <translation>Wenn die ISO fertig ist:
 
 1. Brenne die ISO mit Balena Etcher, Rufus oder Ventoy auf einen USB-Stick.
@@ -893,7 +924,7 @@ PRIVATSPHÄRE
     </message>
     <message>
         <source>Hostname:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>DNS Servers:</source>
@@ -905,27 +936,27 @@ PRIVATSPHÄRE
     </message>
     <message>
         <source>RX Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>TX Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>RX Packets</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>TX Packets</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>RX Errors</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>TX Errors</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>Speed</source>
@@ -941,7 +972,7 @@ PRIVATSPHÄRE
     </message>
     <message>
         <source>Gateway</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>⚙️ Configure Interface</source>
@@ -965,7 +996,7 @@ PRIVATSPHÄRE
     </message>
     <message>
         <source>Interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>➕ Create Bridge</source>
@@ -1017,7 +1048,7 @@ PRIVATSPHÄRE
     </message>
     <message>
         <source>Wi-Fi</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>📡 Scan Networks</source>
@@ -1121,7 +1152,7 @@ PRIVATSPHÄRE
     </message>
     <message>
         <source>📦 Pacman</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>Installed Packages</source>
@@ -1185,7 +1216,7 @@ PRIVATSPHÄRE
     </message>
     <message>
         <source>🔧 Yay</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>Search packages...</source>
@@ -1193,7 +1224,7 @@ PRIVATSPHÄRE
     </message>
     <message>
         <source>⚡ Paru</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>🔍 Check for Updates</source>
@@ -1257,19 +1288,19 @@ PRIVATSPHÄRE
     </message>
     <message>
         <source>Auto</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>Pacman</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>Yay</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>Paru</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>Also remove unneeded dependencies (-Rns)</source>
@@ -1309,27 +1340,27 @@ PRIVATSPHÄRE
     </message>
     <message>
         <source>XETAL Dark</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>XETAL Red</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>Midnight Blue</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>Matrix</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>Solar Light</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>Purple Haze</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>Custom</source>
@@ -1440,8 +1471,8 @@ CachyOsTools jetzt neu starten?</translation>
         <translation>ausstehende(s) Update(s)</translation>
     </message>
     <message>
-        <source>&lt;p style=&apos;color:#888;&apos;&gt;Install &lt;b&gt;pacman-contrib&lt;/b&gt; to enable update checks.&lt;/p&gt;</source>
-        <translation>&lt;p style=&apos;color:#888;&apos;&gt;Installiere &lt;b&gt;pacman-contrib&lt;/b&gt;, um Update-Prüfungen zu aktivieren.&lt;/p&gt;</translation>
+        <source>&lt;p style='color:#888;'&gt;Install &lt;b&gt;pacman-contrib&lt;/b&gt; to enable update checks.&lt;/p&gt;</source>
+        <translation>&lt;p style='color:#888;'&gt;Installiere &lt;b&gt;pacman-contrib&lt;/b&gt;, um Update-Prüfungen zu aktivieren.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>No safety ISO yet</source>
@@ -1468,12 +1499,12 @@ CachyOsTools jetzt neu starten?</translation>
         <translation>letzte Sicherheits-ISO</translation>
     </message>
     <message>
-        <source>&lt;p style=&apos;color:#888;&apos;&gt;🔒 Health checks need a sudo session.&lt;br&gt;&lt;br&gt;Use &lt;b&gt;Load Labels&lt;/b&gt; or &lt;b&gt;Health Check&lt;/b&gt; in the Drives tab once, then Refresh here.&lt;/p&gt;</source>
-        <translation>&lt;p style=&apos;color:#888;&apos;&gt;🔒 Zustandsprüfungen benötigen eine sudo-Sitzung.&lt;br&gt;&lt;br&gt;Nutze einmal &lt;b&gt;Labels laden&lt;/b&gt; oder &lt;b&gt;Zustandsprüfung&lt;/b&gt; im Laufwerke-Tab und klicke dann hier auf Aktualisieren.&lt;/p&gt;</translation>
+        <source>&lt;p style='color:#888;'&gt;🔒 Health checks need a sudo session.&lt;br&gt;&lt;br&gt;Use &lt;b&gt;Load Labels&lt;/b&gt; or &lt;b&gt;Health Check&lt;/b&gt; in the Drives tab once, then Refresh here.&lt;/p&gt;</source>
+        <translation>&lt;p style='color:#888;'&gt;🔒 Zustandsprüfungen benötigen eine sudo-Sitzung.&lt;br&gt;&lt;br&gt;Nutze einmal &lt;b&gt;Labels laden&lt;/b&gt; oder &lt;b&gt;Zustandsprüfung&lt;/b&gt; im Laufwerke-Tab und klicke dann hier auf Aktualisieren.&lt;/p&gt;</translation>
     </message>
     <message>
-        <source>&lt;p style=&apos;color:#888;&apos;&gt;No SMART data&lt;br&gt;(is smartmontools installed?)&lt;/p&gt;</source>
-        <translation>&lt;p style=&apos;color:#888;&apos;&gt;Keine SMART-Daten&lt;br&gt;(ist smartmontools installiert?)&lt;/p&gt;</translation>
+        <source>&lt;p style='color:#888;'&gt;No SMART data&lt;br&gt;(is smartmontools installed?)&lt;/p&gt;</source>
+        <translation>&lt;p style='color:#888;'&gt;Keine SMART-Daten&lt;br&gt;(ist smartmontools installiert?)&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Terminal Not Found</source>
@@ -1598,8 +1629,136 @@ Nein = AMD</translation>
         <translation>Formatieren</translation>
     </message>
     <message>
+        <source>Local accounts and their group memberships (wheel = sudo).</source>
+        <translation>Lokale Konten und ihre Gruppenmitgliedschaften (wheel = sudo).</translation>
+    </message>
+    <message>
+        <source>➕ Add User</source>
+        <translation>➕ Benutzer hinzufügen</translation>
+    </message>
+    <message>
+        <source>🗑️ Delete User</source>
+        <translation>🗑️ Benutzer löschen</translation>
+    </message>
+    <message>
+        <source>🔑 Change Password</source>
+        <translation>🔑 Passwort ändern</translation>
+    </message>
+    <message>
+        <source>🐚 Change Shell</source>
+        <translation>🐚 Shell ändern</translation>
+    </message>
+    <message>
+        <source>👥 Edit Groups</source>
+        <translation>👥 Gruppen bearbeiten</translation>
+    </message>
+    <message>
+        <source>🖼️ Change Icon</source>
+        <translation>🖼️ Symbol ändern</translation>
+    </message>
+    <message>
+        <source>User</source>
+        <translation>Benutzer</translation>
+    </message>
+    <message>
+        <source>UID</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <source>Home</source>
+        <translation>Home</translation>
+    </message>
+    <message>
+        <source>Groups</source>
+        <translation>Gruppen</translation>
+    </message>
+    <message>
+        <source>Add User</source>
+        <translation>Benutzer hinzufügen</translation>
+    </message>
+    <message>
+        <source>Username (lowercase, no spaces):</source>
+        <translation>Benutzername (Kleinbuchstaben, keine Leerzeichen):</translation>
+    </message>
+    <message>
+        <source>Invalid Name</source>
+        <translation>Ungültiger Name</translation>
+    </message>
+    <message>
+        <source>Use lowercase letters, digits, - and _ only.</source>
+        <translation>Nur Kleinbuchstaben, Ziffern, - und _ erlaubt.</translation>
+    </message>
+    <message>
+        <source>Sudo Access</source>
+        <translation>Sudo-Zugriff</translation>
+    </message>
+    <message>
+        <source>Should '%1' be an administrator (wheel group)?</source>
+        <translation>Soll '%1' Administrator sein (wheel-Gruppe)?</translation>
+    </message>
+    <message>
+        <source>Select a user first.</source>
+        <translation>Wähle zuerst einen Benutzer.</translation>
+    </message>
+    <message>
+        <source>You cannot delete the account you are logged in with.</source>
+        <translation>Du kannst das Konto, mit dem du angemeldet bist, nicht löschen.</translation>
+    </message>
+    <message>
+        <source>Deleting root would be a very short story.</source>
+        <translation>Root zu löschen wäre eine sehr kurze Geschichte.</translation>
+    </message>
+    <message>
+        <source>Delete User</source>
+        <translation>Benutzer löschen</translation>
+    </message>
+    <message>
+        <source>Delete '%1' AND its home directory? This cannot be undone.</source>
+        <translation>'%1' UND sein Home-Verzeichnis löschen? Das kann nicht rückgängig gemacht werden.</translation>
+    </message>
+    <message>
+        <source>Change Shell</source>
+        <translation>Shell ändern</translation>
+    </message>
+    <message>
+        <source>Login shell for %1:</source>
+        <translation>Login-Shell für %1:</translation>
+    </message>
+    <message>
+        <source>Groups for %1</source>
+        <translation>Gruppen von %1</translation>
+    </message>
+    <message>
+        <source>Checked = member. Important: wheel (sudo), libvirt, docker, input, video.</source>
+        <translation>Angehakt = Mitglied. Wichtig: wheel (sudo), libvirt, docker, input, video.</translation>
+    </message>
+    <message>
         <source>Cancel</source>
         <translation>Abbrechen</translation>
+    </message>
+    <message>
+        <source>Choose Avatar for %1</source>
+        <translation>Avatar für %1 wählen</translation>
+    </message>
+    <message>
+        <source>Images (*.png *.jpg *.jpeg *.bmp *.webp)</source>
+        <translation>Bilder (*.png *.jpg *.jpeg *.bmp *.webp)</translation>
+    </message>
+    <message>
+        <source>Invalid Image</source>
+        <translation>Ungültiges Bild</translation>
+    </message>
+    <message>
+        <source>Could not read that image file.</source>
+        <translation>Diese Bilddatei konnte nicht gelesen werden.</translation>
+    </message>
+    <message>
+        <source>Failed</source>
+        <translation>Fehlgeschlagen</translation>
+    </message>
+    <message>
+        <source>Could not prepare the avatar image.</source>
+        <translation>Avatar-Bild konnte nicht vorbereitet werden.</translation>
     </message>
     <message>
         <source>Please select a drive to view SMART information.</source>
@@ -1626,8 +1785,78 @@ Installieren mit: sudo pacman -S smartmontools</translation>
         <translation>SMART-Informationen werden abgerufen...</translation>
     </message>
     <message>
+        <source>Every PCI and USB device, the kernel driver it uses, and its modules.</source>
+        <translation>Alle PCI- und USB-Geräte, der verwendete Kerneltreiber und seine Module.</translation>
+    </message>
+    <message>
+        <source>ℹ️ Module Info</source>
+        <translation>ℹ️ Modul-Info</translation>
+    </message>
+    <message>
+        <source>▶️ Load Module</source>
+        <translation>▶️ Modul laden</translation>
+    </message>
+    <message>
+        <source>⏏️ Unload Module</source>
+        <translation>⏏️ Modul entladen</translation>
+    </message>
+    <message>
+        <source>🚫 Blacklist Module</source>
+        <translation>🚫 Modul blockieren</translation>
+    </message>
+    <message>
+        <source>Driver in use</source>
+        <translation>Verwendeter Treiber</translation>
+    </message>
+    <message>
+        <source>Kernel modules</source>
+        <translation>Kernelmodule</translation>
+    </message>
+    <message>
+        <source>No Module</source>
+        <translation>Kein Modul</translation>
+    </message>
+    <message>
+        <source>Select a device that has a kernel module.</source>
+        <translation>Wähle ein Gerät mit einem Kernelmodul.</translation>
+    </message>
+    <message>
+        <source>No modinfo available for '%1' (may be built into the kernel).</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <source>Module Info — %1</source>
+        <translation>Modul-Info — %1</translation>
+    </message>
+    <message>
         <source>Close</source>
         <translation>Schließen</translation>
+    </message>
+    <message>
+        <source>Unload Module</source>
+        <translation>Modul entladen</translation>
+    </message>
+    <message>
+        <source>Unloading '%1' can take away your display, network or input if it is in use.
+
+Continue?</source>
+        <translation>Das Entladen von '%1' kann Anzeige, Netzwerk oder Eingabe lahmlegen, wenn es in Benutzung ist.
+
+Fortfahren?</translation>
+    </message>
+    <message>
+        <source>Blacklist Module</source>
+        <translation>Modul blockieren</translation>
+    </message>
+    <message>
+        <source>This writes 'blacklist %1' to /etc/modprobe.d/cachyostools-blacklist.conf so it never loads at boot.
+
+Blacklisting your GPU, disk or network driver will break the system. Continue?</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <source>USB Devices</source>
+        <translation>USB-Geräte</translation>
     </message>
     <message>
         <source>SMART Information:</source>
@@ -1666,8 +1895,8 @@ Installieren mit: sudo pacman -S smartmontools</translation>
         <translation>Dies ändert rekursiv Besitzer und Berechtigungen aller Dateien auf dem Laufwerk auf deinen Benutzer (chown -R und chmod -R 777). Fortfahren?</translation>
     </message>
     <message>
-        <source>Please select a valid destination. The source is automatically set to &apos;/&apos; for system backup.</source>
-        <translation>Bitte wähle ein gültiges Ziel. Die Quelle wird für die Systemsicherung automatisch auf &apos;/&apos; gesetzt.</translation>
+        <source>Please select a valid destination. The source is automatically set to '/' for system backup.</source>
+        <translation>Bitte wähle ein gültiges Ziel. Die Quelle wird für die Systemsicherung automatisch auf '/' gesetzt.</translation>
     </message>
     <message>
         <source>Could not launch a terminal emulator. Please install konsole, gnome-terminal, xterm, alacritty, or kitty.</source>
@@ -1762,21 +1991,21 @@ Mit der Systemwiederherstellung fortfahren?</translation>
     <message>
         <source>TRIM is managed via systemd timer, not a config file.
 
-To enable/disable TRIM, use the &apos;Apply&apos; button or run:
+To enable/disable TRIM, use the 'Apply' button or run:
 sudo systemctl enable fstrim.timer
 sudo systemctl start fstrim.timer
 
 TRIM can also be enabled via mount options in /etc/fstab
-by adding &apos;discard&apos; option, but this is not recommended
+by adding 'discard' option, but this is not recommended
 as it can impact performance.</source>
         <translation>TRIM wird über einen systemd-Timer verwaltet, nicht über eine Konfigdatei.
 
-Zum Aktivieren/Deaktivieren nutze den &apos;Anwenden&apos;-Button oder führe aus:
+Zum Aktivieren/Deaktivieren nutze den 'Anwenden'-Button oder führe aus:
 sudo systemctl enable fstrim.timer
 sudo systemctl start fstrim.timer
 
 TRIM kann auch über Mount-Optionen in /etc/fstab aktiviert werden
-(Option &apos;discard&apos;), was aber nicht empfohlen wird,
+(Option 'discard'), was aber nicht empfohlen wird,
 da es die Leistung beeinträchtigen kann.</translation>
     </message>
     <message>
@@ -1934,12 +2163,12 @@ Mitigationen DEAKTIVIEREN?</translation>
     <message>
         <source>Opening /etc/default/grub for editing...
 
-Add &apos;mitigations=off&apos; to GRUB_CMDLINE_LINUX,
+Add 'mitigations=off' to GRUB_CMDLINE_LINUX,
 then run: sudo grub-mkconfig -o /boot/grub/grub.cfg
 and REBOOT.</source>
         <translation>Öffne /etc/default/grub zum Bearbeiten...
 
-Füge &apos;mitigations=off&apos; zu GRUB_CMDLINE_LINUX hinzu,
+Füge 'mitigations=off' zu GRUB_CMDLINE_LINUX hinzu,
 dann ausführen: sudo grub-mkconfig -o /boot/grub/grub.cfg
 und NEU STARTEN.</translation>
     </message>
@@ -2031,7 +2260,7 @@ Dann ausführen: sudo mount -o remount /proc</translation>
     </message>
     <message>
         <source>Transparent Huge Pages</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>Select THP mode:</source>
@@ -2058,7 +2287,7 @@ Fortfahren?</translation>
         <translation>Firewall-Konfiguration</translation>
     </message>
     <message>
-        <source>Firewall configuration depends on which firewall you&apos;re using:
+        <source>Firewall configuration depends on which firewall you're using:
 
 For firewalld:
 sudo firewall-cmd --permanent --add-service=http
@@ -2181,7 +2410,7 @@ Fortfahren?</translation>
     </message>
     <message>
         <source>NMI Watchdog</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>NMI watchdog setting:</source>
@@ -2189,7 +2418,7 @@ Fortfahren?</translation>
     </message>
     <message>
         <source>Core Dumps</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>Core dump setting:</source>
@@ -2229,7 +2458,7 @@ Fortfahren?</translation>
 fs.inotify.max_user_watches = 524288
 fs.inotify.max_user_instances = 1024
 
-Fixes &apos;unable to watch for changes&apos; errors in IDEs,
+Fixes 'unable to watch for changes' errors in IDEs,
 sync tools, and some game launchers.
 
 Continue?</source>
@@ -2238,7 +2467,7 @@ Continue?</source>
 fs.inotify.max_user_watches = 524288
 fs.inotify.max_user_instances = 1024
 
-Behebt &apos;unable to watch for changes&apos;-Fehler in IDEs,
+Behebt 'unable to watch for changes'-Fehler in IDEs,
 Sync-Tools und manchen Spiele-Launchern.
 
 Fortfahren?</translation>
@@ -2332,8 +2561,196 @@ Exit-Code: </translation>
         <translation>❌ Installierte Pakete konnten nicht gelesen werden.</translation>
     </message>
     <message>
+        <source>Multiple kernels = safety. Keep an LTS fallback next to your daily driver.</source>
+        <translation>Mehrere Kernel = Sicherheit. Halte einen LTS-Fallback neben deinem Alltagskernel.</translation>
+    </message>
+    <message>
+        <source>⬇️ Install</source>
+        <translation>⬇️ Installieren</translation>
+    </message>
+    <message>
+        <source>🗑️ Remove Selected</source>
+        <translation>🗑️ Auswahl entfernen</translation>
+    </message>
+    <message>
         <source>Version</source>
         <translation>Version</translation>
+    </message>
+    <message>
+        <source>Kernel Package</source>
+        <translation type="vanished">Kernelpaket</translation>
+    </message>
+    <message>
+        <source>Running</source>
+        <translation>Aktiv</translation>
+    </message>
+    <message>
+        <source>Headers</source>
+        <translation>Headers</translation>
+    </message>
+    <message>
+        <source>Boot Image</source>
+        <translation>Boot-Abbild</translation>
+    </message>
+    <message>
+        <source>🥾 Boot entry (GRUB)</source>
+        <translation>🥾 Booteintrag (GRUB)</translation>
+    </message>
+    <message>
+        <source>⭐ Set Selected as Default Boot Entry</source>
+        <translation>⭐ Auswahl als Standard-Booteintrag setzen</translation>
+    </message>
+    <message>
+        <source>🔧 Regenerate GRUB Config</source>
+        <translation>🔧 GRUB-Konfig neu erzeugen</translation>
+    </message>
+    <message>
+        <source>Nothing to Install</source>
+        <translation type="vanished">Nichts zu installieren</translation>
+    </message>
+    <message>
+        <source>All known kernels are already installed.</source>
+        <translation type="vanished">Alle bekannten Kernel sind bereits installiert.</translation>
+    </message>
+    <message>
+        <source>Select an installed kernel first.</source>
+        <translation>Wähle zuerst einen installierten Kernel.</translation>
+    </message>
+    <message>
+        <source>'%1' is the kernel you are running right now. Boot another kernel first.</source>
+        <translation>'%1' ist der gerade laufende Kernel. Boote zuerst einen anderen.</translation>
+    </message>
+    <message>
+        <source>That is your only installed kernel.</source>
+        <translation>Das ist dein einziger installierter Kernel.</translation>
+    </message>
+    <message>
+        <source>Remove Kernel</source>
+        <translation>Kernel entfernen</translation>
+    </message>
+    <message>
+        <source>Remove '%1' and its headers?</source>
+        <translation type="vanished">'%1' und seine Headers entfernen?</translation>
+    </message>
+    <message>
+        <source>Select a boot entry from the list first.</source>
+        <translation>Wähle zuerst einen Booteintrag aus der Liste.</translation>
+    </message>
+    <message>
+        <source>Set Default Boot Entry</source>
+        <translation>Standard-Booteintrag setzen</translation>
+    </message>
+    <message>
+        <source>Boot this entry by default from now on?
+
+%1</source>
+        <translation>Diesen Eintrag ab jetzt standardmäßig booten?
+
+%1</translation>
+    </message>
+    <message>
+        <source>✅ current (%1)</source>
+        <translation>✅ aktuell (%1)</translation>
+    </message>
+    <message>
+        <source>✅ installed</source>
+        <translation>✅ installiert</translation>
+    </message>
+    <message>
+        <source>🌟 Install Popular Kernel...</source>
+        <translation>🌟 Beliebten Kernel installieren...</translation>
+    </message>
+    <message>
+        <source>Official repo</source>
+        <translation>Offizielles Repo</translation>
+    </message>
+    <message>
+        <source>Vanilla Arch kernel</source>
+        <translation>Vanilla-Arch-Kernel</translation>
+    </message>
+    <message>
+        <source>Long-term support — the safe fallback</source>
+        <translation>Long-Term-Support — der sichere Fallback</translation>
+    </message>
+    <message>
+        <source>Desktop/gaming tuned (zen patches)</source>
+        <translation>Für Desktop/Gaming optimiert (Zen-Patches)</translation>
+    </message>
+    <message>
+        <source>Security-hardened</source>
+        <translation>Sicherheitsgehärtet</translation>
+    </message>
+    <message>
+        <source>Realtime preemption (audio/robotics)</source>
+        <translation>Echtzeit-Preemption (Audio/Robotik)</translation>
+    </message>
+    <message>
+        <source>CachyOS repo / AUR</source>
+        <translation>CachyOS-Repo / AUR</translation>
+    </message>
+    <message>
+        <source>BORE scheduler + CachyOS optimizations</source>
+        <translation>BORE-Scheduler + CachyOS-Optimierungen</translation>
+    </message>
+    <message>
+        <source>AUR</source>
+        <translation>AUR</translation>
+    </message>
+    <message>
+        <source>XanMod performance build</source>
+        <translation>XanMod-Performance-Build</translation>
+    </message>
+    <message>
+        <source>Latest mainline release candidate</source>
+        <translation>Neuester Mainline-Release-Kandidat</translation>
+    </message>
+    <message>
+        <source>GitHub — build from source</source>
+        <translation>GitHub — aus dem Quellcode bauen</translation>
+    </message>
+    <message>
+        <source>Frogging-Family TKG: interactive, fully customizable build</source>
+        <translation>Frogging-Family TKG: interaktiver, voll anpassbarer Build</translation>
+    </message>
+    <message>
+        <source>Install Popular Kernel</source>
+        <translation>Beliebten Kernel installieren</translation>
+    </message>
+    <message>
+        <source>Pick a kernel — repo installs use pacman, AUR uses yay/paru, and TKG clones the
+GitHub repo and runs its interactive makepkg build (you choose the options in the terminal).</source>
+        <translation>Wähle einen Kernel — Repo-Installationen nutzen pacman, AUR nutzt yay/paru, und TKG klont das
+GitHub-Repo und startet den interaktiven makepkg-Build (Optionen wählst du im Terminal).</translation>
+    </message>
+    <message>
+        <source>Not Package-Managed</source>
+        <translation>Nicht paketverwaltet</translation>
+    </message>
+    <message>
+        <source>'%1' was not installed by pacman, so it must be removed by hand:
+
+  sudo rm /boot/vmlinuz-%1
+  sudo rm /boot/initramfs-%1*.img
+  sudo rm -r /usr/lib/modules/&lt;its version&gt;
+
+Then Regenerate GRUB Config. Double-check each path before deleting!</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <source>Remove package '%1' (boot image '%2') and its headers?</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <source>—</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <source>(unknown)</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <source>GRUB_DEFAULT is currently: %1 — select an entry below and set it as default.</source>
+        <translation>GRUB_DEFAULT ist aktuell: %1 — wähle unten einen Eintrag und setze ihn als Standard.</translation>
     </message>
     <message>
         <source>Source</source>
@@ -2384,8 +2801,8 @@ Exit-Code: </translation>
         <translation>Wähle den USB-Datenträger zum Brennen (den Datenträger, keine Partition).</translation>
     </message>
     <message>
-        <source>Select the whole disk (type &apos;disk&apos;), not a partition.</source>
-        <translation>Wähle den ganzen Datenträger (Typ &apos;disk&apos;), keine Partition.</translation>
+        <source>Select the whole disk (type 'disk'), not a partition.</source>
+        <translation>Wähle den ganzen Datenträger (Typ 'disk'), keine Partition.</translation>
     </message>
     <message>
         <source>Refused</source>
@@ -2465,19 +2882,19 @@ Exit-Code: </translation>
     </message>
     <message>
         <source>Current Version</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>Checking official repos...</source>
         <translation>Prüfe offizielle Repos...</translation>
     </message>
     <message>
-        <source>⚠️ &apos;checkupdates&apos; not found — install it with: sudo pacman -S pacman-contrib</source>
-        <translation>⚠️ &apos;checkupdates&apos; nicht gefunden — installieren mit: sudo pacman -S pacman-contrib</translation>
+        <source>⚠️ 'checkupdates' not found — install it with: sudo pacman -S pacman-contrib</source>
+        <translation>⚠️ 'checkupdates' nicht gefunden — installieren mit: sudo pacman -S pacman-contrib</translation>
     </message>
     <message>
-        <source>⚠️ checkupdates failed (install &apos;pacman-contrib&apos;).</source>
-        <translation>⚠️ checkupdates fehlgeschlagen (&apos;pacman-contrib&apos; installieren).</translation>
+        <source>⚠️ checkupdates failed (install 'pacman-contrib').</source>
+        <translation>⚠️ checkupdates fehlgeschlagen ('pacman-contrib' installieren).</translation>
     </message>
     <message>
         <source>✅ System is up to date!</source>
@@ -2533,7 +2950,7 @@ Tipp: Vorher die Arch-News prüfen — gelegentlich erfordern Upgrades manuelle 
     </message>
     <message>
         <source>PID</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>⏳ Scanning home folder sizes (first scan can take a minute)...</source>
@@ -2550,8 +2967,72 @@ Check some folders/files first, then save.</source>
 Hake zuerst Ordner/Dateien an, dann speichern.</translation>
     </message>
     <message>
+        <source>Variable:</source>
+        <translation>Variable:</translation>
+    </message>
+    <message>
+        <source>Value:</source>
+        <translation>Wert:</translation>
+    </message>
+    <message>
+        <source>Like the Windows Environment Variables dialog. Changes apply at the NEXT login.</source>
+        <translation>Wie der Windows-Dialog für Umgebungsvariablen. Änderungen gelten ab dem NÄCHSTEN Login.</translation>
+    </message>
+    <message>
+        <source>Variable</source>
+        <translation>Variable</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation>Wert</translation>
+    </message>
+    <message>
+        <source>➕ Add</source>
+        <translation>➕ Hinzufügen</translation>
+    </message>
+    <message>
+        <source>✏️ Edit</source>
+        <translation>✏️ Bearbeiten</translation>
+    </message>
+    <message>
+        <source>🗑️ Remove</source>
+        <translation>🗑️ Entfernen</translation>
+    </message>
+    <message>
+        <source>Add Variable</source>
+        <translation>Variable hinzufügen</translation>
+    </message>
+    <message>
+        <source>Select a variable first.</source>
+        <translation>Wähle zuerst eine Variable.</translation>
+    </message>
+    <message>
+        <source>Edit Variable</source>
+        <translation>Variable bearbeiten</translation>
+    </message>
+    <message>
+        <source>🖥️ System variables — /etc/environment (all users)</source>
+        <translation>🖥️ Systemvariablen — /etc/environment (alle Benutzer)</translation>
+    </message>
+    <message>
+        <source>👤 User variables — ~/.config/environment.d (this user)</source>
+        <translation>👤 Benutzervariablen — ~/.config/environment.d (dieser Benutzer)</translation>
+    </message>
+    <message>
         <source>Save Failed</source>
         <translation>Speichern fehlgeschlagen</translation>
+    </message>
+    <message>
+        <source>Could not write %1</source>
+        <translation>Konnte %1 nicht schreiben</translation>
+    </message>
+    <message>
+        <source>Saved</source>
+        <translation>Gespeichert</translation>
+    </message>
+    <message>
+        <source>User variables saved. They apply at your next login.</source>
+        <translation>Benutzervariablen gespeichert. Sie gelten ab deinem nächsten Login.</translation>
     </message>
     <message>
         <source>Could not write to:
@@ -2599,7 +3080,7 @@ Hake zuerst Ordner/Dateien an, dann speichern.</translation>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>About Arch OS Tools</source>
@@ -2649,7 +3130,7 @@ Installieren (z.B. pacman -S networkmanager).</translation>
     </message>
     <message>
         <source>br0</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>Interface to attach:</source>
@@ -2689,7 +3170,7 @@ Installieren (z.B. pacman -S networkmanager).</translation>
     </message>
     <message>
         <source>192.168.1.100</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>Netmask:</source>
@@ -2697,19 +3178,19 @@ Installieren (z.B. pacman -S networkmanager).</translation>
     </message>
     <message>
         <source>255.255.255.0</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>Gateway:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>192.168.1.1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>8.8.8.8, 8.8.4.4</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>Please select an interface to bring up.</source>
@@ -2741,7 +3222,7 @@ Installieren (z.B. pacman -S networkmanager).</translation>
     </message>
     <message>
         <source>SSID</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>No Wi-Fi adapter detected.</source>
@@ -2777,7 +3258,7 @@ Installieren (z.B. pacman -S networkmanager).</translation>
     </message>
     <message>
         <source>Active</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished" />
     </message>
     <message>
         <source>Please select a connection to activate.</source>
@@ -2922,6 +3403,356 @@ Fortfahren?</translation>
     <message>
         <source>SubState</source>
         <translation>Substatus</translation>
+    </message>
+    <message>
+        <source>Snapshots protect you from bad updates — create one before big changes.</source>
+        <translation>Snapshots schützen vor schlechten Updates — erstelle einen vor großen Änderungen.</translation>
+    </message>
+    <message>
+        <source>🔓 Load Snapshots (sudo)</source>
+        <translation>🔓 Snapshots laden (sudo)</translation>
+    </message>
+    <message>
+        <source>📸 Create Restore Point</source>
+        <translation>📸 Wiederherstellungspunkt erstellen</translation>
+    </message>
+    <message>
+        <source>⏪ How to Roll Back</source>
+        <translation>⏪ Zurücksetzen — Anleitung</translation>
+    </message>
+    <message>
+        <source>#</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Datum</translation>
+    </message>
+    <message>
+        <source>Create Restore Point</source>
+        <translation>Wiederherstellungspunkt erstellen</translation>
+    </message>
+    <message>
+        <source>Description:</source>
+        <translation>Beschreibung:</translation>
+    </message>
+    <message>
+        <source>Manual restore point</source>
+        <translation>Manueller Wiederherstellungspunkt</translation>
+    </message>
+    <message>
+        <source>Load and select a snapshot first.</source>
+        <translation>Lade und wähle zuerst einen Snapshot.</translation>
+    </message>
+    <message>
+        <source>Snapshot 0 is the live system itself.</source>
+        <translation>Snapshot 0 ist das laufende System selbst.</translation>
+    </message>
+    <message>
+        <source>Delete Snapshot</source>
+        <translation>Snapshot löschen</translation>
+    </message>
+    <message>
+        <source>Delete snapshot #%1? The disk space is reclaimed.</source>
+        <translation>Snapshot #%1 löschen? Der Speicherplatz wird freigegeben.</translation>
+    </message>
+    <message>
+        <source>Rolling Back</source>
+        <translation>Zurücksetzen</translation>
+    </message>
+    <message>
+        <source>Rolling back is deliberately not a one-click action — it replaces your running system.
+
+The safe ways:
+
+1. If the system still boots:
+     sudo snapper -c root rollback &lt;number&gt;
+     then reboot.
+
+2. If the system does not boot and grub-btrfs is installed:
+     pick the snapshot from the GRUB menu ('Arch snapshots'),
+     boot into it, then run the rollback command above.
+
+3. Nuclear option: boot your Safety ISO from the System ISO tab.
+
+Files-only recovery: snapshots are browsable at /.snapshots/&lt;number&gt;/snapshot/ —
+copy individual files back without rolling back anything.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <source>snapper is not installed — snapshots need a btrfs filesystem + snapper.</source>
+        <translation>snapper ist nicht installiert — Snapshots brauchen btrfs + snapper.</translation>
+    </message>
+    <message>
+        <source>Your root filesystem IS btrfs — you just need snapper:
+
+  sudo pacman -S snapper snap-pac grub-btrfs
+  sudo snapper -c root create-config /
+
+snap-pac then creates automatic before/after snapshots on every pacman operation.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <source>Your root filesystem is '%1', not btrfs, so snapper snapshots are unavailable.
+
+Your alternative safety nets: the System ISO tab (full clone) and the Backup tab.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <source>Snapshots Not Set Up</source>
+        <translation>Snapshots nicht eingerichtet</translation>
+    </message>
+    <message>
+        <source>snapper has no 'root' config yet — run: sudo snapper -c root create-config /</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <source>%1 snapshot(s). Automatic ones come from snap-pac; # 0 is the live system.</source>
+        <translation>%1 Snapshot(s). Automatische kommen von snap-pac; Nr. 0 ist das laufende System.</translation>
+    </message>
+    <message>
+        <source>Click Load to detect your firewall and list its rules.</source>
+        <translation>Klicke auf Laden, um die Firewall zu erkennen und Regeln aufzulisten.</translation>
+    </message>
+    <message>
+        <source>🔓 Load Rules (sudo)</source>
+        <translation>🔓 Regeln laden (sudo)</translation>
+    </message>
+    <message>
+        <source>🟢 Enable Firewall</source>
+        <translation>🟢 Firewall aktivieren</translation>
+    </message>
+    <message>
+        <source>🔴 Disable Firewall</source>
+        <translation>🔴 Firewall deaktivieren</translation>
+    </message>
+    <message>
+        <source>➕ Add Rule</source>
+        <translation>➕ Regel hinzufügen</translation>
+    </message>
+    <message>
+        <source>🗑️ Delete Rule</source>
+        <translation>🗑️ Regel löschen</translation>
+    </message>
+    <message>
+        <source>Rule</source>
+        <translation>Regel</translation>
+    </message>
+    <message>
+        <source>Disable Firewall</source>
+        <translation>Firewall deaktivieren</translation>
+    </message>
+    <message>
+        <source>Disable the firewall? All ports become reachable from the network.</source>
+        <translation>Firewall deaktivieren? Alle Ports werden aus dem Netzwerk erreichbar.</translation>
+    </message>
+    <message>
+        <source>Add Firewall Rule</source>
+        <translation>Firewall-Regel hinzufügen</translation>
+    </message>
+    <message>
+        <source>e.g. 22, 8080, 6000:6100</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <source>both</source>
+        <translation>beide</translation>
+    </message>
+    <message>
+        <source>anywhere (empty) or IP/subnet, e.g. 192.168.1.0/24</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <source>Action:</source>
+        <translation>Aktion:</translation>
+    </message>
+    <message>
+        <source>Port:</source>
+        <translation>Port:</translation>
+    </message>
+    <message>
+        <source>Protocol:</source>
+        <translation>Protokoll:</translation>
+    </message>
+    <message>
+        <source>From:</source>
+        <translation>Von:</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Hinzufügen</translation>
+    </message>
+    <message>
+        <source>Invalid Port</source>
+        <translation>Ungültiger Port</translation>
+    </message>
+    <message>
+        <source>Enter a port number or range like 6000:6100.</source>
+        <translation>Gib eine Portnummer oder einen Bereich wie 6000:6100 ein.</translation>
+    </message>
+    <message>
+        <source>Invalid Source</source>
+        <translation>Ungültige Quelle</translation>
+    </message>
+    <message>
+        <source>Enter an IP or subnet like 192.168.1.0/24.</source>
+        <translation>Gib eine IP oder ein Subnetz wie 192.168.1.0/24 ein.</translation>
+    </message>
+    <message>
+        <source>Load and select a rule first.</source>
+        <translation>Lade und wähle zuerst eine Regel.</translation>
+    </message>
+    <message>
+        <source>Delete Rule</source>
+        <translation>Regel löschen</translation>
+    </message>
+    <message>
+        <source>Delete rule #%1?
+
+%2</source>
+        <translation>Regel #%1 löschen?
+
+%2</translation>
+    </message>
+    <message>
+        <source>No firewall installed.</source>
+        <translation>Keine Firewall installiert.</translation>
+    </message>
+    <message>
+        <source>No Firewall</source>
+        <translation>Keine Firewall</translation>
+    </message>
+    <message>
+        <source>Neither ufw nor firewalld is installed.
+
+Recommended for desktops:
+  sudo pacman -S ufw
+  sudo ufw enable
+
+Then come back here to manage rules.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <source>ufw — %1</source>
+        <translation>ufw — %1</translation>
+    </message>
+    <message>
+        <source>🟢 active</source>
+        <translation>🟢 aktiv</translation>
+    </message>
+    <message>
+        <source>🔴 inactive</source>
+        <translation>🔴 inaktiv</translation>
+    </message>
+    <message>
+        <source>firewalld — default zone rules (ports shown are deletable here)</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <source>✏️ Change Hostname</source>
+        <translation>✏️ Hostname ändern</translation>
+    </message>
+    <message>
+        <source>🆔 Regenerate machine-id</source>
+        <translation>🆔 machine-id neu erzeugen</translation>
+    </message>
+    <message>
+        <source>📋 Copy Info</source>
+        <translation>📋 Info kopieren</translation>
+    </message>
+    <message>
+        <source>Change Hostname</source>
+        <translation>Hostname ändern</translation>
+    </message>
+    <message>
+        <source>New hostname (letters, digits, hyphens):</source>
+        <translation>Neuer Hostname (Buchstaben, Ziffern, Bindestriche):</translation>
+    </message>
+    <message>
+        <source>Invalid Hostname</source>
+        <translation>Ungültiger Hostname</translation>
+    </message>
+    <message>
+        <source>Only letters, digits and hyphens are allowed.</source>
+        <translation>Nur Buchstaben, Ziffern und Bindestriche sind erlaubt.</translation>
+    </message>
+    <message>
+        <source>Regenerate machine-id</source>
+        <translation>machine-id neu erzeugen</translation>
+    </message>
+    <message>
+        <source>The machine-id identifies this installation (journald, DHCP leases, some licensing).
+
+Regenerating gives the system a new identity — mainly useful after cloning. Continue?</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <source>Copied</source>
+        <translation>Kopiert</translation>
+    </message>
+    <message>
+        <source>System information copied to clipboard.</source>
+        <translation>Systeminformationen in die Zwischenablage kopiert.</translation>
+    </message>
+    <message>
+        <source>System Properties</source>
+        <translation>Systemeigenschaften</translation>
+    </message>
+    <message>
+        <source>Computer name</source>
+        <translation>Computername</translation>
+    </message>
+    <message>
+        <source>Pretty name</source>
+        <translation>Anzeigename</translation>
+    </message>
+    <message>
+        <source>Operating system</source>
+        <translation>Betriebssystem</translation>
+    </message>
+    <message>
+        <source>Kernel</source>
+        <translation>Kernel</translation>
+    </message>
+    <message>
+        <source>Architecture</source>
+        <translation>Architektur</translation>
+    </message>
+    <message>
+        <source>Processor</source>
+        <translation>Prozessor</translation>
+    </message>
+    <message>
+        <source>Graphics</source>
+        <translation>Grafik</translation>
+    </message>
+    <message>
+        <source>Installed RAM</source>
+        <translation>Installierter RAM</translation>
+    </message>
+    <message>
+        <source>Root filesystem</source>
+        <translation>Root-Dateisystem</translation>
+    </message>
+    <message>
+        <source>Virtualization</source>
+        <translation>Virtualisierung</translation>
+    </message>
+    <message>
+        <source>none (bare metal)</source>
+        <translation>keine (Bare Metal)</translation>
+    </message>
+    <message>
+        <source>machine-id</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <source>System installed</source>
+        <translation>System installiert am</translation>
+    </message>
+    <message>
+        <source>Uptime</source>
+        <translation>Laufzeit</translation>
     </message>
 </context>
 </TS>

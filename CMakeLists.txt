@@ -20,6 +20,13 @@ set(PROJECT_SOURCES
         # Header files containing implementations
         dual_gpu_kvm.h
         single_gpu_kvm.h
+        device_manager.h
+        users_groups.h
+        restore_points.h
+        firewall_manager.h
+        kernel_manager.h
+        env_editor.h
+        system_properties.h
         drive.h
         mainwindow_d.h
         systembackup.h

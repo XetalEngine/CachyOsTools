@@ -18,6 +18,8 @@
 #include <QNetworkRequest>
 #include <QRadioButton>
 #include <QLabel>
+#include <QComboBox>
+#include <QListWidget>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -492,6 +494,36 @@ private:
     // ISO exclusion panels (big folders / ~/.config)
     void setupSingleGpuGuide();
     void setupDualGpuGuide();
+
+    // Control panel (Dashboard sub-tabs)
+    void setupControlPanelTabs();
+    void setupDeviceManagerTab();
+    void refreshDeviceManager();
+    void setupUsersGroupsTab();
+    void refreshUsersGroups();
+    void setupRestorePointsTab();
+    void refreshRestorePoints();
+    void setupFirewallTab();
+    void refreshFirewall();
+    void setupKernelManagerTab();
+    void refreshKernelManager();
+    void setupEnvVarsTab();
+    void refreshEnvVars();
+    void setupSystemPropsTab();
+    void refreshSystemProps();
+    QTreeWidget *devMgrTree = nullptr;
+    QTableWidget *ugUsersTable = nullptr;
+    QTableWidget *rpTable = nullptr;
+    QLabel *rpStatusLabel = nullptr;
+    QTableWidget *fwTable = nullptr;
+    QLabel *fwStatusLabel = nullptr;
+    QString fwBackend;
+    QTableWidget *kmTable = nullptr;
+    QListWidget *kmGrubList = nullptr;
+    QLabel *kmGrubDefaultLabel = nullptr;
+    QTableWidget *envSysTable = nullptr;
+    QTableWidget *envUserTable = nullptr;
+    QLabel *spInfoLabel = nullptr;
     void startIsoHomeScan();
     void startIsoConfigScan();
     void rebuildIsoBigTree();

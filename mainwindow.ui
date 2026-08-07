@@ -24,7 +24,14 @@
        <attribute name="title">
         <string>Dashboard</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_dashboard">
+       <layout class="QVBoxLayout" name="verticalLayout_dashOuter">
+        <item>
+         <widget class="QTabWidget" name="dashSubTabs">
+          <widget class="QWidget" name="welcomeSubTab">
+           <attribute name="title">
+            <string>🏠 Welcome</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_dashboard">
         <item>
          <layout class="QHBoxLayout" name="dashTopLayout">
           <item>
@@ -258,6 +265,45 @@
             <height>52</height>
            </size>
           </property>
+         </widget>
+        </item>
+       </layout>
+          </widget>
+          <widget class="QWidget" name="deviceManagerSubTab">
+           <attribute name="title">
+            <string>🔌 Devices</string>
+           </attribute>
+          </widget>
+          <widget class="QWidget" name="usersGroupsSubTab">
+           <attribute name="title">
+            <string>👥 Users &amp; Groups</string>
+           </attribute>
+          </widget>
+          <widget class="QWidget" name="restorePointsSubTab">
+           <attribute name="title">
+            <string>⏪ Restore Points</string>
+           </attribute>
+          </widget>
+          <widget class="QWidget" name="firewallSubTab">
+           <attribute name="title">
+            <string>🛡️ Firewall</string>
+           </attribute>
+          </widget>
+          <widget class="QWidget" name="kernelManagerSubTab">
+           <attribute name="title">
+            <string>🧬 Kernels</string>
+           </attribute>
+          </widget>
+          <widget class="QWidget" name="envVarsSubTab">
+           <attribute name="title">
+            <string>🌱 Environment</string>
+           </attribute>
+          </widget>
+          <widget class="QWidget" name="systemPropsSubTab">
+           <attribute name="title">
+            <string>🪪 System Properties</string>
+           </attribute>
+          </widget>
          </widget>
         </item>
        </layout>
