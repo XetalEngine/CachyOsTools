@@ -2821,7 +2821,231 @@
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_iso_content">
-            
+            <item>
+             <widget class="QSplitter" name="isoExcludeSplitter">
+              <property name="orientation">
+               <enum>Qt::Orientation::Horizontal</enum>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>360</height>
+               </size>
+              </property>
+              <property name="childrenCollapsible">
+               <bool>false</bool>
+              </property>
+              <widget class="QGroupBox" name="isoBigFoldersGroup">
+               <property name="title">
+                <string>🗂️ Exclude Big Folders &amp; Files (Home)</string>
+               </property>
+               <layout class="QVBoxLayout" name="isoBigFoldersLayout">
+                <item>
+                 <layout class="QHBoxLayout" name="isoBigFiltersLayout">
+                  <item>
+                   <widget class="QLabel" name="isoFolderSizeLabel">
+                    <property name="text">
+                     <string>Folders &gt;</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSpinBox" name="isoFolderSizeSpin">
+                    <property name="minimum">
+                     <number>1</number>
+                    </property>
+                    <property name="maximum">
+                     <number>1000000</number>
+                    </property>
+                    <property name="value">
+                     <number>500</number>
+                    </property>
+                    <property name="suffix">
+                     <string> MB</string>
+                    </property>
+                    <property name="toolTip">
+                     <string>Only show folders larger than this</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="isoFileSizeLabel">
+                    <property name="text">
+                     <string>Files &gt;</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSpinBox" name="isoFileSizeSpin">
+                    <property name="minimum">
+                     <number>10</number>
+                    </property>
+                    <property name="maximum">
+                     <number>1000000</number>
+                    </property>
+                    <property name="value">
+                     <number>100</number>
+                    </property>
+                    <property name="suffix">
+                     <string> MB</string>
+                    </property>
+                    <property name="toolTip">
+                     <string>Only show files larger than this (minimum 10 MB)</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="isoRescanButton">
+                    <property name="text">
+                     <string>🔄 Rescan</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="isoBigFiltersSpacer">
+                    <property name="orientation">
+                     <enum>Qt::Orientation::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>10</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <widget class="QLabel" name="isoScanStatusLabel">
+                  <property name="text">
+                   <string>Checked items are EXCLUDED from the ISO.</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QTreeWidget" name="isoBigTree">
+                  <property name="alternatingRowColors">
+                   <bool>true</bool>
+                  </property>
+                  <column>
+                   <property name="text">
+                    <string>Path</string>
+                   </property>
+                  </column>
+                  <column>
+                   <property name="text">
+                    <string>Size</string>
+                   </property>
+                  </column>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+              <widget class="QGroupBox" name="isoConfigGroup">
+               <property name="title">
+                <string>🕵️ Exclude App Configs (~/.config)</string>
+               </property>
+               <layout class="QVBoxLayout" name="isoConfigLayout">
+                <item>
+                 <widget class="QLabel" name="isoConfigInfoLabel">
+                  <property name="text">
+                   <string>The ISO clones your logins (Discord, Chrome, etc). Check apps to keep their settings/sessions OUT of the ISO — important before sharing it.</string>
+                  </property>
+                  <property name="wordWrap">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="isoConfigTopLayout">
+                  <item>
+                   <widget class="QPushButton" name="isoConfigRescanButton">
+                    <property name="text">
+                     <string>🔄 Refresh</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="isoConfigSpacer">
+                    <property name="orientation">
+                     <enum>Qt::Orientation::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>10</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <widget class="QTreeWidget" name="isoConfigTree">
+                  <property name="alternatingRowColors">
+                   <bool>true</bool>
+                  </property>
+                  <column>
+                   <property name="text">
+                    <string>Application</string>
+                   </property>
+                  </column>
+                  <column>
+                   <property name="text">
+                    <string>Size</string>
+                   </property>
+                  </column>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="isoExcludeProfileLayout">
+              <item>
+               <widget class="QPushButton" name="isoSaveExcludeButton">
+                <property name="text">
+                 <string>💾 Save Exclusions</string>
+                </property>
+                <property name="toolTip">
+                 <string>Save the current exclusion checklist to a profile file</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="isoLoadExcludeButton">
+                <property name="text">
+                 <string>📂 Load Exclusions</string>
+                </property>
+                <property name="toolTip">
+                 <string>Load a saved exclusion profile (missing paths are skipped safely)</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="isoClearExcludeButton">
+                <property name="text">
+                 <string>🧹 Clear All</string>
+                </property>
+                <property name="toolTip">
+                 <string>Uncheck every exclusion</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="isoExcludeSummaryLabel">
+                <property name="text">
+                 <string>Nothing excluded — the ISO will contain the complete system.</string>
+                </property>
+                <property name="wordWrap">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
             <item>
              <widget class="QGroupBox" name="isoModeGroup">
               <property name="title">
@@ -2900,25 +3124,21 @@
                  <property name="plainText">
                   <string>After the ISO is ready:
 
-1. Burn the ISO to a USB drive using Balena Etcher or Ventoy.
+1. Burn the ISO to a USB drive using Balena Etcher, Rufus, or Ventoy.
 
    ⚠ WARNING (Ventoy): Eject the USB drive from your system before unplugging it. Removing it without ejecting can corrupt the ISO and make it unbootable.
 
 2. Boot your target machine from the USB (live environment).
 
-3. In the live session, run:
+3. The XETAL ENGINE installer launches AUTOMATICALLY — pick the target drive with the arrow keys (or mouse) and confirm. No commands needed.
 
-   cd /
-   sudo chmod +x xetal.sh
-   sudo ./xetal.sh
-
-4. Follow the on-screen instructions.
+   (If you ever exit the installer, restart it with: /xetal.sh)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PRIVACY
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 • This ISO contains a full clone of your system, including personal data and saved logins (e.g. browser, Discord). Keep it private.
-• Before sharing an ISO with others, remove all personal data and sign out of all accounts (Google, Discord, etc.) from the system you cloned.</string>
+• Before sharing an ISO, use the exclusion panels above: drop big folders you don't need, and exclude app configs (Discord, browsers...) so your logins don't ship with the ISO.</string>
                  </property>
                  <property name="readOnly">
                   <bool>true</bool>

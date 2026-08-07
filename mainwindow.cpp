@@ -13,6 +13,7 @@
 #include "systembackup.h"
 #include "systemrestore.h"
 #include "current_system_iso_creator.h"
+#include "isoexclusions.h"
 #include "dual_gpu_kvm.h"
 #include "packagemanager.h"
 #include "uninstalltab.h"

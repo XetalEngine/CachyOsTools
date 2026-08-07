@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/XetalEngine.png</file>
+        <file>images/XetalLogo.bmp</file>
+    </qresource>
+</RCC>

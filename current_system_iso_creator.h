@@ -41,15 +41,22 @@ void MainWindow::on_createIsoButton_clicked()
         }
     }
 
+    // Gather exclusions from the two panels
+    QStringList excludePaths = collectIsoExcludePaths();
+
     // Confirm with user
+    QString excludeSummary = excludePaths.isEmpty()
+        ? "• Nothing excluded (complete system)\n"
+        : QString("• %1 folder(s)/file(s) EXCLUDED from the ISO\n").arg(excludePaths.size());
     QString message = QString("This will create a system clone ISO with the following settings:\n\n"
     "ISO Name: %1\n"
     "Output Directory: %2\n\n"
     "This process will:\n"
     "• Create a complete snapshot of your system\n"
-    "• Build a bootable ISO with installer\n"
+    "%3"
+    "• Build a bootable ISO with an auto-launching installer\n"
     "• Take several minutes to complete\n\n"
-    "Do you want to continue?").arg(isoName, outputDir);
+    "Do you want to continue?").arg(isoName, outputDir, excludeSummary);
 
     QMessageBox::StandardButton reply = QMessageBox::question(this, "Confirm ISO Creation",
                                                               message,
@@ -86,8 +93,18 @@ void MainWindow::on_createIsoButton_clicked()
         }
     }
 
+    // Stage the XETAL ENGINE logo (embedded resource) so the build script can
+    // put it inside the ISO for the installer splash screen
+    QString logoStagePng = QDir::homePath() + "/iso/XetalEngine.png";
+    QString logoStageBmp = QDir::homePath() + "/iso/XetalLogo.bmp";
+    QDir().mkpath(QDir::homePath() + "/iso");
+    QFile::remove(logoStagePng);
+    QFile::remove(logoStageBmp);
+    QFile::copy(":/images/XetalEngine.png", logoStagePng);
+    QFile::copy(":/images/XetalLogo.bmp", logoStageBmp);
+
     // Create and run the ISO creation script
-    QString scriptPath = createIsoScript(isoName, outputDir, sudoPassword, offlineMode);
+    QString scriptPath = createIsoScript(isoName, outputDir, sudoPassword, offlineMode, excludePaths);
     if (scriptPath.isEmpty()) {
         ui->createIsoButton->setEnabled(true);
         return;
@@ -217,7 +234,8 @@ void MainWindow::on_createIsoButton_clicked()
 
 
 // Helper function to create the ISO creation script
-QString MainWindow::createIsoScript(const QString &isoName, const QString &outputDir, const QString &sudoPassword, bool offlineMode)
+QString MainWindow::createIsoScript(const QString &isoName, const QString &outputDir, const QString &sudoPassword, bool offlineMode,
+                                    const QStringList &excludePaths)
 {
     // Create temporary script file
     QString tempDir = QDir::tempPath();
@@ -327,8 +345,8 @@ QString MainWindow::createIsoScript(const QString &isoName, const QString &outpu
     out << "     {print}' \"$PROFILE/profiledef.sh\" > /tmp/profiledef.$$ && mv /tmp/profiledef.$$ \"$PROFILE/profiledef.sh\"\n";
     out << "printf 'bootmodes=(bios.syslinux uefi.systemd-boot)\\n' >> \"$PROFILE/profiledef.sh\"\n\n";
 
-    out << "# === Ensure live ISO has installer tools ===\n";
-    out << "for p in rsync tar zstd grub efibootmgr parted gptfdisk e2fsprogs dosfstools; do\n";
+    out << "# === Ensure live ISO has installer tools (dialog = TUI, chafa = logo rendering) ===\n";
+    out << "for p in rsync tar zstd grub efibootmgr parted gptfdisk e2fsprogs dosfstools dialog chafa; do\n";
     out << "  grep -qxF \"$p\" \"$PROFILE/packages.x86_64\" || echo \"$p\" >> \"$PROFILE/packages.x86_64\"\n";
     out << "done\n\n";
 
@@ -344,12 +362,36 @@ QString MainWindow::createIsoScript(const QString &isoName, const QString &outpu
     out << "  \"--exclude=/run/*\"  \"--exclude=/tmp/*\" \"--exclude=/mnt/*\"\n";
     out << "  \"--exclude=/media/*\" \"--exclude=/lost+found\"\n";
     out << "  \"--exclude=$BASE/*\" \"--exclude=$SNAP_TAR\"\n";
+    if (!excludePaths.isEmpty()) {
+        out << "  # User-selected exclusions from the ISO Creator tab\n";
+        for (const QString &path : excludePaths) {
+            QString escaped = path;
+            escaped.replace("\\", "\\\\").replace("\"", "\\\"").replace("$", "\\$");
+            out << "  \"--exclude=" << escaped << "\"\n";
+        }
+    }
     out << ")\n\n";
+    if (!excludePaths.isEmpty()) {
+        out << "echo \"[*] Excluding " << excludePaths.size() << " user-selected path(s) from the snapshot\"\n\n";
+    }
 
+    out << "# rsync exit 23/24 = partial transfer (unreadable/vanished files) — normal when\n";
+    out << "# snapshotting a live system, so warn and continue instead of aborting the build.\n";
+    out << "set +e\n";
     out << "run_sudo rsync -aHAX --numeric-ids --delete \\\n";
     out << "  --info=progress2,stats2 \\\n";
     out << "  \"${RSYNC_EXCLUDES[@]}\" \\\n";
-    out << "  / \"$SNAPDIR/\"\n\n";
+    out << "  / \"$SNAPDIR/\"\n";
+    out << "RSYNC_RC=$?\n";
+    out << "set -e\n";
+    out << "if [[ $RSYNC_RC -ne 0 && $RSYNC_RC -ne 23 && $RSYNC_RC -ne 24 ]]; then\n";
+    out << "    echo \"[ERROR] rsync failed with exit code $RSYNC_RC - aborting.\"\n";
+    out << "    exit \"$RSYNC_RC\"\n";
+    out << "fi\n";
+    out << "if [[ $RSYNC_RC -ne 0 ]]; then\n";
+    out << "    echo \"[WARNING] Some files could not be read and were SKIPPED (rsync code $RSYNC_RC).\"\n";
+    out << "    echo \"[WARNING] See the errors above for which files. Continuing with the build...\"\n";
+    out << "fi\n\n";
 
     out << "# regenerate on target\n";
     out << "run_sudo rm -f \"$SNAPDIR/etc/machine-id\" \"$SNAPDIR/etc/fstab\" \"$SNAPDIR/var/lib/systemd/random-seed\" || true\n\n";
@@ -369,7 +411,10 @@ QString MainWindow::createIsoScript(const QString &isoName, const QString &outpu
     out << "# === Embed snapshot + installer into live ISO ===\n";
     out << "echo \"[*] Embedding snapshot and installer into profile airootfs …\"\n";
     out << "mkdir -p \"$PROFILE/airootfs/opt/clone\"\n";
-    out << "cp \"$SNAP_TAR\" \"$PROFILE/airootfs/opt/clone/rootfs-snapshot.tar.zst\"\n\n";
+    out << "cp \"$SNAP_TAR\" \"$PROFILE/airootfs/opt/clone/rootfs-snapshot.tar.zst\"\n";
+    out << "# XETAL ENGINE logo for the installer splash (staged by the app)\n";
+    out << "[[ -f \"$BASE/XetalEngine.png\" ]] && cp \"$BASE/XetalEngine.png\" \"$PROFILE/airootfs/opt/clone/logo.png\"\n";
+    out << "[[ -f \"$BASE/XetalLogo.bmp\" ]] && cp \"$BASE/XetalLogo.bmp\" \"$PROFILE/airootfs/opt/clone/logo.bmp\"\n\n";
 
     out << "INSTALLER_REL=\"/usr/local/bin/installer.sh\"\n";
     out << "mkdir -p \"$PROFILE/airootfs$(dirname \"$INSTALLER_REL\")\"\n";
@@ -377,19 +422,70 @@ QString MainWindow::createIsoScript(const QString &isoName, const QString &outpu
     out << "#!/usr/bin/env bash\n";
     out << "set -euo pipefail\n";
     out << "RED=$'\\e[31m'; GRN=$'\\e[32m'; YLW=$'\\e[33m'; BLU=$'\\e[34m'; WHT=$'\\e[37m'; CLR=$'\\e[0m'\n";
-    out << "echo -e \"${WHT}Welcome to ${GRN}Xetal ${YLW}Engine${CLR}\"\n";
-    out << "echo \"\"\n";
-    out << "need(){ command -v \"$1\" >/dev/null 2>&1 || { echo \"${RED}Missing $1${CLR}\"; exit 1; }; }\n";
-    out << "for b in lsblk parted mkfs.fat mkfs.ext4 mount umount genfstab arch-chroot grub-install grub-mkconfig efibootmgr rsync tar zstd; do need \"$b\"; done\n\n";
-
     out << "SNAP=\"/opt/clone/rootfs-snapshot.tar.zst\"\n";
+    out << "LOGO=\"/opt/clone/logo.png\"\n";
+    out << "BACK=\"XETAL ENGINE - System Installer\"\n\n";
+    out << "need(){ command -v \"$1\" >/dev/null 2>&1 || { echo \"${RED}Missing $1${CLR}\"; exit 1; }; }\n";
+    out << "for b in lsblk parted mkfs.fat mkfs.ext4 mount umount genfstab arch-chroot grub-install grub-mkconfig efibootmgr rsync tar zstd; do need \"$b\"; done\n";
     out << "[[ -f \"$SNAP\" ]] || { echo \"${RED}Snapshot not found at $SNAP${CLR}\"; exit 1; }\n\n";
 
-    out << "echo \"${YLW}*** WARNING: This ERASES the selected disk (UEFI/GPT only). ***${CLR}\"\n";
-    out << "lsblk -dpno NAME,SIZE,MODEL | sed 's/^/  /'\n";
-    out << "read -rp \"Target DISK (e.g., /dev/nvme0n1 or /dev/sda): \" DISK\n";
-    out << "[[ -b \"$DISK\" ]] || { echo \"${RED}Invalid disk${CLR}\"; exit 1; }\n";
-    out << "echo \"${YLW}Type 'WIPE' to confirm: ${CLR}\"; read -r CONF; [[ \"$CONF\" == \"WIPE\" ]] || { echo \"${RED}Aborted.${CLR}\"; exit 1; }\n\n";
+    out << "center(){ local w t p; w=$(tput cols 2>/dev/null || echo 80); t=\"$1\"; p=$(( (w - ${#t}) / 2 )); (( p < 0 )) && p=0; printf '%*s%s\\n' \"$p\" '' \"$t\"; }\n\n";
+
+    out << "show_logo(){\n";
+    out << "  clear\n";
+    out << "  echo\n";
+    out << "  if command -v chafa >/dev/null 2>&1 && [[ -f \"$LOGO\" ]]; then\n";
+    out << "    local w; w=$(tput cols 2>/dev/null || echo 80); (( w > 110 )) && w=110\n";
+    out << "    chafa --align center --size \"${w}x9\" \"$LOGO\" 2>/dev/null || true\n";
+    out << "  else\n";
+    out << "    echo \"${RED}  X   X EEEEE TTTTT  AAA  L      ${GRN}EEEEE N   N  GGGG  III N   N EEEEE${CLR}\"\n";
+    out << "    echo \"${RED}   X X  E       T   A   A L      ${GRN}E     NN  N G       I  NN  N E    ${CLR}\"\n";
+    out << "    echo \"${RED}    X   EEEE    T   AAAAA L      ${GRN}EEEE  N N N G  GG   I  N N N EEEE ${CLR}\"\n";
+    out << "    echo \"${RED}   X X  E       T   A   A L      ${GRN}E     N  NN G   G   I  N  NN E    ${CLR}\"\n";
+    out << "    echo \"${RED}  X   X EEEEE   T   A   A LLLLL  ${GRN}EEEEE N   N  GGGG  III N   N EEEEE${CLR}\"\n";
+    out << "  fi\n";
+    out << "  echo\n";
+    out << "  center \"XETAL ENGINE - System Installer\"\n";
+    out << "  echo\n";
+    out << "}\n\n";
+
+    out << "DISK=\"\"\n";
+    out << "if command -v dialog >/dev/null 2>&1; then\n";
+    out << "  show_logo\n";
+    out << "  center \"Press ENTER to start\"\n";
+    out << "  read -r || true\n\n";
+    out << "  # Identify the live USB so the user doesn't nuke it by accident\n";
+    out << "  live_disk=$(lsblk -no PKNAME \"$(findmnt -no SOURCE /run/archiso/bootmnt 2>/dev/null)\" 2>/dev/null | head -1 || true)\n";
+    out << "  items=()\n";
+    out << "  for d in $(lsblk -dpno NAME,TYPE | awk '$2==\"disk\"{print $1}'); do\n";
+    out << "    size=$(lsblk -dno SIZE \"$d\" | tr -d ' ')\n";
+    out << "    model=$(lsblk -dno MODEL \"$d\" | sed 's/  *$//')\n";
+    out << "    tag=\"${size} ${model:-disk}\"\n";
+    out << "    if [[ -n \"$live_disk\" && \"$d\" == \"/dev/$live_disk\" ]]; then tag=\"$tag  [LIVE USB - DO NOT USE]\"; fi\n";
+    out << "    items+=(\"$d\" \"$tag\")\n";
+    out << "  done\n";
+    out << "  [[ ${#items[@]} -gt 0 ]] || { echo \"${RED}No disks found.${CLR}\"; exit 1; }\n\n";
+    out << "  DISK=$(dialog --backtitle \"$BACK\" --colors --title \" Select Target Disk \" \\\n";
+    out << "    --menu \"\\nUse the ARROW KEYS (or mouse) to pick the disk to install to, then press ENTER.\\n\\n\\Z1ALL DATA ON THE CHOSEN DISK WILL BE ERASED!\\Zn\" \\\n";
+    out << "    20 74 8 \"${items[@]}\" 3>&1 1>&2 2>&3) || { clear; echo \"Installation cancelled.\"; exit 1; }\n\n";
+    out << "  dinfo=$(lsblk -dno SIZE,MODEL \"$DISK\" | sed 's/  */ /g')\n";
+    out << "  dialog --backtitle \"$BACK\" --colors --defaultno --title \" Confirm Target \" \\\n";
+    out << "    --yesno \"\\nInstall the cloned system to:\\n\\n    $DISK  ($dinfo)\\n\\n\\Z1This PERMANENTLY ERASES everything on that disk.\\Zn\\n\\nContinue?\" 14 66 \\\n";
+    out << "    || { clear; echo \"Installation cancelled.\"; exit 1; }\n";
+    out << "  dialog --backtitle \"$BACK\" --colors --defaultno --title \" FINAL WARNING \" \\\n";
+    out << "    --yesno \"\\n\\Z1LAST CHANCE:\\Zn wipe $DISK and install the cloned system?\" 9 56 \\\n";
+    out << "    || { clear; echo \"Installation cancelled.\"; exit 1; }\n";
+    out << "  clear; show_logo\n";
+    out << "else\n";
+    out << "  # Fallback: classic text prompts (no dialog available)\n";
+    out << "  show_logo\n";
+    out << "  echo \"${YLW}*** WARNING: This ERASES the selected disk (UEFI/GPT only). ***${CLR}\"\n";
+    out << "  lsblk -dpno NAME,SIZE,MODEL | sed 's/^/  /'\n";
+    out << "  read -rp \"Target DISK (e.g., /dev/nvme0n1 or /dev/sda): \" DISK\n";
+    out << "  [[ -b \"$DISK\" ]] || { echo \"${RED}Invalid disk${CLR}\"; exit 1; }\n";
+    out << "  echo \"${YLW}Type 'WIPE' to confirm: ${CLR}\"; read -r CONF; [[ \"$CONF\" == \"WIPE\" ]] || { echo \"${RED}Aborted.${CLR}\"; exit 1; }\n";
+    out << "fi\n\n";
+    out << "[[ -b \"$DISK\" ]] || { echo \"${RED}Invalid disk${CLR}\"; exit 1; }\n\n";
 
     out << "echo \"${BLU}[1/6] Partitioning GPT (ESP + ROOT)…${CLR}\"\n";
     out << "swapoff -a || true\n";
@@ -435,7 +531,14 @@ QString MainWindow::createIsoScript(const QString &isoName, const QString &outpu
     out << "if command -v systemctl   >/dev/null 2>&1; then systemctl enable NetworkManager || true; fi\n";
     out << "CHROOT\n\n";
 
-    out << "echo \"${BLU}[6/6] Done. You can reboot into your cloned system.${CLR}\"\n";
+    out << "echo \"${BLU}[6/6] Done.${CLR}\"\n";
+    out << "if command -v dialog >/dev/null 2>&1; then\n";
+    out << "  if dialog --backtitle \"$BACK\" --title \" Success \" \\\n";
+    out << "     --yesno \"\\nInstallation complete!\\n\\nRemove the USB drive once the machine restarts.\\n\\nReboot now?\" 12 58; then\n";
+    out << "    clear; umount -R /mnt 2>/dev/null || true; reboot\n";
+    out << "  fi\n";
+    out << "  clear; show_logo\n";
+    out << "fi\n";
     out << "echo \"${GRN}Installation complete.${CLR}\"\n";
     out << "echo \"Run:   umount -R /mnt && reboot\"\n";
     out << "EOF\n";
@@ -459,11 +562,16 @@ QString MainWindow::createIsoScript(const QString &isoName, const QString &outpu
     out << "ExecStart=-/sbin/agetty --autologin root --noclear %I $TERM\n";
     out << "Type=idle\n";
     out << "EOF\n";
-    out << "# Auto-execute xetal.sh when root logs in on TTY1 (after Arch finishes booting)\n";
+    out << "# Auto-execute xetal.sh when root logs in on TTY1 (after Arch finishes booting).\n";
+    out << "# The archiso releng root shell is ZSH, so .bash_profile alone never ran —\n";
+    out << "# .zlogin is what actually fires. Both are written so either shell works.\n";
+    out << "cat > \"$PROFILE/airootfs/root/.zlogin\" <<'EOF'\n";
+    out << "if [[ -z \"$DISPLAY\" ]] && [[ $(tty) == /dev/tty1 ]]; then\n";
+    out << "  /xetal.sh || exec zsh\n";
+    out << "fi\n";
+    out << "EOF\n";
     out << "cat > \"$PROFILE/airootfs/root/.bash_profile\" <<'EOF'\n";
     out << "if [[ -z \"$DISPLAY\" ]] && [[ $(tty) == /dev/tty1 ]]; then\n";
-    out << "  clear\n";
-    out << "  echo \"Launching Xetal Engine installer...\"\n";
     out << "  /xetal.sh || bash\n";
     out << "fi\n";
     out << "EOF\n\n";

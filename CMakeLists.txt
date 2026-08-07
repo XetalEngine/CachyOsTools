@@ -32,6 +32,8 @@ set(PROJECT_SOURCES
         services.h
         includes.h
         uninstalltab.h
+        isoexclusions.h
+        resources.qrc
         # Additional files (currently empty but may be implemented)
         drivetools.h
         drivetools.cpp

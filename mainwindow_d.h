@@ -342,7 +342,32 @@ shellConfigFiles["ksh"] = QStringList()
             refreshConnectionsList();
             refreshWifiNetworks(false);
         }
+        if (ui->tabWidget->widget(index) == ui->isoCreatorTab) {
+            // Lazy first scan of the exclusion panels
+            if (!isoHomeScanDone) startIsoHomeScan();
+            if (!isoConfigScanDone) startIsoConfigScan();
+        }
     });
+
+    // ISO Creator exclusion panels
+    connect(ui->isoRescanButton, &QPushButton::clicked, this, [this]() { startIsoHomeScan(); });
+    connect(ui->isoConfigRescanButton, &QPushButton::clicked, this, [this]() { startIsoConfigScan(); });
+    connect(ui->isoSaveExcludeButton, &QPushButton::clicked, this, [this]() { saveIsoExcludeProfile(); });
+    connect(ui->isoLoadExcludeButton, &QPushButton::clicked, this, [this]() { loadIsoExcludeProfile(); });
+    connect(ui->isoClearExcludeButton, &QPushButton::clicked, this, [this]() { clearIsoExclusions(); });
+    connect(ui->isoBigTree, &QTreeWidget::itemChanged, this, &MainWindow::onIsoExcludeItemChanged);
+    connect(ui->isoConfigTree, &QTreeWidget::itemChanged, this, &MainWindow::onIsoExcludeItemChanged);
+    // Size filter changes re-filter the cached scan (debounced, no rescan needed)
+    QTimer *isoFilterDebounce = new QTimer(this);
+    isoFilterDebounce->setSingleShot(true);
+    isoFilterDebounce->setInterval(500);
+    connect(isoFilterDebounce, &QTimer::timeout, this, [this]() {
+        if (isoHomeScanDone) rebuildIsoBigTree();
+    });
+    connect(ui->isoFolderSizeSpin, QOverload<int>::of(&QSpinBox::valueChanged),
+            isoFilterDebounce, QOverload<>::of(&QTimer::start));
+    connect(ui->isoFileSizeSpin, QOverload<int>::of(&QSpinBox::valueChanged),
+            isoFilterDebounce, QOverload<>::of(&QTimer::start));
 
     // ISO Creator offline mode setup
     offlinePackagePath = QDir::currentPath() + "/" + OFFLINE_PACKAGE_FILENAME;

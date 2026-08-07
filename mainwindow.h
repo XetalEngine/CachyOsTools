@@ -3,6 +3,9 @@
 
 #include <QMainWindow>
 #include <QTableWidget>
+#include <QTreeWidget>
+#include <QHash>
+#include <QSet>
 #include <QProcess>
 #include <QTextEdit>
 #include <QPushButton>
@@ -451,8 +454,27 @@ private:
     QString restoreDestMountPoint;
     
     // ISO Creator helper functions
-    QString createIsoScript(const QString &isoName, const QString &outputDir, const QString &sudoPassword, bool offlineMode = false);
+    QString createIsoScript(const QString &isoName, const QString &outputDir, const QString &sudoPassword, bool offlineMode = false,
+                            const QStringList &excludePaths = QStringList());
     QString formatSize(qint64 bytes);
+
+    // ISO exclusion panels (big folders / ~/.config)
+    void startIsoHomeScan();
+    void startIsoConfigScan();
+    void rebuildIsoBigTree();
+    void onIsoExcludeItemChanged(QTreeWidgetItem *item, int column);
+    void updateIsoExcludeSummary();
+    QStringList collectIsoExcludePaths() const;
+    void saveIsoExcludeProfile();
+    void loadIsoExcludeProfile();
+    void clearIsoExclusions();
+    void syncIsoConfigTreeChecks();
+    QHash<QString, qint64> isoHomeDirSizes;      // dir path -> bytes (full du cache)
+    QList<QPair<QString, qint64>> isoHomeBigFiles; // files >= 10MB -> bytes
+    QSet<QString> isoExcludedPaths;              // checked (excluded) absolute paths
+    QHash<QString, qint64> isoExcludedSizes;     // checked path -> bytes (for the summary)
+    bool isoHomeScanDone = false;
+    bool isoConfigScanDone = false;
     
     // Offline mode variables
     QString offlinePackagePath;
