@@ -22,7 +22,7 @@
       </property>
       <widget class="QWidget" name="driveToolsTab">
        <attribute name="title">
-        <string>Drive Tools</string>
+        <string>Drives</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <property name="spacing">
@@ -332,7 +332,7 @@
       </widget>
       <widget class="QWidget" name="shellToolsTab">
        <attribute name="title">
-        <string>Shell Tools</string>
+        <string>Shell</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_shell">
         <item>
@@ -397,7 +397,7 @@
       </widget>
       <widget class="QWidget" name="servicesTab">
        <attribute name="title">
-        <string>Services/Startup</string>
+        <string>Services</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_services">
         <item>
@@ -2131,7 +2131,7 @@
      
       <widget class="QWidget" name="kvmTab">
        <attribute name="title">
-        <string>DUAL GPU KVM</string>
+        <string>KVM</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_kvm">
         <item>
@@ -2453,7 +2453,7 @@
       </widget>
       <widget class="QWidget" name="logsTab">
        <attribute name="title">
-        <string>System Logs</string>
+        <string>Logs</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_logs">
         <item>
@@ -2803,7 +2803,7 @@
       </widget>
       <widget class="QWidget" name="isoCreatorTab">
        <attribute name="title">
-        <string>System ISO Creator</string>
+        <string>System ISO</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_iso">
         <item>
@@ -3888,7 +3888,7 @@ PRIVACY
       </widget>
       <widget class="QWidget" name="packageManagerTab">
        <attribute name="title">
-        <string>Package Manager</string>
+        <string>PKG Install</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_package">
         <item>
@@ -4417,7 +4417,7 @@ PRIVACY
       </widget>
       <widget class="QWidget" name="uninstallTab">
        <attribute name="title">
-        <string>Uninstall</string>
+        <string>PKG Uninstall</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_uninstall">
         <item>

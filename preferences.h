@@ -71,18 +71,18 @@ void MainWindow::showPreferencesDialog() {
     
     QMap<QString, QCheckBox*> checkboxes;
     QMap<QString, QString> tabNames;
-    tabNames["driveToolsTab"] = "Drive Tools";
-    tabNames["shellToolsTab"] = "Shell Tools";
-    tabNames["servicesTab"] = "Services/Startup";
+    tabNames["driveToolsTab"] = "Drives";
+    tabNames["shellToolsTab"] = "Shell";
+    tabNames["servicesTab"] = "Services";
     tabNames["tweaksTab"] = "Tweaks";
-    tabNames["kvmTab"] = "DUAL GPU KVM";
+    tabNames["kvmTab"] = "KVM";
     tabNames["configTab"] = "System Config";
-    tabNames["logsTab"] = "System Logs";
+    tabNames["logsTab"] = "Logs";
     tabNames["backupTab"] = "Backup";
     tabNames["restoreTab"] = "Restore";
-    tabNames["isoCreatorTab"] = "System ISO Creator";
-    tabNames["packageManagerTab"] = "Package Manager";
-    tabNames["uninstallTab"] = "Uninstall";
+    tabNames["isoCreatorTab"] = "System ISO";
+    tabNames["packageManagerTab"] = "PKG Install";
+    tabNames["uninstallTab"] = "PKG Uninstall";
     tabNames["networkTab"] = "Network";
 
     for (auto it = tabNames.begin(); it != tabNames.end(); ++it) {
@@ -293,18 +293,18 @@ void MainWindow::applyTabVisibility() {
     
     // Define tab order and titles
     QMap<QString, QString> tabTitles;
-    tabTitles["driveToolsTab"] = "Drive Tools";
-    tabTitles["shellToolsTab"] = "Shell Tools";
-    tabTitles["servicesTab"] = "Services/Startup";
+    tabTitles["driveToolsTab"] = "Drives";
+    tabTitles["shellToolsTab"] = "Shell";
+    tabTitles["servicesTab"] = "Services";
     tabTitles["tweaksTab"] = "Tweaks";
-    tabTitles["kvmTab"] = "DUAL GPU KVM";
+    tabTitles["kvmTab"] = "KVM";
     tabTitles["configTab"] = "System Config";
-    tabTitles["logsTab"] = "System Logs";
+    tabTitles["logsTab"] = "Logs";
     tabTitles["backupTab"] = "Backup";
     tabTitles["restoreTab"] = "Restore";
-    tabTitles["isoCreatorTab"] = "System ISO Creator";
-    tabTitles["packageManagerTab"] = "Package Manager";
-    tabTitles["uninstallTab"] = "Uninstall";
+    tabTitles["isoCreatorTab"] = "System ISO";
+    tabTitles["packageManagerTab"] = "PKG Install";
+    tabTitles["uninstallTab"] = "PKG Uninstall";
     tabTitles["networkTab"] = "Network";
 
     QStringList tabOrder = {
