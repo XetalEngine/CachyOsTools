@@ -1,7 +1,7 @@
 # CachyOsTools 🚀
 
 <div align="center">
-  <img src="images/logo.png" alt="CachyOsTools Logo" width="200">
+  <img src="images/XetalEngine.png" alt="XETAL ENGINE" width="400">
   <br>
   <em>A comprehensive system management tool for CachyOS and other Arch-based distributions.</em>
 </div>
@@ -22,7 +22,7 @@
 ## 📑 Table of Contents
 
 - [Features](#-features)
-- [Screenshots](#-logo-gallery)
+- [Screenshots](#-screenshots)
 - [Dependencies](#-dependencies)
 - [Building](#-building)
 - [Running](#-running)
@@ -36,36 +36,64 @@
 
 | Feature | Description |
 |--------|-------------|
-| **📦 Package Manager** | Search and install packages from official repos and AUR. Manage Yay/Paru AUR helpers (install, reinstall, uninstall). Browse installed packages, clear pacman cache, and install/remove packages with one click. |
-| **💿 System ISO Creator** | Create a bootable system-clone ISO of your current installation. Full snapshot with installer, online or offline mode. Outputs to `~/iso/xiso/output`. |
-| **💾 Drive Tools** | Mount, unmount, and manage storage devices and partitions. Filter by disk/partition/size, force mount, take ownership, eject, format. |
-| **🖥️ Shell Tools** | View and manage shell aliases and environment. Quick access to shell configuration. |
-| **⚙️ Services / Startup** | Start, stop, and configure system and user services. Toggle between system and user service lists. |
-| **🔧 Tweaks** | System tweaks and optimizations: zram, CPU governor, tmpfs, performance hacks, mitigations, ptrace, hidepid, firewall, network (IPv6, DNS, TCP), storage (TRIM), desktop (hidden files), system (swappiness, I/O scheduler, THP, pacman, journald). Backup before applying. |
-| **🖥️ Dual GPU KVM** | Step-by-step KVM setup and GPU passthrough: multi-GPU Xorg, GRUB, IOMMU verification, VFIO isolation and binding, huge pages. Config backups for each step. |
-| **📄 System Config** | Open and edit system config files with your preferred text editor. |
-| **📋 System Logs** | View and tail system log files (journald, Xorg, etc.) with live updates. |
-| **💾 Backup** | System backup tools: define source and destination, run backups from the GUI. |
-| **🔄 Restore** | System restore from existing backups. |
-| **🌐 Network** | Network information (IPs, DNS), interface configuration, bridge setup, libvirt network management. |
-| **⚙️ Preferences** | Show/hide tabs, and other app preferences. |
+| **📊 Dashboard** | System at a glance: drive health (SMART), service health, pending updates, disk space, safety-ISO status, and hardware/kernel/RAM overview — with one-click jumps to each tab. |
+| **💾 Drives** | Mount, unmount, and manage storage devices and partitions. Filter by disk/partition/size, force mount, take ownership, eject, format, SMART info, health check, and burn ISO → USB. |
+| **🖥️ Shell** | View and manage shell aliases for your detected shell (bash/zsh). Add, edit, and remove aliases straight from the GUI. |
+| **⚙️ Services** | Start, stop, restart, enable, and disable system and user services. Search, boot analysis, failed-service indicator, and per-service journal entries. |
+| **🔧 Tweaks** | System tweaks and optimizations grouped by category: Performance (zram, CPU governor, tmpfs, turbo boost, gaming optimizations), Security (mitigations, ptrace, hidepid, firewall), Network (IPv6, DNS, TCP), Storage (TRIM), Desktop, and System (swappiness, I/O scheduler, THP, pacman, journald). Backup configs before applying. |
+| **🖥️ KVM** | Step-by-step KVM setup and GPU passthrough: multi-GPU Xorg, GRUB IOMMU, VFIO isolation and binding, huge pages. Config backups for each step. |
+| **📄 System Config** | Open and edit common system config files with your preferred editor, or the built-in sudo-capable editor. |
+| **📋 Logs** | View and filter system logs and info (journald, Xorg, pacman, inxi hardware reports) with follow/tail support. |
+| **💿 System ISO** | Create a bootable system-clone ISO of your current installation with a guided TUI installer. Exclude big folders/files and app configs, exact-clone or first-boot hardware adaptation (network/GPU/user/SSH), online or offline mode. |
+| **📦 PKG Install** | Search and install packages from official repos and AUR. Manage Yay/Paru AUR helpers, browse installed packages, check updates, and clear the pacman cache. |
+| **🗑️ PKG Uninstall** | Browse installed software sorted by size with source and install date, uninstall with dependency cleanup (-Rns), clean orphans and pacman cache. |
+| **🌐 Network** | Network information (IPs, DNS, statistics), interface configuration, bridge setup, libvirt networks, Wi-Fi, saved connections, and open-ports overview. |
+| **🎨 Theme** | Preset themes plus custom accent/background/text colors — applied instantly and remembered. |
+| **💾 Backup / Restore** | System backup and restore tools (hidden by default — enable in Preferences → Tab Visibility). |
+| **⚙️ Preferences** | Show/hide tabs, window size persistence, and other app preferences. |
 
 ---
 
-## 🎨 Logo Gallery
+## 📸 Screenshots
 
-<div align="center">
-  <img src="images/logo.png" alt="Logo 1" width="150" style="margin: 10px;">
-  <img src="images/logo2.png" alt="Logo 2" width="150" style="margin: 10px;">
-  <img src="images/logo3.png" alt="Logo 3" width="150" style="margin: 10px;">
-  <img src="images/logo4.png" alt="Logo 4" width="150" style="margin: 10px;">
-  <img src="images/logo5.png" alt="Logo 5" width="150" style="margin: 10px;">
-  <img src="images/logo6.png" alt="Logo 6" width="150" style="margin: 10px;">
-  <img src="images/logo7.png" alt="Logo 7" width="150" style="margin: 10px;">
-  <img src="images/logo8.png" alt="Logo 8" width="150" style="margin: 10px;">
-  <img src="images/logo9.png" alt="Logo 9" width="150" style="margin: 10px;">
-  <img src="images/logo10.png" alt="Logo 10" width="150" style="margin: 10px;">
-</div>
+### 📊 Dashboard
+<img src="images/tab-dashboard.png" alt="Dashboard" width="900">
+
+### 💾 Drives
+<img src="images/tab-drives.png" alt="Drives" width="900">
+
+### 🖥️ Shell
+<img src="images/tab-shell.png" alt="Shell" width="900">
+
+### ⚙️ Services
+<img src="images/tab-services.png" alt="Services" width="900">
+
+### 🔧 Tweaks
+<img src="images/tab-tweaks.png" alt="Tweaks" width="900">
+
+### 🖥️ KVM
+<img src="images/tab-kvm.png" alt="KVM" width="900">
+
+### 📄 System Config
+<img src="images/tab-system-config.png" alt="System Config" width="900">
+
+### 📋 Logs
+<img src="images/tab-logs.png" alt="Logs" width="900">
+
+### 💿 System ISO
+<img src="images/tab-system-iso.png" alt="System ISO" width="900">
+
+### 📦 PKG Install
+<img src="images/tab-pkg-install.png" alt="PKG Install" width="900">
+
+### 🗑️ PKG Uninstall
+<img src="images/tab-pkg-uninstall.png" alt="PKG Uninstall" width="900">
+
+### 🌐 Network
+<img src="images/tab-network.png" alt="Network" width="900">
+
+### 🎨 Theme
+<img src="images/tab-theme.png" alt="Theme" width="900">
 
 ---
 
