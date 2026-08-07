@@ -41,6 +41,7 @@ void MainWindow::refreshServices() {
         serviceList.append(entry);
     }
     populateServicesTable();
+    updateFailedServicesBanner();
 }
 
 void MainWindow::populateServicesTable() {

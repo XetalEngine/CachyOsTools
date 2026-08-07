@@ -17,6 +17,7 @@
 #include "dual_gpu_kvm.h"
 #include "packagemanager.h"
 #include "uninstalltab.h"
+#include "tabupgrades.h"
 #include "preferences.h"
 #include "network.h"
 

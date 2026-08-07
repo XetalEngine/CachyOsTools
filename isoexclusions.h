@@ -62,6 +62,11 @@ void MainWindow::rebuildIsoBigTree() {
 
     ui->isoBigTree->blockSignals(true);
     ui->isoBigTree->clear();
+    // Path column fills the panel (long paths elide), Size column stays visible
+    ui->isoBigTree->header()->setStretchLastSection(false);
+    ui->isoBigTree->header()->setSectionResizeMode(0, QHeaderView::Stretch);
+    ui->isoBigTree->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+    ui->isoBigTree->setTextElideMode(Qt::ElideMiddle);
 
     // Qualifying directories, sorted so parents come before children
     QStringList dirs;
@@ -100,7 +105,6 @@ void MainWindow::rebuildIsoBigTree() {
     }
 
     ui->isoBigTree->expandAll();
-    ui->isoBigTree->resizeColumnToContents(0);
     ui->isoBigTree->blockSignals(false);
 
     ui->isoScanStatusLabel->setText(QString("%1 folders and %2 large files shown — checked = contents excluded (folders themselves stay, empty).")

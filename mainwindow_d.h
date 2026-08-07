@@ -108,6 +108,8 @@ shellConfigFiles["ksh"] = QStringList()
     connect(ui->enableServiceButton, &QPushButton::clicked, this, &MainWindow::on_enableServiceButton_clicked);
     connect(ui->disableServiceButton, &QPushButton::clicked, this, &MainWindow::on_disableServiceButton_clicked);
     refreshServices();
+    connect(ui->servicesTable->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, [this]() { showServiceJournal(); });
 
     // Tweaks tab: NumLock at startup
     //connect(ui->numlockStartupCheckbox, &QCheckBox::toggled, this, &MainWindow::on_numlockStartupCheckbox_toggled);
@@ -341,6 +343,7 @@ shellConfigFiles["ksh"] = QStringList()
             refreshBridges();
             refreshConnectionsList();
             refreshWifiNetworks(false);
+            refreshOpenPorts();
         }
         if (ui->tabWidget->widget(index) == ui->isoCreatorTab) {
             // Lazy first scan of the exclusion panels

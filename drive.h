@@ -53,9 +53,21 @@ void MainWindow::setupDriveTable()
 void MainWindow::refreshDrives()
 {
     logMessage("🔄 Refreshing drive list...");
-    
-    // Execute lsblk command to get drive information with MODEL and SERIAL for disk ID construction
-    executeCommand("lsblk", QStringList() << "-o" << "NAME,SIZE,TYPE,LABEL,MOUNTPOINT,MODEL,SERIAL" << "--noheadings" << "--pairs");
+
+    QStringList lsblkArgs;
+    lsblkArgs << "-o" << "NAME,SIZE,TYPE,LABEL,MOUNTPOINT,MODEL,SERIAL" << "--noheadings" << "--pairs";
+
+    // Unprivileged lsblk depends on udev's cached metadata, which can be missing
+    // labels after boot. Root lsblk reads filesystem superblocks directly, so use
+    // it when a sudo session is already cached (never prompts: -n).
+    QProcess sudoCheck;
+    sudoCheck.start("sudo", QStringList() << "-n" << "true");
+    sudoCheck.waitForFinished(2000);
+    if (sudoCheck.exitCode() == 0) {
+        executeCommand("sudo", QStringList() << "-n" << "lsblk" << lsblkArgs);
+    } else {
+        executeCommand("lsblk", lsblkArgs);
+    }
 }
 
 void MainWindow::on_refreshButton_clicked()
@@ -520,13 +532,18 @@ void MainWindow::on_smartInfoButton_clicked() {
                     smartOutput->setPlainText(output);
                 } else {
                     label->setText("Error retrieving SMART information:");
-                    smartOutput->setPlainText(error);
+                    smartOutput->setPlainText((output + "\n" + error).trimmed());
                 }
                 proc->deleteLater();
             });
-    
-    proc->start("smartctl", QStringList() << "-a" << selectedDrive);
-    
+
+    // Reading SMART data requires root — reuse the app's cached sudo session
+    if (!authenticateSudo()) {
+        dialog->deleteLater();
+        return;
+    }
+    proc->start("sudo", QStringList() << "smartctl" << "-a" << selectedDrive);
+
     dialog->exec();
     dialog->deleteLater();
 }

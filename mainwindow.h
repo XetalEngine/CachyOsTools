@@ -350,6 +350,20 @@ private slots:
     void on_uninstallButton_clicked();
     void on_uninstallSearch_textChanged(const QString &text);
     void on_uninstallSourceFilter_currentIndexChanged(int index);
+    // Tab upgrade batch slots (drives / services / config / logs / updates / uninstall / ports)
+    void on_driveHealthButton_clicked();
+    void on_burnIsoButton_clicked();
+    void on_loadLabelsButton_clicked();
+    void on_bootAnalysisButton_clicked();
+    void on_builtinEditButton_clicked();
+    void on_followLogButton_clicked();
+    void on_bootSelectCombo_activated(int index);
+    void on_checkUpdatesButton_clicked();
+    void on_upgradeSystemButton_clicked();
+    void on_aurUpgradeButton_clicked();
+    void on_orphanCleanButton_clicked();
+    void on_cacheCleanButton_clicked();
+    void on_portsRefreshButton_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -480,6 +494,16 @@ private:
     QString offlinePackagePath;
     const QString OFFLINE_PACKAGE_FILENAME = "offline-iso-packages-complete.tar.gz";
     
+    // Tab upgrade batch helpers
+    bool authenticateSudo();
+    void updateFailedServicesBanner();
+    void showServiceJournal();
+    void openBuiltinEditor(const QString &filePath);
+    QString colorizeLogLine(const QString &line);
+    void fetchArchNews();
+    void refreshOpenPorts();
+    QProcess *journalFollowProcess = nullptr;
+
     // Uninstall tab helper functions
     void refreshUninstallList();
     void filterUninstallTable();

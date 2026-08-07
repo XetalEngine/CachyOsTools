@@ -68,17 +68,18 @@ void MainWindow::refreshUninstallList() {
 
     ui->uninstallTable->setSortingEnabled(false);
     ui->uninstallTable->setRowCount(0);
-    ui->uninstallTable->setColumnCount(5);
+    ui->uninstallTable->setColumnCount(6);
     QStringList headers;
-    headers << "Package Name" << "Version" << "Size" << "Source" << "Description";
+    headers << "Package Name" << "Version" << "Size" << "Source" << "Description" << "Installed";
     ui->uninstallTable->setHorizontalHeaderLabels(headers);
     ui->uninstallTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->uninstallTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
     ui->uninstallTable->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
     ui->uninstallTable->horizontalHeader()->setSectionResizeMode(3, QHeaderView::ResizeToContents);
     ui->uninstallTable->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Stretch);
+    ui->uninstallTable->horizontalHeader()->setSectionResizeMode(5, QHeaderView::ResizeToContents);
 
-    QString name, version, description, sizeStr;
+    QString name, version, description, sizeStr, installDateStr;
     qint64 totalBytes = 0;
     int packageCount = 0;
 
@@ -102,7 +103,15 @@ void MainWindow::refreshUninstallList() {
             foreignPackages.contains(name) ? "AUR / Foreign" : "Official Repo"));
         ui->uninstallTable->setItem(row, 4, new QTableWidgetItem(description));
 
-        name.clear(); version.clear(); description.clear(); sizeStr.clear();
+        // LC_ALL=C format: "Sat Feb 21 12:11:04 2026" — parse with the C locale,
+        // since QDateTime::fromString would use the system locale's month names
+        QDateTime installDate = QLocale::c().toDateTime(installDateStr.simplified(), "ddd MMM d HH:mm:ss yyyy");
+        NumericTableWidgetItem *dateItem = new NumericTableWidgetItem(
+            installDate.isValid() ? installDate.toString("yyyy-MM-dd") : "");
+        dateItem->setData(Qt::UserRole, installDate.isValid() ? installDate.toSecsSinceEpoch() : 0);
+        ui->uninstallTable->setItem(row, 5, dateItem);
+
+        name.clear(); version.clear(); description.clear(); sizeStr.clear(); installDateStr.clear();
     };
 
     for (const QString &line : lines) {
@@ -120,6 +129,7 @@ void MainWindow::refreshUninstallList() {
         else if (key == "Version") version = value;
         else if (key == "Description") description = value;
         else if (key == "Installed Size") sizeStr = value;
+        else if (key == "Install Date") installDateStr = value;
     }
     addRow(); // last package if output didn't end with a blank line
 

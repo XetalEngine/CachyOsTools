@@ -157,6 +157,22 @@
            </widget>
           </item>
           <item>
+           <widget class="QPushButton" name="loadLabelsButton">
+            <property name="minimumSize">
+             <size>
+              <width>110</width>
+              <height>35</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>🏷️ Load Labels</string>
+            </property>
+            <property name="toolTip">
+             <string>Read partition labels directly from the filesystems (asks for sudo once). Use when the Label column shows dashes.</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QPushButton" name="mountButton">
             <property name="minimumSize">
              <size>
@@ -257,6 +273,20 @@
             </property>
             <property name="text">
              <string>📊 SMART Info</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="driveHealthButton">
+            <property name="text">
+             <string>❤️ Health Check</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="burnIsoButton">
+            <property name="text">
+             <string>🔥 Burn ISO → USB</string>
             </property>
            </widget>
           </item>
@@ -416,6 +446,20 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QPushButton" name="bootAnalysisButton">
+            <property name="text">
+             <string>⏱️ Boot Analysis</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="failedServicesLabel">
+            <property name="text">
+             <string>Checking failed services...</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
         <item>
@@ -469,6 +513,25 @@
            </widget>
           </item>
          </layout>
+        </item>
+        <item>
+         <widget class="QTextEdit" name="serviceJournalView">
+          <property name="maximumHeight">
+           <number>160</number>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+          <property name="placeholderText">
+           <string>Select a service to see its recent journal entries...</string>
+          </property>
+          <property name="font">
+           <font>
+            <family>Monospace</family>
+            <pointsize>9</pointsize>
+           </font>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -2422,6 +2485,13 @@
            </widget>
           </item>
           <item>
+           <widget class="QPushButton" name="builtinEditButton">
+            <property name="text">
+             <string>📝 Edit Selected (Built-in, sudo-capable)</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <spacer name="configSpacer">
             <property name="orientation">
              <enum>Qt::Orientation::Horizontal</enum>
@@ -2479,6 +2549,38 @@
            <widget class="QPushButton" name="clearLogButton">
             <property name="text">
              <string>🗑️ Clear Log</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="bootSelectCombo">
+            <property name="toolTip">
+             <string>Load the systemd journal for a specific boot</string>
+            </property>
+            <item>
+             <property name="text">
+              <string>Journal: Current Boot</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Journal: Previous Boot</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Journal: 2 Boots Ago</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="followLogButton">
+            <property name="text">
+             <string>▶ Follow Journal</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -3882,6 +3984,57 @@ PRIVACY
             </item>
            </layout>
           </widget>
+          <widget class="QWidget" name="portsTab">
+           <attribute name="title">
+            <string>Open Ports</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_ports">
+            <item>
+             <layout class="QHBoxLayout" name="portsTopLayout">
+              <item>
+               <widget class="QPushButton" name="portsRefreshButton">
+                <property name="text">
+                 <string>🔄 Refresh</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="portsSpacer">
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>10</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QLabel" name="portsInfoLabel">
+                <property name="text">
+                 <string>Programs listening on your network ports.</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QTableWidget" name="portsTable">
+              <property name="alternatingRowColors">
+               <bool>true</bool>
+              </property>
+              <property name="selectionBehavior">
+               <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+              </property>
+              <property name="sortingEnabled">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
          </widget>
         </item>
        </layout>
@@ -4392,6 +4545,85 @@ PRIVACY
             </item>
            </layout>
           </widget>
+          <widget class="QWidget" name="updatesTab">
+           <attribute name="title">
+            <string>⬆️ Updates</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_updates">
+            <item>
+             <layout class="QHBoxLayout" name="updatesTopLayout">
+              <item>
+               <widget class="QPushButton" name="checkUpdatesButton">
+                <property name="text">
+                 <string>🔍 Check for Updates</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="upgradeSystemButton">
+                <property name="text">
+                 <string>⬆️ Upgrade System (pacman -Syu)</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="aurUpgradeButton">
+                <property name="text">
+                 <string>⬆️ Upgrade incl. AUR</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="updatesTopSpacer">
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>10</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QLabel" name="updatesCountLabel">
+                <property name="text">
+                 <string>Click Check for Updates.</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QTableWidget" name="updatesTable">
+              <property name="alternatingRowColors">
+               <bool>true</bool>
+              </property>
+              <property name="selectionBehavior">
+               <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+              </property>
+              <property name="sortingEnabled">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="archNewsLabel">
+              <property name="text">
+               <string>📰 Arch Linux News (read before big upgrades!):</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QListWidget" name="archNewsList">
+              <property name="maximumHeight">
+               <number>130</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
          </widget>
         </item>
         <item>
@@ -4546,6 +4778,20 @@ PRIVACY
            <widget class="QPushButton" name="uninstallButton">
             <property name="text">
              <string>🗑️ Uninstall Selected</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="orphanCleanButton">
+            <property name="text">
+             <string>♻️ Clean Orphans</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="cacheCleanButton">
+            <property name="text">
+             <string>🧹 Clean Pacman Cache</string>
             </property>
            </widget>
           </item>

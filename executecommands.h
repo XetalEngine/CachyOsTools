@@ -21,7 +21,9 @@ void MainWindow::onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus
     QString error = QString::fromUtf8(currentProcess->readAllStandardError());
     
     if (exitCode == 0) {
-        if (currentProcess->program() == "lsblk") {
+        bool isLsblk = (currentProcess->program() == "lsblk") ||
+                       (currentProcess->program() == "sudo" && currentProcess->arguments().contains("lsblk"));
+        if (isLsblk) {
             logMessage("lsblk output:\n" + output); // Log raw output for debugging
             drivesList = parseDriveList(output);
             populateDriveTable();
