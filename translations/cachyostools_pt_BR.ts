@@ -1119,6 +1119,14 @@ PRIVACIDADE
         <translation>🔄 Atualizar Tudo</translation>
     </message>
     <message>
+        <source>📦 Install .deb...</source>
+        <translation>📦 Instalar .deb...</translation>
+    </message>
+    <message>
+        <source>Convert a Debian package with debtap and install it as a native pacman package</source>
+        <translation>Converte um pacote Debian com o debtap e instala como pacote nativo do pacman</translation>
+    </message>
+    <message>
         <source>Yay: Not Installed</source>
         <translation>Yay: Não Instalado</translation>
     </message>
@@ -2737,7 +2745,9 @@ Then Regenerate GRUB Config. Double-check each path before deleting!</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <source>Remove package '%1' (boot image '%2') and its headers?</source>
+        <source>Remove package '%1' (boot image '%2') and its headers?
+
+pacman + the mkinitcpio hook clean up /boot and the modules; GRUB is regenerated automatically afterwards.</source>
         <translation type="unfinished" />
     </message>
     <message>
@@ -3391,6 +3401,56 @@ Do you want to continue?</source>
 Requer privilégios sudo.
 
 Deseja continuar?</translation>
+    </message>
+    <message>
+        <source>Choose a Debian package</source>
+        <translation>Escolher um pacote Debian</translation>
+    </message>
+    <message>
+        <source>Debian packages (*.deb)</source>
+        <translation>Pacotes Debian (*.deb)</translation>
+    </message>
+    <message>
+        <source>debtap Not Installed</source>
+        <translation>debtap Não Instalado</translation>
+    </message>
+    <message>
+        <source>Converting .deb files needs 'debtap' (AUR), and no AUR helper was found.
+
+Install Yay or Paru first (buttons above), then try again.</source>
+        <translation>Converter arquivos .deb exige o 'debtap' (AUR), e nenhum helper do AUR foi encontrado.
+
+Instale o Yay ou Paru primeiro (botões acima) e tente novamente.</translation>
+    </message>
+    <message>
+        <source>Install debtap?</source>
+        <translation>Instalar debtap?</translation>
+    </message>
+    <message>
+        <source>Converting .deb files needs 'debtap' (AUR package).
+
+Install it now with %1?</source>
+        <translation>Converter arquivos .deb exige o 'debtap' (pacote do AUR).
+
+Instalar agora com %1?</translation>
+    </message>
+    <message>
+        <source>Heads-up</source>
+        <translation>Atenção</translation>
+    </message>
+    <message>
+        <source>Two things worth knowing:
+
+• Check the AUR first — most software shipped as .deb has a proper Arch package already.
+• Self-contained apps convert well; packages deeply tied to Debian's libraries may not. If the conversion fails, a Debian Distrobox is the robust alternative.
+
+The terminal will show the entire conversion — debtap may ask you to confirm the package name and license (pressing Enter accepts its suggestion).</source>
+        <translation>Duas coisas que vale saber:
+
+• Verifique o AUR primeiro — a maioria dos softwares distribuídos como .deb já tem um pacote Arch adequado.
+• Apps autocontidos convertem bem; pacotes muito ligados às bibliotecas do Debian podem não converter. Se a conversão falhar, um Distrobox do Debian é a alternativa robusta.
+
+O terminal mostrará toda a conversão — o debtap pode pedir para confirmar o nome do pacote e a licença (Enter aceita a sugestão).</translation>
     </message>
     <message>
         <source>Service</source>

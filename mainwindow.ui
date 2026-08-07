@@ -279,29 +279,24 @@
             <string>👥 Users &amp; Groups</string>
            </attribute>
           </widget>
-          <widget class="QWidget" name="restorePointsSubTab">
-           <attribute name="title">
-            <string>⏪ Restore Points</string>
-           </attribute>
-          </widget>
-          <widget class="QWidget" name="firewallSubTab">
-           <attribute name="title">
-            <string>🛡️ Firewall</string>
-           </attribute>
-          </widget>
           <widget class="QWidget" name="kernelManagerSubTab">
            <attribute name="title">
             <string>🧬 Kernels</string>
            </attribute>
           </widget>
-          <widget class="QWidget" name="envVarsSubTab">
-           <attribute name="title">
-            <string>🌱 Environment</string>
-           </attribute>
-          </widget>
           <widget class="QWidget" name="systemPropsSubTab">
            <attribute name="title">
             <string>🪪 System Properties</string>
+           </attribute>
+          </widget>
+          <widget class="QWidget" name="restorePointsSubTab">
+           <attribute name="title">
+            <string>⏪ Restore Points</string>
+           </attribute>
+          </widget>
+          <widget class="QWidget" name="envVarsSubTab">
+           <attribute name="title">
+            <string>🌱 Environment</string>
            </attribute>
           </widget>
          </widget>
@@ -4499,6 +4494,11 @@ PRIVACY
             </item>
            </layout>
           </widget>
+          <widget class="QWidget" name="firewallSubTab">
+           <attribute name="title">
+            <string>🛡️ Firewall</string>
+           </attribute>
+          </widget>
          </widget>
         </item>
        </layout>
@@ -4524,6 +4524,16 @@ PRIVACY
            <widget class="QPushButton" name="refreshPackagesButton">
             <property name="text">
              <string>🔄 Refresh All</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="installDebButton">
+            <property name="text">
+             <string>📦 Install .deb...</string>
+            </property>
+            <property name="toolTip">
+             <string>Convert a Debian package with debtap and install it as a native pacman package</string>
             </property>
            </widget>
           </item>

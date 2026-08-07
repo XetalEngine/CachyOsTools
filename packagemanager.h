@@ -1181,3 +1181,62 @@ void MainWindow::on_paruUninstallButton_clicked() {
     QString script = QString("echo '%1' | sudo -S pacman -Rns --noconfirm paru").arg(sudoPassword);
     process->start("bash", QStringList() << "-c" << script);
 }
+
+// 📦 Install .deb: convert a Debian package to a native Arch package with
+// debtap, then pacman -U it — tracked, removable, visible in PKG Uninstall.
+// The whole conversion + install runs in a visible terminal.
+void MainWindow::on_installDebButton_clicked() {
+    QString debFile = QFileDialog::getOpenFileName(this, tr("Choose a Debian package"),
+                                                   QDir::homePath(), tr("Debian packages (*.deb)"));
+    if (debFile.isEmpty()) return;
+
+    // debtap available? Offer to install it from the AUR if not.
+    QProcess check;
+    check.start("bash", QStringList() << "-c" << "command -v debtap");
+    check.waitForFinished(2000);
+    if (check.exitCode() != 0) {
+        QProcess helper;
+        helper.start("bash", QStringList() << "-c" << "command -v yay || command -v paru");
+        helper.waitForFinished(2000);
+        QString aurHelper = QString::fromUtf8(helper.readAllStandardOutput()).trimmed().section('/', -1);
+        if (aurHelper.isEmpty()) {
+            QMessageBox::warning(this, tr("debtap Not Installed"),
+                tr("Converting .deb files needs 'debtap' (AUR), and no AUR helper was found.\n\n"
+                   "Install Yay or Paru first (buttons above), then try again."));
+            return;
+        }
+        if (QMessageBox::question(this, tr("Install debtap?"),
+                tr("Converting .deb files needs 'debtap' (AUR package).\n\nInstall it now with %1?").arg(aurHelper))
+            != QMessageBox::Yes) return;
+        runSudoCommandInTerminal(QString("%1 -S debtap; echo; echo 'Now click Install .deb again.'; read -p 'Press Enter...'").arg(aurHelper));
+        return;
+    }
+
+    QMessageBox::information(this, tr("Heads-up"),
+        tr("Two things worth knowing:\n\n"
+           "• Check the AUR first — most software shipped as .deb has a proper Arch package already.\n"
+           "• Self-contained apps convert well; packages deeply tied to Debian's libraries may not. "
+           "If the conversion fails, a Debian Distrobox is the robust alternative.\n\n"
+           "The terminal will show the entire conversion — debtap may ask you to confirm the package "
+           "name and license (pressing Enter accepts its suggestion)."));
+
+    // First run needs the debtap database; then convert in a temp dir and install
+    runSudoCommandInTerminal(QString(
+        "if [ -z \"$(ls -A /var/cache/debtap 2>/dev/null)\" ]; then "
+        "  echo '== First run: building the debtap package database (takes a few minutes)...'; "
+        "  sudo debtap -u; "
+        "fi; "
+        "D=$(mktemp -d /tmp/cachyostools-debtap-XXXXXX); cd \"$D\"; "
+        "echo '== Converting %1'; "
+        "debtap -q '%1'; "
+        "PKG=$(ls -t *.pkg.tar.* 2>/dev/null | head -1); "
+        "if [ -n \"$PKG\" ]; then "
+        "  echo; echo \"== Installing $PKG with pacman\"; "
+        "  sudo pacman -U \"$PKG\"; "
+        "  echo; echo '== Done. The package is now pacman-managed (see PKG Uninstall tab).'; "
+        "else "
+        "  echo; echo '== Conversion produced no package — this .deb likely depends too tightly on Debian.'; "
+        "  echo '== Alternative: distrobox create --image debian:12, then apt install inside it.'; "
+        "fi; "
+        "read -p 'Press Enter to close...'").arg(debFile));
+}

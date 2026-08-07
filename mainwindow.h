@@ -377,6 +377,7 @@ private slots:
     void on_cacheCleanButton_clicked();
     void on_portsRefreshButton_clicked();
     void on_dashRefreshButton_clicked();
+    void on_installDebButton_clicked();
     void on_themePresetCombo_activated(int index);
     void on_themeAccentButton_clicked();
     void on_themeBgButton_clicked();
