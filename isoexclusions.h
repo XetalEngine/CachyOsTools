@@ -105,6 +105,25 @@ void MainWindow::rebuildIsoBigTree() {
         if (file.second >= fileMin) makeItem(file.first, file.second, false);
     }
 
+    // Sort every level by size, largest first (folders and files mixed),
+    // mirroring the ~/.config panel. Built path-sorted first because makeItem
+    // needs parents to exist before their children.
+    auto bySizeDesc = [](QTreeWidgetItem *a, QTreeWidgetItem *b) {
+        return a->data(1, Qt::UserRole).toLongLong() > b->data(1, Qt::UserRole).toLongLong();
+    };
+    QList<QTreeWidgetItem*> top;
+    while (ui->isoBigTree->topLevelItemCount() > 0) top << ui->isoBigTree->takeTopLevelItem(0);
+    std::stable_sort(top.begin(), top.end(), bySizeDesc);
+    QList<QTreeWidgetItem*> pending = top;
+    for (QTreeWidgetItem *item : top) ui->isoBigTree->addTopLevelItem(item);
+    while (!pending.isEmpty()) {
+        QTreeWidgetItem *parent = pending.takeLast();
+        QList<QTreeWidgetItem*> kids = parent->takeChildren();
+        std::stable_sort(kids.begin(), kids.end(), bySizeDesc);
+        parent->addChildren(kids);
+        pending << kids;
+    }
+
     ui->isoBigTree->expandAll();
     ui->isoBigTree->blockSignals(false);
 
