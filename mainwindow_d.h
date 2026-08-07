@@ -13,6 +13,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) , ui(new Ui::MainW
     // Dashboard control-panel sub-tabs (Devices, Users, Restore, Firewall, Kernels, Env, SysProps)
     setupControlPanelTabs();
 
+    // System ISO tab: offer per-dependency install buttons if the build-script offer was missed
+    setupIsoDepsCheck();
+
     // Set current tab first before applying visibility preferences
     ui->tabWidget->setCurrentWidget(ui->dashboardTab);
     

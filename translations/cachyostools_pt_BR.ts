@@ -2561,6 +2561,18 @@ Código de saída: </translation>
         <translation>❌ Pacote offline não encontrado. Clique no botão de download para obtê-lo.</translation>
     </message>
     <message>
+        <source>⚠️ ISO creation needs these missing tools:</source>
+        <translation>⚠️ A criação de ISO precisa destas ferramentas ausentes:</translation>
+    </message>
+    <message>
+        <source>⬇️ Install %1</source>
+        <translation>⬇️ Instalar %1</translation>
+    </message>
+    <message>
+        <source>⬇️ Install All</source>
+        <translation>⬇️ Instalar Tudo</translation>
+    </message>
+    <message>
         <source>Loading installed software...</source>
         <translation>Carregando software instalado...</translation>
     </message>

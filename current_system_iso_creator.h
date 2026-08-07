@@ -912,3 +912,68 @@ void MainWindow::on_downloadOfflineButton_clicked()
 }
 
 
+
+// Missing-dependency bar: if the build script's offer to install the ISO
+// deps (archiso, rsync, tar, zstd) was missed, the tab itself offers one
+// install button per missing tool. Hidden entirely when everything is there.
+void MainWindow::setupIsoDepsCheck() {
+    isoDepsBar = new QWidget(ui->isoCreatorTab);
+    isoDepsBar->setObjectName("isoDepsBar");
+    isoDepsBar->setStyleSheet("QWidget#isoDepsBar { background: rgba(230,126,34,0.12);"
+                              " border: 1px solid rgba(230,126,34,0.45); border-radius: 8px; }");
+    isoDepsBarLayout = new QHBoxLayout(isoDepsBar);
+    isoDepsBarLayout->setContentsMargins(10, 6, 10, 6);
+    ui->verticalLayout_iso->insertWidget(0, isoDepsBar);
+    isoDepsBar->hide();
+
+    // Re-check whenever the user opens this tab (e.g. right after installing)
+    connect(ui->tabWidget, &QTabWidget::currentChanged, this, [this](int) {
+        if (ui->tabWidget->currentWidget() == ui->isoCreatorTab) refreshIsoDeps();
+    });
+    refreshIsoDeps();
+}
+
+void MainWindow::refreshIsoDeps() {
+    QProcess *proc = new QProcess(this);
+    connect(proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+            [this, proc](int, QProcess::ExitStatus) {
+                QStringList missing;
+                for (const QString &line : QString::fromUtf8(proc->readAllStandardOutput()).split('\n', Qt::SkipEmptyParts))
+                    if (line.startsWith("MISSING:")) missing << line.section(':', 1).trimmed();
+
+                // rebuild the bar's contents
+                while (QLayoutItem *item = isoDepsBarLayout->takeAt(0)) {
+                    delete item->widget();
+                    delete item;
+                }
+                if (missing.isEmpty()) {
+                    isoDepsBar->hide();
+                    proc->deleteLater();
+                    return;
+                }
+                QLabel *warn = new QLabel(tr("⚠️ ISO creation needs these missing tools:"), isoDepsBar);
+                warn->setStyleSheet("color:#e67e22; font-weight:bold; background:transparent; border:none;");
+                isoDepsBarLayout->addWidget(warn);
+                for (const QString &pkg : missing) {
+                    QPushButton *btn = new QPushButton(tr("⬇️ Install %1").arg(pkg), isoDepsBar);
+                    connect(btn, &QPushButton::clicked, this, [this, pkg]() {
+                        runSudoCommandInTerminal(QString(
+                            "sudo pacman -S --needed %1 && echo '%1 installed — re-open the System ISO tab to refresh this bar.'; read -p 'Press Enter...'").arg(pkg));
+                    });
+                    isoDepsBarLayout->addWidget(btn);
+                }
+                QPushButton *allBtn = new QPushButton(tr("⬇️ Install All"), isoDepsBar);
+                connect(allBtn, &QPushButton::clicked, this, [this, missing]() {
+                    runSudoCommandInTerminal(QString(
+                        "sudo pacman -S --needed %1 && echo 'All ISO dependencies installed.'; read -p 'Press Enter...'").arg(missing.join(' ')));
+                });
+                isoDepsBarLayout->addWidget(allBtn);
+                isoDepsBarLayout->addStretch();
+                isoDepsBar->show();
+                proc->deleteLater();
+            });
+    // binary -> providing package (what pacman actually installs)
+    proc->start("bash", QStringList() << "-c" <<
+        "for p in mkarchiso:archiso rsync:rsync tar:tar zstd:zstd; do "
+        "b=${p%%:*}; k=${p##*:}; command -v \"$b\" >/dev/null 2>&1 || echo \"MISSING:$k\"; done");
+}

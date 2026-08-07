@@ -2561,6 +2561,18 @@ Exit-Code: </translation>
         <translation>❌ Offline-Paket nicht gefunden. Klicke auf den Download-Button.</translation>
     </message>
     <message>
+        <source>⚠️ ISO creation needs these missing tools:</source>
+        <translation>⚠️ Die ISO-Erstellung benötigt diese fehlenden Werkzeuge:</translation>
+    </message>
+    <message>
+        <source>⬇️ Install %1</source>
+        <translation>⬇️ %1 installieren</translation>
+    </message>
+    <message>
+        <source>⬇️ Install All</source>
+        <translation>⬇️ Alle installieren</translation>
+    </message>
+    <message>
         <source>Loading installed software...</source>
         <translation>Lade installierte Software...</translation>
     </message>

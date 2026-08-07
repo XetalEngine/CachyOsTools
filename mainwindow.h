@@ -20,6 +20,7 @@
 #include <QLabel>
 #include <QComboBox>
 #include <QListWidget>
+#include <QHBoxLayout>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -495,6 +496,12 @@ private:
     // ISO exclusion panels (big folders / ~/.config)
     void setupSingleGpuGuide();
     void setupDualGpuGuide();
+
+    // System ISO tab: missing-dependency bar (one install button per tool)
+    void setupIsoDepsCheck();
+    void refreshIsoDeps();
+    QWidget *isoDepsBar = nullptr;
+    QHBoxLayout *isoDepsBarLayout = nullptr;
 
     // Control panel (Dashboard sub-tabs)
     void setupControlPanelTabs();
