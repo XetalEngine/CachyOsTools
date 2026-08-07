@@ -345,6 +345,12 @@ QString MainWindow::createIsoScript(const QString &isoName, const QString &outpu
     out << "     {print}' \"$PROFILE/profiledef.sh\" > /tmp/profiledef.$$ && mv /tmp/profiledef.$$ \"$PROFILE/profiledef.sh\"\n";
     out << "printf 'bootmodes=(bios.syslinux uefi.systemd-boot)\\n' >> \"$PROFILE/profiledef.sh\"\n\n";
 
+    out << "# mkarchiso copies airootfs with --no-preserve=mode, so exec bits are LOST\n";
+    out << "# unless declared in profiledef.sh's file_permissions array. Without this,\n";
+    out << "# /xetal.sh boots as non-executable and the installer can't auto-start.\n";
+    out << "sed -i 's|^file_permissions=(|file_permissions=(\\n  [\"/xetal.sh\"]=\"0:0:755\"\\n  [\"/usr/local/bin/installer.sh\"]=\"0:0:755\"|' \"$PROFILE/profiledef.sh\"\n";
+    out << "grep -q '\"/xetal.sh\"' \"$PROFILE/profiledef.sh\" || printf 'file_permissions=(\\n  [\"/xetal.sh\"]=\"0:0:755\"\\n  [\"/usr/local/bin/installer.sh\"]=\"0:0:755\"\\n)\\n' >> \"$PROFILE/profiledef.sh\"\n\n";
+
     out << "# === Ensure live ISO has installer tools (dialog = TUI, chafa = logo rendering) ===\n";
     out << "for p in rsync tar zstd grub efibootmgr parted gptfdisk e2fsprogs dosfstools dialog chafa; do\n";
     out << "  grep -qxF \"$p\" \"$PROFILE/packages.x86_64\" || echo \"$p\" >> \"$PROFILE/packages.x86_64\"\n";
@@ -363,11 +369,17 @@ QString MainWindow::createIsoScript(const QString &isoName, const QString &outpu
     out << "  \"--exclude=/media/*\" \"--exclude=/lost+found\"\n";
     out << "  \"--exclude=$BASE/*\" \"--exclude=$SNAP_TAR\"\n";
     if (!excludePaths.isEmpty()) {
-        out << "  # User-selected exclusions from the ISO Creator tab\n";
+        out << "  # User-selected exclusions from the ISO Creator tab.\n";
+        out << "  # Folders use \"/*\" so the folder itself survives (empty) in the ISO —\n";
+        out << "  # only its contents are dropped. Files are excluded outright.\n";
         for (const QString &path : excludePaths) {
             QString escaped = path;
             escaped.replace("\\", "\\\\").replace("\"", "\\\"").replace("$", "\\$");
-            out << "  \"--exclude=" << escaped << "\"\n";
+            if (QFileInfo(path).isDir()) {
+                out << "  \"--exclude=" << escaped << "/*\"\n";
+            } else {
+                out << "  \"--exclude=" << escaped << "\"\n";
+            }
         }
     }
     out << ")\n\n";
@@ -567,12 +579,12 @@ QString MainWindow::createIsoScript(const QString &isoName, const QString &outpu
     out << "# .zlogin is what actually fires. Both are written so either shell works.\n";
     out << "cat > \"$PROFILE/airootfs/root/.zlogin\" <<'EOF'\n";
     out << "if [[ -z \"$DISPLAY\" ]] && [[ $(tty) == /dev/tty1 ]]; then\n";
-    out << "  /xetal.sh || exec zsh\n";
+    out << "  bash /xetal.sh || exec zsh\n";
     out << "fi\n";
     out << "EOF\n";
     out << "cat > \"$PROFILE/airootfs/root/.bash_profile\" <<'EOF'\n";
     out << "if [[ -z \"$DISPLAY\" ]] && [[ $(tty) == /dev/tty1 ]]; then\n";
-    out << "  /xetal.sh || bash\n";
+    out << "  bash /xetal.sh || bash\n";
     out << "fi\n";
     out << "EOF\n\n";
 

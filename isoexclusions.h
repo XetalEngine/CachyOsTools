@@ -103,7 +103,7 @@ void MainWindow::rebuildIsoBigTree() {
     ui->isoBigTree->resizeColumnToContents(0);
     ui->isoBigTree->blockSignals(false);
 
-    ui->isoScanStatusLabel->setText(QString("%1 folders and %2 large files shown — checked items are EXCLUDED from the ISO.")
+    ui->isoScanStatusLabel->setText(QString("%1 folders and %2 large files shown — checked = contents excluded (folders themselves stay, empty).")
                                     .arg(dirs.size())
                                     .arg(std::count_if(isoHomeBigFiles.begin(), isoHomeBigFiles.end(),
                                                        [fileMin](const QPair<QString, qint64> &f) { return f.second >= fileMin; })));

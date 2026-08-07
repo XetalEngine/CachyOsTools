@@ -2919,7 +2919,7 @@
                 <item>
                  <widget class="QLabel" name="isoScanStatusLabel">
                   <property name="text">
-                   <string>Checked items are EXCLUDED from the ISO.</string>
+                   <string>Checked = contents excluded from the ISO (the folder itself stays, empty).</string>
                   </property>
                  </widget>
                 </item>
