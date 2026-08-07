@@ -375,6 +375,11 @@ private slots:
     void on_cacheCleanButton_clicked();
     void on_portsRefreshButton_clicked();
     void on_dashRefreshButton_clicked();
+    void on_themePresetCombo_activated(int index);
+    void on_themeAccentButton_clicked();
+    void on_themeBgButton_clicked();
+    void on_themeTextButton_clicked();
+    void on_themeResetButton_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -516,6 +521,12 @@ private:
     void refreshOpenPorts();
     void refreshDashboard();
     void applyAppTheme();
+    void loadThemeSettings();
+    void saveThemeSettings();
+    void updateThemeSwatches();
+    QString themeAccent = "#27ae60";
+    QString themeBg;
+    QString themeText;
     QProcess *journalFollowProcess = nullptr;
 
     // Uninstall tab helper functions

@@ -85,6 +85,7 @@ void MainWindow::showPreferencesDialog() {
     tabNames["packageManagerTab"] = "PKG Install";
     tabNames["uninstallTab"] = "PKG Uninstall";
     tabNames["networkTab"] = "Network";
+    tabNames["themeTab"] = "Theme";
 
     for (auto it = tabNames.begin(); it != tabNames.end(); ++it) {
         QCheckBox *checkbox = new QCheckBox(it.value(), tabsTab);
@@ -224,7 +225,7 @@ void MainWindow::loadTabVisibilityPreferences() {
         "dashboardTab",
         "driveToolsTab", "shellToolsTab", "servicesTab", "tweaksTab",
         "kvmTab", "configTab", "logsTab", "backupTab", "restoreTab",
-        "isoCreatorTab", "packageManagerTab", "uninstallTab", "networkTab"
+        "isoCreatorTab", "packageManagerTab", "uninstallTab", "networkTab", "themeTab"
     };
     
     for (const QString &tabName : tabNames) {
@@ -271,6 +272,7 @@ void MainWindow::applyTabVisibility() {
     tabs["packageManagerTab"] = ui->packageManagerTab;
     tabs["uninstallTab"] = ui->uninstallTab;
     tabs["networkTab"] = ui->networkTab;
+    tabs["themeTab"] = ui->themeTab;
     
     // Verify all tabs exist before proceeding
     for (auto it = tabs.begin(); it != tabs.end(); ++it) {
@@ -310,12 +312,13 @@ void MainWindow::applyTabVisibility() {
     tabTitles["packageManagerTab"] = "PKG Install";
     tabTitles["uninstallTab"] = "PKG Uninstall";
     tabTitles["networkTab"] = "Network";
+    tabTitles["themeTab"] = "Theme";
 
     QStringList tabOrder = {
         "dashboardTab",
         "driveToolsTab", "shellToolsTab", "servicesTab", "tweaksTab",
         "kvmTab", "configTab", "logsTab", "backupTab", "restoreTab",
-        "isoCreatorTab", "packageManagerTab", "uninstallTab", "networkTab"
+        "isoCreatorTab", "packageManagerTab", "uninstallTab", "networkTab", "themeTab"
     };
     
     // Store all widgets before removing tabs to prevent deletion

@@ -4,94 +4,6 @@
 
 #include <QGroupBox>
 
-// Application-wide XETAL theme: gives every tab the Dashboard's card look.
-// Palette-agnostic (translucent grays) so it works on light and dark themes.
-// Widget-level setStyleSheet calls (status pills etc.) still override this.
-void MainWindow::applyAppTheme() {
-    setStyleSheet(
-        // --- Cards: every group box gets the green accent stripe ---
-        "QGroupBox {"
-        "  background: rgba(127,127,127,0.07);"
-        "  border: 1px solid rgba(127,127,127,0.25);"
-        "  border-top: 3px solid #27ae60;"
-        "  border-radius: 10px;"
-        "  margin-top: 14px;"
-        "  padding: 10px 8px 6px 8px;"
-        "  font-weight: bold;"
-        "}"
-        "QGroupBox::title { subcontrol-origin: margin; left: 12px; padding: 0 6px; }"
-        "QGroupBox QLabel, QGroupBox QPushButton, QGroupBox QCheckBox, QGroupBox QRadioButton,"
-        "QGroupBox QComboBox, QGroupBox QSpinBox, QGroupBox QLineEdit { font-weight: normal; }"
-
-        // --- Buttons ---
-        "QPushButton {"
-        "  border: 1px solid rgba(127,127,127,0.3);"
-        "  border-radius: 6px;"
-        "  padding: 5px 10px;"
-        "  background: rgba(127,127,127,0.12);"
-        "}"
-        "QPushButton:hover { background: rgba(39,174,96,0.25); border-color: #27ae60; }"
-        "QPushButton:pressed { background: rgba(39,174,96,0.40); }"
-        "QPushButton:disabled { color: rgba(127,127,127,0.6); background: rgba(127,127,127,0.05); }"
-
-        // --- Main tab bar ---
-        "QTabWidget::pane { border: 1px solid rgba(127,127,127,0.25); border-radius: 6px; top: -1px; }"
-        "QTabBar::tab {"
-        "  background: rgba(127,127,127,0.08);"
-        "  border: 1px solid rgba(127,127,127,0.2);"
-        "  padding: 6px 14px;"
-        "  border-top-left-radius: 6px;"
-        "  border-top-right-radius: 6px;"
-        "  margin-right: 2px;"
-        "}"
-        "QTabBar::tab:selected {"
-        "  background: rgba(39,174,96,0.18);"
-        "  border-top: 2px solid #27ae60;"
-        "  font-weight: bold;"
-        "}"
-        "QTabBar::tab:hover:!selected { background: rgba(127,127,127,0.18); }"
-
-        // --- Tables, trees, lists ---
-        "QTableWidget, QTreeWidget, QListWidget {"
-        "  border: 1px solid rgba(127,127,127,0.25);"
-        "  border-radius: 8px;"
-        "  gridline-color: rgba(127,127,127,0.12);"
-        "  alternate-background-color: rgba(127,127,127,0.06);"
-        "  selection-background-color: rgba(39,174,96,0.35);"
-        "}"
-        "QHeaderView::section {"
-        "  background: rgba(127,127,127,0.12);"
-        "  border: none;"
-        "  border-bottom: 2px solid #27ae60;"
-        "  padding: 5px;"
-        "  font-weight: bold;"
-        "}"
-
-        // --- Inputs ---
-        "QLineEdit, QComboBox, QSpinBox, QTextEdit, QPlainTextEdit {"
-        "  border: 1px solid rgba(127,127,127,0.3);"
-        "  border-radius: 6px;"
-        "  padding: 3px 6px;"
-        "  background: rgba(127,127,127,0.06);"
-        "}"
-        "QLineEdit:focus, QComboBox:focus, QSpinBox:focus, QTextEdit:focus, QPlainTextEdit:focus {"
-        "  border: 1px solid #27ae60;"
-        "}"
-
-        // --- Progress bars (ISO build, backup...) ---
-        "QProgressBar {"
-        "  border: 1px solid rgba(127,127,127,0.3);"
-        "  border-radius: 6px;"
-        "  text-align: center;"
-        "  background: rgba(127,127,127,0.08);"
-        "}"
-        "QProgressBar::chunk { background: #27ae60; border-radius: 5px; }"
-
-        // --- Splitters (ISO exclusion panels) ---
-        "QSplitter::handle { background: rgba(127,127,127,0.2); }"
-        "QSplitter::handle:hover { background: #27ae60; }");
-}
-
 // Unicode usage bar: colored blocks, green -> orange -> red by fill level
 static QString dashUsageBar(int percent, int width = 14) {
     if (percent < 0) percent = 0;
@@ -106,30 +18,38 @@ static QString dashUsageBar(int percent, int width = 14) {
 }
 
 void MainWindow::refreshDashboard() {
-    // One-time visual setup: card styling, logo header, expanding grid
+    // Card styling follows the current theme accent (re-applied on each refresh
+    // so theme changes take effect immediately)
+    QColor dashAccent(themeAccent.isEmpty() ? "#27ae60" : themeAccent);
+    auto dashRgba = [&dashAccent](double alpha) {
+        return QString("rgba(%1,%2,%3,%4)").arg(dashAccent.red()).arg(dashAccent.green()).arg(dashAccent.blue()).arg(alpha);
+    };
+    ui->dashboardTab->setStyleSheet(QString(
+        "QGroupBox {"
+        "  background: rgba(127,127,127,0.07);"
+        "  border: 1px solid rgba(127,127,127,0.25);"
+        "  border-top: 3px solid %1;"
+        "  border-radius: 10px;"
+        "  margin-top: 14px;"
+        "  padding: 16px 12px 8px 12px;"
+        "  font-weight: bold;"
+        "  font-size: 14px;"
+        "}"
+        "QGroupBox::title { subcontrol-origin: margin; left: 14px; padding: 0 6px; }"
+        "QGroupBox QLabel { font-weight: normal; font-size: 14px; }"
+        "QGroupBox QPushButton {"
+        "  border: 1px solid rgba(127,127,127,0.3);"
+        "  border-radius: 6px;"
+        "  padding: 6px;"
+        "  background: rgba(127,127,127,0.12);"
+        "}"
+        "QGroupBox QPushButton:hover { background: %2; }")
+        .arg(dashAccent.name(), dashRgba(0.25)));
+
+    // One-time layout setup: logo header, expanding grid, promo banner
     static bool dashStyled = false;
     if (!dashStyled) {
         dashStyled = true;
-        ui->dashboardTab->setStyleSheet(
-            "QGroupBox {"
-            "  background: rgba(127,127,127,0.07);"
-            "  border: 1px solid rgba(127,127,127,0.25);"
-            "  border-top: 3px solid #27ae60;"
-            "  border-radius: 10px;"
-            "  margin-top: 14px;"
-            "  padding: 16px 12px 8px 12px;"
-            "  font-weight: bold;"
-            "  font-size: 14px;"
-            "}"
-            "QGroupBox::title { subcontrol-origin: margin; left: 14px; padding: 0 6px; }"
-            "QGroupBox QLabel { font-weight: normal; font-size: 14px; }"
-            "QGroupBox QPushButton {"
-            "  border: 1px solid rgba(127,127,127,0.3);"
-            "  border-radius: 6px;"
-            "  padding: 6px;"
-            "  background: rgba(127,127,127,0.12);"
-            "}"
-            "QGroupBox QPushButton:hover { background: rgba(39,174,96,0.25); }");
 
         ui->dashTitleLabel->setTextFormat(Qt::RichText);
         ui->dashTitleLabel->setText(
@@ -163,7 +83,7 @@ void MainWindow::refreshDashboard() {
         ui->dashPromoLabel->setText(
             "🚀 <b>Love C++?</b> Meet <span style='color:#c0392b; font-weight:bold;'>LINUX</span> "
             "<span style='color:#27ae60; font-weight:bold;'>STUDIO 2026</span> — "
-            "the brand-new IDE built <i>for Linux, on Linux</i>, from the same team that made this app. "
+            "the brand-new IDE built <i>for Linux, on Linux</i>, from the same dev that made this app. "
             "&nbsp;<a href='https://www.xetal.net' style='color:#3498db; font-weight:bold;'>Grab it at xetal.net →</a>");
     }
 

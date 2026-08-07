@@ -33,6 +33,7 @@ set(PROJECT_SOURCES
         includes.h
         uninstalltab.h
         tabupgrades.h
+        thememanager.h
         dashboard.h
         isoexclusions.h
         resources.qrc

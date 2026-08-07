@@ -2,7 +2,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) , ui(new Ui::MainW
 {
     ui->setupUi(this);
 
-    // XETAL theme: card look + green accents on every tab
+    // XETAL theme: card look + accent colors on every tab (saved choice loads first)
+    loadThemeSettings();
     applyAppTheme();
 
     // Set current tab first before applying visibility preferences
