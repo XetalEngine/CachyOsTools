@@ -498,6 +498,11 @@ private:
     void setupSingleGpuGuide();
     void setupDualGpuGuide();
 
+    // Self-updater (Dashboard -> Welcome): git-based check + pull/rebuild/restart
+    void checkForAppUpdates();
+    void runAppUpdate();
+    QPushButton *dashUpdateBtn = nullptr;
+
     // System ISO tab: missing-dependency bar (one install button per tool)
     void setupIsoDepsCheck();
     void refreshIsoDeps();

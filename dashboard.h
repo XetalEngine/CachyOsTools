@@ -71,6 +71,16 @@ void MainWindow::refreshDashboard() {
             int langIdx = ui->dashLangCombo->findData(cur);
             if (langIdx >= 0) ui->dashLangCombo->setCurrentIndex(langIdx);
         }
+        // Self-updater: orange button appears when origin/main is ahead of us
+        dashUpdateBtn = new QPushButton(ui->dashboardTab);
+        dashUpdateBtn->setStyleSheet(
+            "QPushButton { background:#e67e22; color:white; font-weight:bold; border-radius:6px; padding:6px 14px; }"
+            "QPushButton:hover { background:#f39c12; }");
+        dashUpdateBtn->hide();
+        ui->dashTopLayout->insertWidget(2, dashUpdateBtn);
+        connect(dashUpdateBtn, &QPushButton::clicked, this, &MainWindow::runAppUpdate);
+        QTimer::singleShot(3000, this, &MainWindow::checkForAppUpdates);
+
         connect(ui->dashLangCombo, QOverload<int>::of(&QComboBox::activated), this, [this](int index) {
             QString code = ui->dashLangCombo->itemData(index).toString();
             QSettings settings("CachyOsTools", "CachyOsTools");
@@ -323,4 +333,119 @@ void MainWindow::refreshDashboard() {
 
 void MainWindow::on_dashRefreshButton_clicked() {
     refreshDashboard();
+}
+
+// ---- Self-updater: git-based, source-build aware ----------------------------
+
+// The repo the running binary came from: walk up from the executable until a
+// git checkout of this project is found (root binary or a build/ subdir).
+static QString xetalRepoDir() {
+    QDir dir(QCoreApplication::applicationDirPath());
+    for (int i = 0; i < 5; ++i) {
+        if (dir.exists(".git") && dir.exists("CMakeLists.txt") && dir.exists("build.sh"))
+            return dir.absolutePath();
+        if (!dir.cdUp()) break;
+    }
+    return QString();
+}
+
+void MainWindow::checkForAppUpdates() {
+    // Testing aid: CACHYOSTOOLS_FAKE_UPDATE=<n> pretends n commits are available
+    const QString fake = qEnvironmentVariable("CACHYOSTOOLS_FAKE_UPDATE");
+    if (!fake.isEmpty()) {
+        dashUpdateBtn->setText(tr("⬆️ UPDATE — %1 new commit(s) available!").arg(fake.toInt()));
+        dashUpdateBtn->show();
+        return;
+    }
+
+    const QString repo = xetalRepoDir();
+    if (repo.isEmpty()) return;                       // not running from a git checkout
+
+    QProcess *proc = new QProcess(this);
+    // Silent failure by design: no network / no remote just means no button
+    QTimer *watchdog = new QTimer(proc);
+    watchdog->setSingleShot(true);
+    connect(watchdog, &QTimer::timeout, proc, &QProcess::kill);
+    watchdog->start(20000);
+    connect(proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+            [this, proc](int exitCode, QProcess::ExitStatus) {
+                const QStringList lines = QString::fromUtf8(proc->readAllStandardOutput()).split('\n', Qt::SkipEmptyParts);
+                if (exitCode == 0 && !lines.isEmpty()) {
+                    bool ok = false;
+                    int behind = lines[0].trimmed().toInt(&ok);
+                    if (ok && behind > 0) {
+                        dashUpdateBtn->setText(tr("⬆️ UPDATE — %1 new commit(s) available!").arg(behind));
+                        dashUpdateBtn->setToolTip(lines.size() > 1
+                            ? tr("Latest change: %1\nClick to pull, rebuild and restart.").arg(lines[1].trimmed())
+                            : tr("Click to pull, rebuild and restart."));
+                        dashUpdateBtn->show();
+                    } else {
+                        dashUpdateBtn->hide();
+                    }
+                }
+                proc->deleteLater();
+            });
+    proc->start("bash", QStringList() << "-c" << QString(
+        "cd '%1' && git fetch -q origin 2>/dev/null && "
+        "git rev-list --count HEAD..origin/main 2>/dev/null && "
+        "git log -1 --format=%%s origin/main 2>/dev/null").arg(repo));
+}
+
+void MainWindow::runAppUpdate() {
+    const QString repo = xetalRepoDir();
+    if (repo.isEmpty()) {
+        QMessageBox::information(this, tr("Not a Git Install"),
+            tr("The running app was not started from a git checkout, so it cannot self-update."));
+        return;
+    }
+
+    // Uncommitted changes would make git pull fail — tell the user up front
+    QProcess st;
+    st.start("git", QStringList() << "-C" << repo << "status" << "--porcelain");
+    st.waitForFinished(3000);
+    const bool dirty = !QString::fromUtf8(st.readAllStandardOutput()).trimmed().isEmpty();
+    QString warning = dirty
+        ? tr("\n\n⚠ The repo has local uncommitted changes — the pull will refuse to overwrite them. Commit or stash first if the update fails.")
+        : QString();
+
+    if (QMessageBox::question(this, tr("Update CachyOsTools"),
+            tr("This will, in a visible terminal:\n\n"
+               "1. Pull the newest version into:\n    %1\n"
+               "2. Rebuild the app\n"
+               "3. Offer to restart when done%2\n\nContinue?").arg(repo, warning)) != QMessageBox::Yes)
+        return;
+
+    const QString script = QString(
+        "cd '%1' || exit 1; "
+        "echo '== Pulling latest version...'; "
+        "git pull --ff-only || { echo; echo '❌ Pull failed (local changes or diverged history).'; read -p 'Press Enter to close...'; exit 1; }; "
+        "echo; echo '== Rebuilding...'; "
+        "BD=$(ls -td build/*/ 2>/dev/null | head -1); "
+        "if [ -n \"$BD\" ] && [ -f \"${BD}CMakeCache.txt\" ]; then "
+        "  cmake --build \"$BD\" -j$(nproc) && cp -f \"${BD}CachyOsTools\" ./CachyOsTools; "
+        "else ./build.sh; fi "
+        "&& { echo; echo '== ✅ Update complete.'; } || echo '❌ Build failed - see output above.'; "
+        "read -p 'Press Enter to close this window...'").arg(repo);
+
+    // Run as a child process (not detached) so we know when the update finished
+    QString term;
+    for (const QString &t : {QString("konsole"), QString("gnome-terminal"), QString("xterm"), QString("alacritty"), QString("kitty")}) {
+        if (!QStandardPaths::findExecutable(t).isEmpty()) { term = t; break; }
+    }
+    if (term.isEmpty()) {
+        QMessageBox::warning(this, tr("Terminal Not Found"),
+            tr("Could not find a suitable terminal emulator. Please install one of: konsole, gnome-terminal, xterm, alacritty, or kitty"));
+        return;
+    }
+    QProcess *proc = new QProcess(this);
+    connect(proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+            [this, proc](int, QProcess::ExitStatus) {
+                proc->deleteLater();
+                if (QMessageBox::question(this, tr("Restart CachyOsTools?"),
+                        tr("If the update succeeded, a restart loads the new version.\n\nRestart now?")) == QMessageBox::Yes) {
+                    QProcess::startDetached(QCoreApplication::applicationFilePath(), QStringList());
+                    qApp->quit();
+                }
+            });
+    proc->start(term, QStringList() << "-e" << "bash" << "-c" << script);
 }

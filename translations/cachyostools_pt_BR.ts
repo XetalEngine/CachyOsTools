@@ -1605,6 +1605,70 @@ Reiniciar o CachyOsTools agora?</translation>
         <translation>&lt;p style='color:#888;'&gt;Sem dados SMART&lt;br&gt;(smartmontools está instalado?)&lt;/p&gt;</translation>
     </message>
     <message>
+        <source>⬆️ UPDATE — %1 new commit(s) available!</source>
+        <translation>⬆️ ATUALIZAR — %1 novo(s) commit(s) disponível(is)!</translation>
+    </message>
+    <message>
+        <source>Latest change: %1
+Click to pull, rebuild and restart.</source>
+        <translation>Última mudança: %1
+Clique para baixar, recompilar e reiniciar.</translation>
+    </message>
+    <message>
+        <source>Click to pull, rebuild and restart.</source>
+        <translation>Clique para baixar, recompilar e reiniciar.</translation>
+    </message>
+    <message>
+        <source>Not a Git Install</source>
+        <translation>Instalação sem Git</translation>
+    </message>
+    <message>
+        <source>The running app was not started from a git checkout, so it cannot self-update.</source>
+        <translation>O app em execução não foi iniciado de um checkout git, então não pode se autoatualizar.</translation>
+    </message>
+    <message>
+        <source>
+
+⚠ The repo has local uncommitted changes — the pull will refuse to overwrite them. Commit or stash first if the update fails.</source>
+        <translation>
+
+⚠ O repositório tem mudanças locais não commitadas — o pull se recusará a sobrescrevê-las. Faça commit ou stash primeiro se a atualização falhar.</translation>
+    </message>
+    <message>
+        <source>Update CachyOsTools</source>
+        <translation>Atualizar CachyOsTools</translation>
+    </message>
+    <message>
+        <source>This will, in a visible terminal:
+
+1. Pull the newest version into:
+    %1
+2. Rebuild the app
+3. Offer to restart when done%2
+
+Continue?</source>
+        <translation>Isto fará, em um terminal visível:
+
+1. Baixar a versão mais nova em:
+    %1
+2. Recompilar o app
+3. Oferecer reinício ao terminar%2
+
+Continuar?</translation>
+    </message>
+    <message>
+        <source>Restart CachyOsTools?</source>
+        <translation>Reiniciar o CachyOsTools?</translation>
+    </message>
+    <message>
+        <source>If the update succeeded, a restart loads the new version.
+
+Restart now?</source>
+        <translation>Se a atualização deu certo, reiniciar carrega a nova versão.
+
+Reiniciar agora?</translation>
+    </message>
+    <message>
         <source>Terminal Not Found</source>
         <translation>Terminal Não Encontrado</translation>
     </message>
