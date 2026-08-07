@@ -53,8 +53,37 @@ void MainWindow::refreshDashboard() {
 
         ui->dashTitleLabel->setTextFormat(Qt::RichText);
         ui->dashTitleLabel->setText(
-            "<img src=':/images/XetalEngine.png' height='44' style='vertical-align:middle;'>"
-            "&nbsp;&nbsp;<span style='font-size:15px; color:#888;'>System at a glance</span>");
+            QString("<img src=':/images/XetalEngine.png' height='44' style='vertical-align:middle;'>"
+                    "&nbsp;&nbsp;<span style='font-size:15px; color:#888;'>%1</span>")
+                .arg(tr("System at a glance")));
+
+        // Language selector: flag dropdown, persisted choice, applied on restart
+        ui->dashLangCombo->setIconSize(QSize(24, 16));
+        ui->dashLangCombo->addItem(QIcon(":/images/flag_us.png"), "English", "en");
+        ui->dashLangCombo->addItem(QIcon(":/images/flag_br.png"), "Português", "pt_BR");
+        ui->dashLangCombo->addItem(QIcon(":/images/flag_de.png"), "Deutsch", "de");
+        {
+            // Show the effective language (env override wins, like in main.cpp)
+            QString cur = qEnvironmentVariable("CACHYOSTOOLS_LANG");
+            if (cur.isEmpty()) {
+                cur = QSettings("CachyOsTools", "CachyOsTools").value("language/code", "en").toString();
+            }
+            int langIdx = ui->dashLangCombo->findData(cur);
+            if (langIdx >= 0) ui->dashLangCombo->setCurrentIndex(langIdx);
+        }
+        connect(ui->dashLangCombo, QOverload<int>::of(&QComboBox::activated), this, [this](int index) {
+            QString code = ui->dashLangCombo->itemData(index).toString();
+            QSettings settings("CachyOsTools", "CachyOsTools");
+            if (settings.value("language/code", "en").toString() == code) return;
+            settings.setValue("language/code", code);
+            settings.sync();
+            if (QMessageBox::question(this, tr("Language Changed"),
+                                      tr("The new language takes effect after a restart.\n\nRestart CachyOsTools now?"))
+                == QMessageBox::Yes) {
+                QProcess::startDetached(QCoreApplication::applicationFilePath(), QStringList());
+                qApp->quit();
+            }
+        });
 
         const QList<QGroupBox*> cards = {ui->dashDrivesGroup, ui->dashServicesGroup, ui->dashUpdatesGroup,
                                          ui->dashDiskGroup, ui->dashIsoGroup, ui->dashSystemGroup};
@@ -101,16 +130,20 @@ void MainWindow::refreshDashboard() {
                         else if (line.startsWith("KERNEL:")) kernel = line.mid(7).trimmed();
                         else if (line.startsWith("UPTIME:")) uptime = line.mid(7).trimmed();
                         else if (line.startsWith("RAMPCT:")) ramPct = line.mid(7).trimmed().toInt();
-                        else if (line.startsWith("RAM:")) ramText = line.mid(4).trimmed();
+                        else if (line.startsWith("RAM:")) {
+                            const QStringList ram = line.mid(4).trimmed().split(' ', Qt::SkipEmptyParts);
+                            if (ram.size() == 2) ramText = tr("%1 used of %2").arg(ram[0], ram[1]);
+                        }
                     }
                     QString html = QString(
                         "<p style='margin:0;'><b>%1</b><br>"
                         "<span style='color:#888;'>%2</span></p>"
-                        "<p style='margin:6px 0 0 0;'>Kernel <b>%3</b> &nbsp;·&nbsp; up %4</p>"
-                        "<p style='margin:8px 0 0 0;'>RAM &nbsp;%5<br>"
-                        "<span style='color:#888;'>%6</span></p>")
-                        .arg(cpu.toHtmlEscaped(), gpu.toHtmlEscaped(), kernel.toHtmlEscaped(),
-                             uptime.toHtmlEscaped(), dashUsageBar(ramPct), ramText.toHtmlEscaped());
+                        "<p style='margin:6px 0 0 0;'>%3</p>"
+                        "<p style='margin:8px 0 0 0;'>RAM &nbsp;%4<br>"
+                        "<span style='color:#888;'>%5</span></p>")
+                        .arg(cpu.toHtmlEscaped(), gpu.toHtmlEscaped(),
+                             tr("Kernel <b>%1</b> &nbsp;·&nbsp; up %2").arg(kernel.toHtmlEscaped(), uptime.toHtmlEscaped()),
+                             dashUsageBar(ramPct), ramText.toHtmlEscaped());
                     ui->dashSystemLabel->setTextFormat(Qt::RichText);
                     ui->dashSystemLabel->setText(html);
                     proc->deleteLater();
@@ -121,7 +154,7 @@ void MainWindow::refreshDashboard() {
             "echo \"KERNEL: $(uname -r)\"; "
             "echo \"UPTIME: $(uptime -p | sed 's/^up //')\"; "
             "free -b | awk '/^Mem:/{printf \"RAMPCT: %d\\n\", $3*100/$2}'; "
-            "free -h | awk '/^Mem:/{printf \"RAM: %s used of %s\\n\", $3, $2}'");
+            "free -h | awk '/^Mem:/{printf \"RAM: %s %s\\n\", $3, $2}'");
     }
 
     // ---- 📊 Disk space card (usage bars for / and /home) ----
@@ -136,11 +169,12 @@ void MainWindow::refreshDashboard() {
                         if (parts.size() < 4) continue;
                         int pct = parts[3].replace("%", "").toInt();
                         html += QString("<p style='margin:0 0 10px 0;'><b>%1</b><br>%2<br>"
-                                        "<span style='color:#888;'>%3 used of %4</span></p>")
-                                .arg(parts[0].toHtmlEscaped(), dashUsageBar(pct), parts[1], parts[2]);
+                                        "<span style='color:#888;'>%3</span></p>")
+                                .arg(parts[0].toHtmlEscaped(), dashUsageBar(pct),
+                                     tr("%1 used of %2").arg(parts[1], parts[2]));
                     }
                     ui->dashDiskLabel->setTextFormat(Qt::RichText);
-                    ui->dashDiskLabel->setText(html.isEmpty() ? "No data" : html);
+                    ui->dashDiskLabel->setText(html.isEmpty() ? tr("No data") : html);
                     proc->deleteLater();
                 });
         proc->start("bash", QStringList() << "-c" <<
@@ -162,15 +196,15 @@ void MainWindow::refreshDashboard() {
                     QString html;
                     if (failed.isEmpty()) {
                         html = QString("<p style='margin:0; font-size:34px; color:#27ae60;'><b>✔</b></p>"
-                                       "<p style='margin:4px 0 0 0; color:#27ae60;'><b>All services healthy</b></p>"
-                                       "<p style='margin:6px 0 0 0; color:#888;'>%1 services running</p>")
-                               .arg(running);
+                                       "<p style='margin:4px 0 0 0; color:#27ae60;'><b>%1</b></p>"
+                                       "<p style='margin:6px 0 0 0; color:#888;'>%2</p>")
+                               .arg(tr("All services healthy"), tr("%1 services running").arg(running));
                     } else {
                         html = QString("<p style='margin:0; font-size:34px; color:#c0392b;'><b>%1</b></p>"
-                                       "<p style='margin:4px 0 0 0; color:#c0392b;'><b>failed service(s)</b></p>"
-                                       "<p style='margin:6px 0 0 0; color:#888;'>%2</p>")
+                                       "<p style='margin:4px 0 0 0; color:#c0392b;'><b>%2</b></p>"
+                                       "<p style='margin:6px 0 0 0; color:#888;'>%3</p>")
                                .arg(failed.size())
-                               .arg(failed.mid(0, 4).join("<br>").toHtmlEscaped());
+                               .arg(tr("failed service(s)"), failed.mid(0, 4).join("<br>").toHtmlEscaped());
                     }
                     ui->dashServicesLabel->setTextFormat(Qt::RichText);
                     ui->dashServicesLabel->setText(html);
@@ -189,20 +223,21 @@ void MainWindow::refreshDashboard() {
                     const QStringList lines = QString::fromUtf8(proc->readAllStandardOutput()).split('\n', Qt::SkipEmptyParts);
                     QString html;
                     if (exitCode == 2 || (exitCode == 0 && lines.isEmpty())) {
-                        html = "<p style='margin:0; font-size:34px; color:#27ae60;'><b>0</b></p>"
-                               "<p style='margin:4px 0 0 0; color:#27ae60;'><b>System is up to date</b></p>";
+                        html = QString("<p style='margin:0; font-size:34px; color:#27ae60;'><b>0</b></p>"
+                                       "<p style='margin:4px 0 0 0; color:#27ae60;'><b>%1</b></p>")
+                               .arg(tr("System is up to date"));
                     } else if (exitCode == 0) {
                         QStringList names;
                         for (const QString &line : lines) names << line.section(' ', 0, 0);
                         QString preview = names.mid(0, 4).join(", ");
-                        if (names.size() > 4) preview += QString(" +%1 more").arg(names.size() - 4);
+                        if (names.size() > 4) preview += tr(" +%1 more").arg(names.size() - 4);
                         QString color = (lines.size() > 50) ? "#e67e22" : "#3498db";
                         html = QString("<p style='margin:0; font-size:34px; color:%1;'><b>%2</b></p>"
-                                       "<p style='margin:4px 0 0 0;'><b>update(s) pending</b></p>"
-                                       "<p style='margin:6px 0 0 0; color:#888;'>%3</p>")
-                               .arg(color).arg(lines.size()).arg(preview.toHtmlEscaped());
+                                       "<p style='margin:4px 0 0 0;'><b>%3</b></p>"
+                                       "<p style='margin:6px 0 0 0; color:#888;'>%4</p>")
+                               .arg(color).arg(lines.size()).arg(tr("update(s) pending"), preview.toHtmlEscaped());
                     } else {
-                        html = "<p style='color:#888;'>Install <b>pacman-contrib</b> to enable update checks.</p>";
+                        html = tr("<p style='color:#888;'>Install <b>pacman-contrib</b> to enable update checks.</p>");
                     }
                     ui->dashUpdatesLabel->setTextFormat(Qt::RichText);
                     ui->dashUpdatesLabel->setText(html);
@@ -210,7 +245,7 @@ void MainWindow::refreshDashboard() {
                 });
         proc->start("checkupdates", QStringList());
         connect(proc, &QProcess::errorOccurred, [this, proc](QProcess::ProcessError) {
-            ui->dashUpdatesLabel->setText("<p style='color:#888;'>Install <b>pacman-contrib</b> to enable update checks.</p>");
+            ui->dashUpdatesLabel->setText(tr("<p style='color:#888;'>Install <b>pacman-contrib</b> to enable update checks.</p>"));
             proc->deleteLater();
         });
     }
@@ -221,19 +256,20 @@ void MainWindow::refreshDashboard() {
         QFileInfoList isos = isoDir.entryInfoList(QStringList() << "*.iso", QDir::Files, QDir::Time);
         QString html;
         if (isos.isEmpty()) {
-            html = "<p style='margin:0; font-size:34px; color:#e67e22;'><b>—</b></p>"
-                   "<p style='margin:4px 0 0 0; color:#e67e22;'><b>No safety ISO yet</b></p>"
-                   "<p style='margin:6px 0 0 0; color:#888;'>Create one in the System ISO tab —<br>"
-                   "your insurance against drive failure.</p>";
+            html = QString("<p style='margin:0; font-size:34px; color:#e67e22;'><b>—</b></p>"
+                           "<p style='margin:4px 0 0 0; color:#e67e22;'><b>%1</b></p>"
+                           "<p style='margin:6px 0 0 0; color:#888;'>%2</p>")
+                   .arg(tr("No safety ISO yet"),
+                        tr("Create one in the System ISO tab —<br>your insurance against drive failure."));
         } else {
             const QFileInfo &newest = isos.first();
             qint64 days = newest.lastModified().daysTo(QDateTime::currentDateTime());
-            QString age = (days == 0) ? "today" : (days == 1) ? "yesterday" : QString("%1 days ago").arg(days);
+            QString age = (days == 0) ? tr("today") : (days == 1) ? tr("yesterday") : tr("%1 days ago").arg(days);
             QString color = (days > 30) ? "#e67e22" : "#27ae60";
             html = QString("<p style='margin:0; font-size:34px; color:%1;'><b>%2</b></p>"
-                           "<p style='margin:4px 0 0 0; color:%1;'><b>last safety ISO</b></p>"
-                           "<p style='margin:6px 0 0 0; color:#888;'>%3<br>%4</p>")
-                   .arg(color, age, newest.fileName().toHtmlEscaped(), formatSize(newest.size()));
+                           "<p style='margin:4px 0 0 0; color:%1;'><b>%3</b></p>"
+                           "<p style='margin:6px 0 0 0; color:#888;'>%4<br>%5</p>")
+                   .arg(color, age, tr("last safety ISO"), newest.fileName().toHtmlEscaped(), formatSize(newest.size()));
         }
         ui->dashIsoLabel->setTextFormat(Qt::RichText);
         ui->dashIsoLabel->setText(html);
@@ -247,11 +283,11 @@ void MainWindow::refreshDashboard() {
                     QString out = QString::fromUtf8(proc->readAllStandardOutput()).trimmed();
                     QString html;
                     if (out == "NOAUTH") {
-                        html = "<p style='color:#888;'>🔒 Health checks need a sudo session.<br><br>"
-                               "Use <b>Load Labels</b> or <b>Health Check</b> in the Drives tab once, "
-                               "then Refresh here.</p>";
+                        html = tr("<p style='color:#888;'>🔒 Health checks need a sudo session.<br><br>"
+                                  "Use <b>Load Labels</b> or <b>Health Check</b> in the Drives tab once, "
+                                  "then Refresh here.</p>");
                     } else if (out.isEmpty()) {
-                        html = "<p style='color:#888;'>No SMART data<br>(is smartmontools installed?)</p>";
+                        html = tr("<p style='color:#888;'>No SMART data<br>(is smartmontools installed?)</p>");
                     } else {
                         // Two-column table so many drives stay compact
                         const QStringList entries = out.split('\n', Qt::SkipEmptyParts);

@@ -31,7 +31,7 @@ qint64 MainWindow::parsePacmanSizeToBytes(const QString &sizeStr) {
 }
 
 void MainWindow::refreshUninstallList() {
-    ui->uninstallCountLabel->setText("Loading installed software...");
+    ui->uninstallCountLabel->setText(tr("Loading installed software..."));
     QApplication::processEvents();
 
     // Force C locale so sizes ("MiB") and field names are stable for parsing
@@ -59,7 +59,7 @@ void MainWindow::refreshUninstallList() {
     proc.waitForFinished(120000);
 
     if (proc.exitCode() != 0) {
-        ui->uninstallCountLabel->setText("❌ Failed to read installed packages.");
+        ui->uninstallCountLabel->setText(tr("❌ Failed to read installed packages."));
         return;
     }
 
@@ -70,7 +70,7 @@ void MainWindow::refreshUninstallList() {
     ui->uninstallTable->setRowCount(0);
     ui->uninstallTable->setColumnCount(6);
     QStringList headers;
-    headers << "Package Name" << "Version" << "Size" << "Source" << "Description" << "Installed";
+    headers << tr("Package Name") << tr("Version") << tr("Size") << tr("Source") << tr("Description") << tr("Installed");
     ui->uninstallTable->setHorizontalHeaderLabels(headers);
     ui->uninstallTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->uninstallTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
@@ -99,8 +99,10 @@ void MainWindow::refreshUninstallList() {
         sizeItem->setData(Qt::UserRole, bytes);
         ui->uninstallTable->setItem(row, 2, sizeItem);
 
-        ui->uninstallTable->setItem(row, 3, new QTableWidgetItem(
-            foreignPackages.contains(name) ? "AUR / Foreign" : "Official Repo"));
+        QTableWidgetItem *sourceItem = new QTableWidgetItem(
+            foreignPackages.contains(name) ? "AUR / Foreign" : "Official Repo");
+        sourceItem->setData(Qt::UserRole, foreignPackages.contains(name)); // filter reads this, not the text
+        ui->uninstallTable->setItem(row, 3, sourceItem);
         ui->uninstallTable->setItem(row, 4, new QTableWidgetItem(description));
 
         // LC_ALL=C format: "Sat Feb 21 12:11:04 2026" — parse with the C locale,
@@ -152,7 +154,7 @@ void MainWindow::filterUninstallTable() {
 
         if (sourceFilter != 0) {
             QTableWidgetItem *sourceItem = ui->uninstallTable->item(row, 3);
-            bool isForeign = sourceItem && sourceItem->text().startsWith("AUR");
+            bool isForeign = sourceItem && sourceItem->data(Qt::UserRole).toBool();
             if (sourceFilter == 1 && isForeign) visible = false;
             if (sourceFilter == 2 && !isForeign) visible = false;
         }
@@ -179,7 +181,7 @@ void MainWindow::updateUninstallSelectionInfo() {
     }
 
     if (selectedRows.isEmpty()) {
-        ui->uninstallSelectedSizeLabel->setText("Selected: 0 packages");
+        ui->uninstallSelectedSizeLabel->setText(tr("Selected: 0 packages"));
     } else {
         ui->uninstallSelectedSizeLabel->setText(QString("Selected: %1 packages (%2)")
                                                 .arg(selectedRows.size()).arg(formatSize(totalBytes)));
@@ -203,7 +205,7 @@ void MainWindow::on_uninstallSourceFilter_currentIndexChanged(int index) {
 void MainWindow::on_uninstallButton_clicked() {
     QModelIndexList selectedRows = ui->uninstallTable->selectionModel()->selectedRows();
     if (selectedRows.isEmpty()) {
-        QMessageBox::warning(this, "No Selection", "Please select one or more packages to uninstall.");
+        QMessageBox::warning(this, tr("No Selection"), tr("Please select one or more packages to uninstall."));
         return;
     }
 
@@ -269,7 +271,7 @@ void MainWindow::on_uninstallButton_clicked() {
 
     runSudoCommandInTerminal(command + QString("; touch '%1'; read -p 'Press Enter to close...'").arg(flagFile));
 
-    ui->uninstallCountLabel->setText("Uninstall running in terminal — the list will refresh automatically when it finishes.");
+    ui->uninstallCountLabel->setText(tr("Uninstall running in terminal — the list will refresh automatically when it finishes."));
 
     QTimer *watcher = new QTimer(this);
     watcher->setInterval(1000);

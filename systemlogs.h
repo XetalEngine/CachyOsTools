@@ -95,7 +95,7 @@ void MainWindow::loadLogContent() {
     QString selectedLog = ui->logFileComboBox->currentData().toString();
     if (selectedLog.isEmpty()) return;
     
-    ui->logStatusLabel->setText("Loading...");
+    ui->logStatusLabel->setText(tr("Loading..."));
     
     // Kill any existing log process (defensive)
     if (logProcess) {
@@ -162,7 +162,7 @@ void MainWindow::onLogProcessFinished(int exitCode, QProcess::ExitStatus exitSta
         ui->logStatusLabel->setText(QString("Loaded %1 lines").arg(output.count('\n')));
     } else {
         ui->logContentTextEdit->setPlainText("Error loading log file or no content found.");
-        ui->logStatusLabel->setText("Error");
+        ui->logStatusLabel->setText(tr("Error"));
     }
     
     delete logProcess;
@@ -217,8 +217,8 @@ void MainWindow::clearLogFile(const QString &filePath) {
             }
             
             if (!terminalFound) {
-                QMessageBox::warning(this, "Terminal Not Found", 
-                    "Could not find a suitable terminal emulator. Please install one of: konsole, gnome-terminal, xterm, alacritty, or kitty");
+                QMessageBox::warning(this, tr("Terminal Not Found"), 
+                    tr("Could not find a suitable terminal emulator. Please install one of: konsole, gnome-terminal, xterm, alacritty, or kitty"));
             }
             
             // Clean up the script after a delay
@@ -260,7 +260,7 @@ void MainWindow::on_copyLogButton_clicked() {
     QString content = ui->logContentTextEdit->toPlainText();
     if (!content.isEmpty()) {
         QApplication::clipboard()->setText(content);
-        ui->logStatusLabel->setText("Copied to clipboard");
+        ui->logStatusLabel->setText(tr("Copied to clipboard"));
     }
 }
 
@@ -280,7 +280,7 @@ void MainWindow::on_saveLogButton_clicked() {
             file.close();
             ui->logStatusLabel->setText("Saved to " + fileName);
         } else {
-            QMessageBox::warning(this, "Error", "Could not save file.");
+            QMessageBox::warning(this, tr("Error"), tr("Could not save file."));
         }
     }
 }
@@ -299,5 +299,5 @@ void MainWindow::openConfigInNano(const QString &filePath) {
             return;
         }
     }
-    QMessageBox::warning(this, "Terminal Not Found", "Could not find a suitable terminal emulator. Please install one of: konsole, gnome-terminal, xterm, alacritty, or kitty");
+    QMessageBox::warning(this, tr("Terminal Not Found"), tr("Could not find a suitable terminal emulator. Please install one of: konsole, gnome-terminal, xterm, alacritty, or kitty"));
 }

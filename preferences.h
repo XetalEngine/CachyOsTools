@@ -30,7 +30,7 @@ void MainWindow::on_actionShowHideTabs_triggered() {
 void MainWindow::showPreferencesDialog() {
     // Create comprehensive preferences dialog with tabs
     QDialog *dialog = new QDialog(this);
-    dialog->setWindowTitle("Preferences");
+    dialog->setWindowTitle(tr("Preferences"));
     dialog->setMinimumSize(600, 500);
     
     QVBoxLayout *mainLayout = new QVBoxLayout(dialog);
@@ -66,7 +66,7 @@ void MainWindow::showPreferencesDialog() {
     QWidget *tabsTab = new QWidget();
     QVBoxLayout *tabsLayout = new QVBoxLayout(tabsTab);
     
-    QLabel *tabsLabel = new QLabel("Select which tabs to show:", tabsTab);
+    QLabel *tabsLabel = new QLabel(tr("Select which tabs to show:"), tabsTab);
     tabsLayout->addWidget(tabsLabel);
     
     QMap<QString, QCheckBox*> checkboxes;
@@ -102,7 +102,7 @@ void MainWindow::showPreferencesDialog() {
     // Drive Tools Tab
     QWidget *driveToolsPrefTab = new QWidget();
     QVBoxLayout *driveToolsPrefLayout = new QVBoxLayout(driveToolsPrefTab);
-    QLabel *driveToolsLabel = new QLabel("Drive Tools preferences will be added here", driveToolsPrefTab);
+    QLabel *driveToolsLabel = new QLabel(tr("Drive Tools preferences will be added here"), driveToolsPrefTab);
     driveToolsPrefLayout->addWidget(driveToolsLabel);
     driveToolsPrefLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
     tabWidget->addTab(driveToolsPrefTab, "Drive Tools");
@@ -110,7 +110,7 @@ void MainWindow::showPreferencesDialog() {
     // Shell Tools Tab
     QWidget *shellToolsPrefTab = new QWidget();
     QVBoxLayout *shellToolsPrefLayout = new QVBoxLayout(shellToolsPrefTab);
-    QLabel *shellToolsLabel = new QLabel("Shell Tools preferences will be added here", shellToolsPrefTab);
+    QLabel *shellToolsLabel = new QLabel(tr("Shell Tools preferences will be added here"), shellToolsPrefTab);
     shellToolsPrefLayout->addWidget(shellToolsLabel);
     shellToolsPrefLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
     tabWidget->addTab(shellToolsPrefTab, "Shell Tools");
@@ -118,7 +118,7 @@ void MainWindow::showPreferencesDialog() {
     // Package Manager Tab
     QWidget *packageManagerPrefTab = new QWidget();
     QVBoxLayout *packageManagerPrefLayout = new QVBoxLayout(packageManagerPrefTab);
-    QLabel *packageManagerLabel = new QLabel("Package Manager preferences will be added here", packageManagerPrefTab);
+    QLabel *packageManagerLabel = new QLabel(tr("Package Manager preferences will be added here"), packageManagerPrefTab);
     packageManagerPrefLayout->addWidget(packageManagerLabel);
     packageManagerPrefLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
     tabWidget->addTab(packageManagerPrefTab, "Package Manager");
@@ -126,7 +126,7 @@ void MainWindow::showPreferencesDialog() {
     // Network Tab
     QWidget *networkPrefTab = new QWidget();
     QVBoxLayout *networkPrefLayout = new QVBoxLayout(networkPrefTab);
-    QLabel *networkLabel = new QLabel("Network preferences will be added here", networkPrefTab);
+    QLabel *networkLabel = new QLabel(tr("Network preferences will be added here"), networkPrefTab);
     networkPrefLayout->addWidget(networkLabel);
     networkPrefLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
     tabWidget->addTab(networkPrefTab, "Network");
@@ -135,9 +135,9 @@ void MainWindow::showPreferencesDialog() {
     
     // Buttons
     QHBoxLayout *buttonLayout = new QHBoxLayout();
-    QPushButton *okButton = new QPushButton("OK", dialog);
-    QPushButton *cancelButton = new QPushButton("Cancel", dialog);
-    QPushButton *applyButton = new QPushButton("Apply", dialog);
+    QPushButton *okButton = new QPushButton(tr("OK"), dialog);
+    QPushButton *cancelButton = new QPushButton(tr("Cancel"), dialog);
+    QPushButton *applyButton = new QPushButton(tr("Apply"), dialog);
     buttonLayout->addWidget(okButton);
     buttonLayout->addWidget(cancelButton);
     buttonLayout->addWidget(applyButton);
@@ -194,7 +194,7 @@ void MainWindow::showPreferencesDialog() {
 
 void MainWindow::on_actionAbout_triggered() {
     QMessageBox aboutBox(this);
-    aboutBox.setWindowTitle("About Arch OS Tools");
+    aboutBox.setWindowTitle(tr("About Arch OS Tools"));
     
     QString aboutText = QString(
         "<h2>Arch OS Tools</h2>"
@@ -298,21 +298,21 @@ void MainWindow::applyTabVisibility() {
     
     // Define tab order and titles
     QMap<QString, QString> tabTitles;
-    tabTitles["dashboardTab"] = "Dashboard";
-    tabTitles["driveToolsTab"] = "Drives";
-    tabTitles["shellToolsTab"] = "Shell";
-    tabTitles["servicesTab"] = "Services";
-    tabTitles["tweaksTab"] = "Tweaks";
-    tabTitles["kvmTab"] = "KVM";
-    tabTitles["configTab"] = "System Config";
-    tabTitles["logsTab"] = "Logs";
-    tabTitles["backupTab"] = "Backup";
-    tabTitles["restoreTab"] = "Restore";
-    tabTitles["isoCreatorTab"] = "System ISO";
-    tabTitles["packageManagerTab"] = "PKG Install";
-    tabTitles["uninstallTab"] = "PKG Uninstall";
-    tabTitles["networkTab"] = "Network";
-    tabTitles["themeTab"] = "Theme";
+    tabTitles["dashboardTab"] = tr("Dashboard");
+    tabTitles["driveToolsTab"] = tr("Drives");
+    tabTitles["shellToolsTab"] = tr("Shell");
+    tabTitles["servicesTab"] = tr("Services");
+    tabTitles["tweaksTab"] = tr("Tweaks");
+    tabTitles["kvmTab"] = tr("KVM");
+    tabTitles["configTab"] = tr("System Config");
+    tabTitles["logsTab"] = tr("Logs");
+    tabTitles["backupTab"] = tr("Backup");
+    tabTitles["restoreTab"] = tr("Restore");
+    tabTitles["isoCreatorTab"] = tr("System ISO");
+    tabTitles["packageManagerTab"] = tr("PKG Install");
+    tabTitles["uninstallTab"] = tr("PKG Uninstall");
+    tabTitles["networkTab"] = tr("Network");
+    tabTitles["themeTab"] = tr("Theme");
 
     QStringList tabOrder = {
         "dashboardTab",

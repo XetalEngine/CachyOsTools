@@ -48,7 +48,7 @@ void MainWindow::populateServicesTable() {
     ui->servicesTable->setRowCount(0);
     ui->servicesTable->setColumnCount(5);
     QStringList headers;
-    headers << "Service" << "Description" << "Status" << "Enabled" << "SubState";
+    headers << tr("Service") << tr("Description") << tr("Status") << tr("Enabled") << tr("SubState");
     ui->servicesTable->setHorizontalHeaderLabels(headers);
     // Set column sizing behavior
     ui->servicesTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Interactive); // Service

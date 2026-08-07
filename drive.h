@@ -25,7 +25,7 @@ void MainWindow::setupDriveTable()
 {
     // Set up table headers
     QStringList headers;
-    headers << "Device Name" << "Device Path" << "Size" << "Type" << "Label" << "Mount Point" << "Status" << "Disk ID";
+    headers << tr("Device Name") << tr("Device Path") << tr("Size") << tr("Type") << tr("Label") << tr("Mount Point") << tr("Status") << tr("Disk ID");
     ui->drivesTable->setColumnCount(headers.size());
     ui->drivesTable->setHorizontalHeaderLabels(headers);
     
@@ -79,7 +79,7 @@ void MainWindow::on_mountButton_clicked()
 {
     QString selectedDrive = getSelectedDrive();
     if (selectedDrive.isEmpty()) {
-        QMessageBox::warning(this, "No Drive Selected", "Please select a drive to mount.");
+        QMessageBox::warning(this, tr("No Drive Selected"), tr("Please select a drive to mount."));
         return;
     }
     logMessage("📁 Mounting " + selectedDrive);
@@ -91,7 +91,7 @@ void MainWindow::on_forceMountButton_clicked()
 {
     QString selectedDrive = getSelectedDrive();
     if (selectedDrive.isEmpty()) {
-        QMessageBox::warning(this, "No Drive Selected", "Please select a drive to mount.");
+        QMessageBox::warning(this, tr("No Drive Selected"), tr("Please select a drive to mount."));
         return;
     }
     logMessage("⚡ Force mounting " + selectedDrive);
@@ -103,7 +103,7 @@ void MainWindow::on_unmountButton_clicked()
 {
     QString selectedDrive = getSelectedDrive();
     if (selectedDrive.isEmpty()) {
-        QMessageBox::warning(this, "No Drive Selected", "Please select a drive to unmount.");
+        QMessageBox::warning(this, tr("No Drive Selected"), tr("Please select a drive to unmount."));
         return;
     }
     logMessage("📤 Unmounting " + selectedDrive);
@@ -324,7 +324,7 @@ void MainWindow::populateDriveTable()
         ui->drivesTable->setItem(row, 4, labelItem);
         
         // Mount Point
-        QString mountText = drive.mountPoint.isEmpty() ? "Not mounted" : drive.mountPoint;
+        QString mountText = drive.mountPoint.isEmpty() ? tr("Not mounted") : drive.mountPoint;
         QTableWidgetItem *mountItem = new QTableWidgetItem(mountText);
         if (!drive.mountPoint.isEmpty()) {
             mountItem->setForeground(QColor(34, 139, 34)); // Forest green
@@ -332,8 +332,9 @@ void MainWindow::populateDriveTable()
         ui->drivesTable->setItem(row, 5, mountItem);
         
         // Status
-        QString status = drive.isMounted ? "✓ Mounted" : "✗ Unmounted";
+        QString status = drive.isMounted ? tr("✓ Mounted") : tr("✗ Unmounted");
         QTableWidgetItem *statusItem = new QTableWidgetItem(status);
+        statusItem->setData(Qt::UserRole, drive.isMounted); // logic reads this, never the display text
         statusItem->setTextAlignment(Qt::AlignCenter);
         if (drive.isMounted) {
             statusItem->setForeground(QColor(0, 150, 0)); // Green
@@ -373,7 +374,7 @@ QString MainWindow::getSelectedDrive()
 void MainWindow::on_ejectButton_clicked() {
     QString selectedDrive = getSelectedDrive();
     if (selectedDrive.isEmpty()) {
-        QMessageBox::warning(this, "No Drive Selected", "Please select a drive to eject.");
+        QMessageBox::warning(this, tr("No Drive Selected"), tr("Please select a drive to eject."));
         return;
     }
     
@@ -381,7 +382,7 @@ void MainWindow::on_ejectButton_clicked() {
     QString driveType = ui->drivesTable->item(row, 3)->text(); // Type column
     
     if (driveType != "disk") {
-        QMessageBox::warning(this, "Invalid Selection", "Eject can only be used on disk devices, not partitions.");
+        QMessageBox::warning(this, tr("Invalid Selection"), tr("Eject can only be used on disk devices, not partitions."));
         return;
     }
     
@@ -400,21 +401,23 @@ void MainWindow::on_ejectButton_clicked() {
 void MainWindow::on_formatButton_clicked() {
     QString selectedDrive = getSelectedDrive();
     if (selectedDrive.isEmpty()) {
-        QMessageBox::warning(this, "No Drive Selected", "Please select a drive or partition to format.");
+        QMessageBox::warning(this, tr("No Drive Selected"), tr("Please select a drive or partition to format."));
         return;
     }
     
     int row = ui->drivesTable->currentRow();
     QString driveType = ui->drivesTable->item(row, 3)->text(); // Type column
-    bool isMounted = ui->drivesTable->item(row, 6)->text().contains("Mounted");
+    // Data role, not display text: "✗ Unmounted" contains "Mounted", so the old
+    // text check reported every drive as mounted and always blocked formatting.
+    bool isMounted = ui->drivesTable->item(row, 6)->data(Qt::UserRole).toBool();
     
     if (isMounted) {
-        QMessageBox::warning(this, "Drive Mounted", "Please unmount the drive before formatting.");
+        QMessageBox::warning(this, tr("Drive Mounted"), tr("Please unmount the drive before formatting."));
         return;
     }
     
     QDialog *dialog = new QDialog(this);
-    dialog->setWindowTitle("Format Drive");
+    dialog->setWindowTitle(tr("Format Drive"));
     dialog->setMinimumWidth(400);
     
     QVBoxLayout *layout = new QVBoxLayout(dialog);
@@ -424,7 +427,7 @@ void MainWindow::on_formatButton_clicked() {
     warningLabel->setWordWrap(true);
     layout->addWidget(warningLabel);
     
-    QLabel *filesystemLabel = new QLabel("Filesystem:", dialog);
+    QLabel *filesystemLabel = new QLabel(tr("Filesystem:"), dialog);
     layout->addWidget(filesystemLabel);
     
     QComboBox *filesystemCombo = new QComboBox(dialog);
@@ -437,9 +440,9 @@ void MainWindow::on_formatButton_clicked() {
     layout->addWidget(quickFormatCheck);
     
     QHBoxLayout *buttonLayout = new QHBoxLayout();
-    QPushButton *formatButton = new QPushButton("Format", dialog);
+    QPushButton *formatButton = new QPushButton(tr("Format"), dialog);
     formatButton->setStyleSheet("background-color: #dc3545; color: white; font-weight: bold;");
-    QPushButton *cancelButton = new QPushButton("Cancel", dialog);
+    QPushButton *cancelButton = new QPushButton(tr("Cancel"), dialog);
     buttonLayout->addWidget(formatButton);
     buttonLayout->addWidget(cancelButton);
     layout->addLayout(buttonLayout);
@@ -479,7 +482,7 @@ void MainWindow::on_formatButton_clicked() {
 void MainWindow::on_smartInfoButton_clicked() {
     QString selectedDrive = getSelectedDrive();
     if (selectedDrive.isEmpty()) {
-        QMessageBox::warning(this, "No Drive Selected", "Please select a drive to view SMART information.");
+        QMessageBox::warning(this, tr("No Drive Selected"), tr("Please select a drive to view SMART information."));
         return;
     }
     
@@ -487,7 +490,7 @@ void MainWindow::on_smartInfoButton_clicked() {
     QString driveType = ui->drivesTable->item(row, 3)->text(); // Type column
     
     if (driveType != "disk") {
-        QMessageBox::warning(this, "Invalid Selection", "SMART information is only available for disk devices, not partitions.");
+        QMessageBox::warning(this, tr("Invalid Selection"), tr("SMART information is only available for disk devices, not partitions."));
         return;
     }
     
@@ -496,9 +499,9 @@ void MainWindow::on_smartInfoButton_clicked() {
     checkProc.waitForFinished();
     
     if (checkProc.exitCode() != 0) {
-        QMessageBox::information(this, "SMART Not Available", 
-                                  "smartmontools is not installed.\n\n"
-                                  "Install it with: sudo pacman -S smartmontools");
+        QMessageBox::information(this, tr("SMART Not Available"), 
+                                  tr("smartmontools is not installed.\n\n"
+                                  "Install it with: sudo pacman -S smartmontools"));
         return;
     }
     
@@ -508,7 +511,7 @@ void MainWindow::on_smartInfoButton_clicked() {
     
     QVBoxLayout *layout = new QVBoxLayout(dialog);
     
-    QLabel *label = new QLabel("Retrieving SMART information...", dialog);
+    QLabel *label = new QLabel(tr("Retrieving SMART information..."), dialog);
     layout->addWidget(label);
     
     QTextEdit *smartOutput = new QTextEdit(dialog);
@@ -516,7 +519,7 @@ void MainWindow::on_smartInfoButton_clicked() {
     smartOutput->setFont(QFont("monospace", 9));
     layout->addWidget(smartOutput);
     
-    QPushButton *closeButton = new QPushButton("Close", dialog);
+    QPushButton *closeButton = new QPushButton(tr("Close"), dialog);
     layout->addWidget(closeButton);
     
     connect(closeButton, &QPushButton::clicked, dialog, &QDialog::accept);
@@ -528,10 +531,10 @@ void MainWindow::on_smartInfoButton_clicked() {
                 QString error = QString::fromUtf8(proc->readAllStandardError());
                 
                 if (exitCode == 0) {
-                    label->setText("SMART Information:");
+                    label->setText(tr("SMART Information:"));
                     smartOutput->setPlainText(output);
                 } else {
-                    label->setText("Error retrieving SMART information:");
+                    label->setText(tr("Error retrieving SMART information:"));
                     smartOutput->setPlainText((output + "\n" + error).trimmed());
                 }
                 proc->deleteLater();
@@ -580,7 +583,7 @@ void MainWindow::on_mount777Button_clicked()
 {
     QString selectedDrive = getSelectedDrive();
     if (selectedDrive.isEmpty()) {
-        QMessageBox::warning(this, "No Drive Selected", "Please select a drive to mount.");
+        QMessageBox::warning(this, tr("No Drive Selected"), tr("Please select a drive to mount."));
         return;
     }
     // Try to detect filesystem type and label
@@ -601,7 +604,7 @@ void MainWindow::on_mount777Button_clicked()
     if (fsType == "ntfs") {
         // Use ntfs-3g with remove_hiberfile and set uid/gid for full user access
         mountCmd = QString("sudo mount -t ntfs-3g -o remove_hiberfile,rw,umask=000,uid=%1,gid=%2 %3 '%4'").arg(uid, gid, selectedDrive, mountPoint);
-        QMessageBox::warning(this, "NTFS Hibernation Warning", "If a Windows hibernation file is present, it will be deleted to allow write access. Unsaved Windows session data will be lost.");
+        QMessageBox::warning(this, tr("NTFS Hibernation Warning"), tr("If a Windows hibernation file is present, it will be deleted to allow write access. Unsaved Windows session data will be lost."));
     } else if (fsType == "vfat" || fsType == "exfat" || fsType == "fat32" || fsType == "fat") {
         mountCmd = QString("sudo mount -o rw,umask=000,uid=%1,gid=%2 %3 '%4'").arg(uid, gid, selectedDrive, mountPoint);
     } else {
@@ -626,9 +629,9 @@ void MainWindow::on_mount777Button_clicked()
         }
     }
     if (!launched) {
-        QMessageBox::warning(this, "Terminal Not Found", "Could not find a suitable terminal emulator. Please install one of: konsole, gnome-terminal, xterm, alacritty, or kitty");
+        QMessageBox::warning(this, tr("Terminal Not Found"), tr("Could not find a suitable terminal emulator. Please install one of: konsole, gnome-terminal, xterm, alacritty, or kitty"));
     } else if (fsType != "ntfs") {
-        QMessageBox::information(this, "Mount 777", "If the drive is still not writable after mounting, please check for Windows Fast Startup, hibernation, or filesystem errors.");
+        QMessageBox::information(this, tr("Mount 777"), tr("If the drive is still not writable after mounting, please check for Windows Fast Startup, hibernation, or filesystem errors."));
     }
 }
 
@@ -636,24 +639,24 @@ void MainWindow::on_takeOwnershipButton_clicked()
 {
     QList<QTableWidgetItem*> selectedItems = ui->drivesTable->selectedItems();
     if (selectedItems.isEmpty()) {
-        QMessageBox::warning(this, "No Drive Selected", "Please select a drive to take ownership of.");
+        QMessageBox::warning(this, tr("No Drive Selected"), tr("Please select a drive to take ownership of."));
         return;
     }
     
     int row = selectedItems.first()->row();
     if (row < 0 || row >= ui->drivesTable->rowCount()) {
-        QMessageBox::warning(this, "No Drive Selected", "Please select a drive to take ownership of.");
+        QMessageBox::warning(this, tr("No Drive Selected"), tr("Please select a drive to take ownership of."));
         return;
     }
     
     QString mountPoint = ui->drivesTable->item(row, 5) ? ui->drivesTable->item(row, 5)->text() : ""; // Column 5 is Mount Point
     if (mountPoint.isEmpty() || mountPoint == "Unmounted") {
-        QMessageBox::warning(this, "Not Mounted", "The selected drive is not mounted.");
+        QMessageBox::warning(this, tr("Not Mounted"), tr("The selected drive is not mounted."));
         return;
     }
     QString user = QString::fromUtf8(qgetenv("USER"));
     logMessage(QString("Taking ownership of %1 as user %2...").arg(mountPoint, user));
-    if (QMessageBox::question(this, "Take Ownership", "This will recursively change the owner and permissions of all files on the drive to your user (chown -R and chmod -R 777). Continue?", QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+    if (QMessageBox::question(this, tr("Take Ownership"), tr("This will recursively change the owner and permissions of all files on the drive to your user (chown -R and chmod -R 777). Continue?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
         return;
     logMessage("⏳ Waiting for sudo password in terminal...");
     QString chownCmd = QString("sudo chown -R %1:%1 '%2' && sudo chmod -R 777 '%2'; echo; echo 'Press Enter to close...'; read").arg(user, mountPoint);
@@ -669,7 +672,7 @@ void MainWindow::on_takeOwnershipButton_clicked()
         logMessage("Take Ownership command launched in terminal.");
     } else {
         logMessage("❌ Could not launch a terminal emulator for Take Ownership.");
-        QMessageBox::warning(this, "Terminal Not Found", "Could not find a suitable terminal emulator. Please install one of: konsole, gnome-terminal, xterm, alacritty, or kitty");
+        QMessageBox::warning(this, tr("Terminal Not Found"), tr("Could not find a suitable terminal emulator. Please install one of: konsole, gnome-terminal, xterm, alacritty, or kitty"));
     }
 }
 

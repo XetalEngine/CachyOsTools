@@ -19,8 +19,8 @@ bool MainWindow::authenticateSudo() {
     if (check.exitCode() == 0) return true;
 
     bool ok;
-    QString password = QInputDialog::getText(this, "Sudo Password",
-                                             "Enter your sudo password:",
+    QString password = QInputDialog::getText(this, tr("Sudo Password"),
+                                             tr("Enter your sudo password:"),
                                              QLineEdit::Password, "", &ok);
     if (!ok || password.isEmpty()) return false;
 
@@ -30,7 +30,7 @@ bool MainWindow::authenticateSudo() {
     auth.closeWriteChannel();
     auth.waitForFinished(10000);
     if (auth.exitCode() != 0) {
-        QMessageBox::warning(this, "Authentication Failed", "The sudo password was not accepted.");
+        QMessageBox::warning(this, tr("Authentication Failed"), tr("The sudo password was not accepted."));
         return false;
     }
     return true;
@@ -42,12 +42,12 @@ bool MainWindow::authenticateSudo() {
 void MainWindow::on_driveHealthButton_clicked() {
     QString drive = getSelectedDrive();
     if (drive.isEmpty()) {
-        QMessageBox::warning(this, "No Drive Selected", "Please select a disk to health-check.");
+        QMessageBox::warning(this, tr("No Drive Selected"), tr("Please select a disk to health-check."));
         return;
     }
     int row = ui->drivesTable->currentRow();
     if (ui->drivesTable->item(row, 3) && ui->drivesTable->item(row, 3)->text() != "disk") {
-        QMessageBox::warning(this, "Invalid Selection", "Health check works on disks, not partitions. Select the disk itself.");
+        QMessageBox::warning(this, tr("Invalid Selection"), tr("Health check works on disks, not partitions. Select the disk itself."));
         return;
     }
     if (!authenticateSudo()) return;
@@ -57,7 +57,7 @@ void MainWindow::on_driveHealthButton_clicked() {
     proc.waitForFinished(30000);
     QString out = QString::fromUtf8(proc.readAllStandardOutput());
     if (out.isEmpty()) {
-        QMessageBox::warning(this, "Health Check Failed", "Could not read SMART data (is smartmontools installed?).");
+        QMessageBox::warning(this, tr("Health Check Failed"), tr("Could not read SMART data (is smartmontools installed?)."));
         return;
     }
 
@@ -122,7 +122,7 @@ void MainWindow::on_driveHealthButton_clicked() {
     details->setFont(QFont("Monospace", 9));
     details->setPlainText(summary);
     layout->addWidget(details);
-    QPushButton *closeButton = new QPushButton("Close", dialog);
+    QPushButton *closeButton = new QPushButton(tr("Close"), dialog);
     connect(closeButton, &QPushButton::clicked, dialog, &QDialog::accept);
     layout->addWidget(closeButton);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
@@ -141,12 +141,12 @@ void MainWindow::on_loadLabelsButton_clicked() {
 void MainWindow::on_burnIsoButton_clicked() {
     QString drive = getSelectedDrive();
     if (drive.isEmpty()) {
-        QMessageBox::warning(this, "No Drive Selected", "Select the USB disk to burn to (the disk, not a partition).");
+        QMessageBox::warning(this, tr("No Drive Selected"), tr("Select the USB disk to burn to (the disk, not a partition)."));
         return;
     }
     int row = ui->drivesTable->currentRow();
     if (ui->drivesTable->item(row, 3) && ui->drivesTable->item(row, 3)->text() != "disk") {
-        QMessageBox::warning(this, "Invalid Selection", "Select the whole disk (type 'disk'), not a partition.");
+        QMessageBox::warning(this, tr("Invalid Selection"), tr("Select the whole disk (type 'disk'), not a partition."));
         return;
     }
 
@@ -156,7 +156,7 @@ void MainWindow::on_burnIsoButton_clicked() {
     rootProc.waitForFinished();
     QString rootDisk = "/dev/" + QString::fromUtf8(rootProc.readAllStandardOutput()).trimmed();
     if (!rootDisk.endsWith("/") && drive == rootDisk) {
-        QMessageBox::critical(this, "Refused", "That is the disk your running system is installed on. Burning to it would destroy this system.");
+        QMessageBox::critical(this, tr("Refused"), tr("That is the disk your running system is installed on. Burning to it would destroy this system."));
         return;
     }
 
@@ -184,7 +184,7 @@ void MainWindow::on_burnIsoButton_clicked() {
         QString("Type the device path exactly to confirm:\n\n    %1").arg(drive),
         QLineEdit::Normal, "", &ok);
     if (!ok || typed.trimmed() != drive) {
-        if (ok) QMessageBox::information(this, "Cancelled", "Device path did not match — nothing was written.");
+        if (ok) QMessageBox::information(this, tr("Cancelled"), tr("Device path did not match — nothing was written."));
         return;
     }
 
@@ -212,7 +212,7 @@ void MainWindow::updateFailedServicesBanner() {
                     if (unit.endsWith(".service")) failed << unit;
                 }
                 if (failed.isEmpty()) {
-                    ui->failedServicesLabel->setText("✅ No failed services");
+                    ui->failedServicesLabel->setText(tr("✅ No failed services"));
                     ui->failedServicesLabel->setStyleSheet("color: #27ae60; font-weight: bold;");
                 } else {
                     QString names = failed.mid(0, 3).join(", ");
@@ -249,7 +249,7 @@ void MainWindow::showServiceJournal() {
 
 void MainWindow::on_bootAnalysisButton_clicked() {
     QDialog *dialog = new QDialog(this);
-    dialog->setWindowTitle("Boot Time Analysis");
+    dialog->setWindowTitle(tr("Boot Time Analysis"));
     dialog->setMinimumSize(620, 480);
     QVBoxLayout *layout = new QVBoxLayout(dialog);
     QTextEdit *view = new QTextEdit(dialog);
@@ -257,7 +257,7 @@ void MainWindow::on_bootAnalysisButton_clicked() {
     view->setFont(QFont("Monospace", 9));
     view->setPlainText("Analyzing boot time...");
     layout->addWidget(view);
-    QPushButton *closeButton = new QPushButton("Close", dialog);
+    QPushButton *closeButton = new QPushButton(tr("Close"), dialog);
     connect(closeButton, &QPushButton::clicked, dialog, &QDialog::accept);
     layout->addWidget(closeButton);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
@@ -281,7 +281,7 @@ void MainWindow::on_bootAnalysisButton_clicked() {
 void MainWindow::on_builtinEditButton_clicked() {
     int row = ui->configTable->currentRow();
     if (row < 0 || row >= configFileList.size()) {
-        QMessageBox::warning(this, "No Selection", "Select a config file in the table first.");
+        QMessageBox::warning(this, tr("No Selection"), tr("Select a config file in the table first."));
         return;
     }
     openBuiltinEditor(configFileList[row].filePath);
@@ -290,7 +290,7 @@ void MainWindow::on_builtinEditButton_clicked() {
 void MainWindow::openBuiltinEditor(const QString &filePath) {
     QFileInfo info(filePath);
     if (info.isDir()) {
-        QMessageBox::information(this, "Directory", "That entry is a directory — pick a specific file inside it (use the terminal editor for browsing).");
+        QMessageBox::information(this, tr("Directory"), tr("That entry is a directory — pick a specific file inside it (use the terminal editor for browsing)."));
         return;
     }
 
@@ -310,7 +310,7 @@ void MainWindow::openBuiltinEditor(const QString &filePath) {
         if (proc.exitCode() != 0 && !info.exists()) {
             content = ""; // new file
         } else if (proc.exitCode() != 0) {
-            QMessageBox::warning(this, "Read Failed", "Could not read the file even with sudo.");
+            QMessageBox::warning(this, tr("Read Failed"), tr("Could not read the file even with sudo."));
             return;
         } else {
             content = QString::fromUtf8(proc.readAllStandardOutput());
@@ -328,12 +328,12 @@ void MainWindow::openBuiltinEditor(const QString &filePath) {
     editor->setPlainText(content);
     layout->addWidget(editor);
 
-    QLabel *statusLabel = new QLabel("A timestamped backup is saved automatically before every save.", dialog);
+    QLabel *statusLabel = new QLabel(tr("A timestamped backup is saved automatically before every save."), dialog);
     layout->addWidget(statusLabel);
 
     QHBoxLayout *buttonLayout = new QHBoxLayout();
-    QPushButton *saveButton = new QPushButton("💾 Save", dialog);
-    QPushButton *closeButton = new QPushButton("Close", dialog);
+    QPushButton *saveButton = new QPushButton(tr("💾 Save"), dialog);
+    QPushButton *closeButton = new QPushButton(tr("Close"), dialog);
     buttonLayout->addWidget(saveButton);
     buttonLayout->addStretch();
     buttonLayout->addWidget(closeButton);
@@ -375,7 +375,7 @@ void MainWindow::openBuiltinEditor(const QString &filePath) {
                 statusLabel->setText("✅ Saved. Backup: " + backupPath);
                 statusLabel->setStyleSheet("color: #27ae60;");
             } else {
-                statusLabel->setText("❌ Could not write file.");
+                statusLabel->setText(tr("❌ Could not write file."));
                 statusLabel->setStyleSheet("color: #c0392b;");
             }
         }
@@ -403,8 +403,8 @@ QString MainWindow::colorizeLogLine(const QString &line) {
 void MainWindow::on_followLogButton_clicked() {
     if (ui->followLogButton->isChecked()) {
         ui->logContentTextEdit->clear();
-        ui->followLogButton->setText("⏸ Stop Following");
-        ui->logStatusLabel->setText("Following journal (live)...");
+        ui->followLogButton->setText(tr("⏸ Stop Following"));
+        ui->logStatusLabel->setText(tr("Following journal (live)..."));
 
         journalFollowProcess = new QProcess(this);
         connect(journalFollowProcess, &QProcess::readyReadStandardOutput, this, [this]() {
@@ -416,8 +416,8 @@ void MainWindow::on_followLogButton_clicked() {
         });
         journalFollowProcess->start("journalctl", QStringList() << "-f" << "-n" << "50" << "--no-pager");
     } else {
-        ui->followLogButton->setText("▶ Follow Journal");
-        ui->logStatusLabel->setText("Stopped following.");
+        ui->followLogButton->setText(tr("▶ Follow Journal"));
+        ui->logStatusLabel->setText(tr("Stopped following."));
         if (journalFollowProcess) {
             journalFollowProcess->kill();
             journalFollowProcess->deleteLater();
@@ -432,7 +432,7 @@ void MainWindow::on_bootSelectCombo_activated(int index) {
         ui->followLogButton->setChecked(false);
         on_followLogButton_clicked();
     }
-    ui->logStatusLabel->setText("Loading journal...");
+    ui->logStatusLabel->setText(tr("Loading journal..."));
 
     QProcess *proc = new QProcess(this);
     connect(proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
@@ -459,11 +459,11 @@ void MainWindow::on_checkUpdatesButton_clicked() {
     ui->updatesTable->setRowCount(0);
     ui->updatesTable->setColumnCount(4);
     QStringList headers;
-    headers << "Package" << "Current Version" << "New Version" << "Source";
+    headers << tr("Package") << tr("Current Version") << tr("New Version") << tr("Source");
     ui->updatesTable->setHorizontalHeaderLabels(headers);
     for (int i = 0; i < 3; i++) ui->updatesTable->horizontalHeader()->setSectionResizeMode(i, QHeaderView::ResizeToContents);
     ui->updatesTable->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
-    ui->updatesCountLabel->setText("Checking official repos...");
+    ui->updatesCountLabel->setText(tr("Checking official repos..."));
     fetchArchNews();
 
     // checkupdates comes from pacman-contrib and is not guaranteed installed;
@@ -473,7 +473,7 @@ void MainWindow::on_checkUpdatesButton_clicked() {
     whichCheck.waitForFinished();
     if (whichCheck.exitCode() != 0) {
         ui->updatesTable->setSortingEnabled(true);
-        ui->updatesCountLabel->setText("⚠️ 'checkupdates' not found — install it with: sudo pacman -S pacman-contrib");
+        ui->updatesCountLabel->setText(tr("⚠️ 'checkupdates' not found — install it with: sudo pacman -S pacman-contrib"));
         return;
     }
 
@@ -502,7 +502,7 @@ void MainWindow::on_checkUpdatesButton_clicked() {
                 if (exitCode == 0) {
                     official = addRows(QString::fromUtf8(officialProc->readAllStandardOutput()), "Official Repo");
                 } else if (exitCode == 1) {
-                    ui->updatesCountLabel->setText("⚠️ checkupdates failed (install 'pacman-contrib').");
+                    ui->updatesCountLabel->setText(tr("⚠️ checkupdates failed (install 'pacman-contrib')."));
                 }
                 officialProc->deleteLater();
 
@@ -528,7 +528,7 @@ void MainWindow::on_checkUpdatesButton_clicked() {
                             int aur = addRows(QString::fromUtf8(aurProc->readAllStandardOutput()), "AUR");
                             ui->updatesTable->setSortingEnabled(true);
                             if (official + aur == 0) {
-                                ui->updatesCountLabel->setText("✅ System is up to date!");
+                                ui->updatesCountLabel->setText(tr("✅ System is up to date!"));
                             } else {
                                 ui->updatesCountLabel->setText(QString("⬆️ %1 update(s): %2 official, %3 AUR").arg(official + aur).arg(official).arg(aur));
                             }
@@ -568,9 +568,9 @@ void MainWindow::fetchArchNews() {
 }
 
 void MainWindow::on_upgradeSystemButton_clicked() {
-    int ret = QMessageBox::question(this, "Upgrade System",
-        "Run a full system upgrade (sudo pacman -Syu) in a terminal?\n\n"
-        "Tip: check the Arch news list first — occasionally upgrades need manual steps.",
+    int ret = QMessageBox::question(this, tr("Upgrade System"),
+        tr("Run a full system upgrade (sudo pacman -Syu) in a terminal?\n\n"
+        "Tip: check the Arch news list first — occasionally upgrades need manual steps."),
         QMessageBox::Yes | QMessageBox::No);
     if (ret != QMessageBox::Yes) return;
     runScriptInTerminal("pacman -Syu\n", "system_upgrade");
@@ -588,7 +588,7 @@ void MainWindow::on_aurUpgradeButton_clicked() {
         if (which.exitCode() == 0) helper = "paru";
     }
     if (helper.isEmpty()) {
-        QMessageBox::warning(this, "No AUR Helper", "Install Yay or Paru first (PKG Install tab).");
+        QMessageBox::warning(this, tr("No AUR Helper"), tr("Install Yay or Paru first (PKG Install tab)."));
         return;
     }
     int ret = QMessageBox::question(this, "Upgrade incl. AUR",
@@ -608,7 +608,7 @@ void MainWindow::on_orphanCleanButton_clicked() {
     proc.waitForFinished(15000);
     const QStringList orphans = QString::fromUtf8(proc.readAllStandardOutput()).split('\n', Qt::SkipEmptyParts);
     if (orphans.isEmpty()) {
-        QMessageBox::information(this, "No Orphans", "🎉 No orphaned packages found — nothing to clean.");
+        QMessageBox::information(this, tr("No Orphans"), tr("🎉 No orphaned packages found — nothing to clean."));
         return;
     }
     QString list = orphans.mid(0, 20).join("\n  ");
@@ -620,7 +620,7 @@ void MainWindow::on_orphanCleanButton_clicked() {
         QMessageBox::Yes | QMessageBox::No);
     if (ret != QMessageBox::Yes) return;
     runScriptInTerminal("pacman -Rns $(pacman -Qtdq)\n", "clean_orphans");
-    ui->uninstallCountLabel->setText("Orphan cleanup running in terminal — click Refresh when done.");
+    ui->uninstallCountLabel->setText(tr("Orphan cleanup running in terminal — click Refresh when done."));
 }
 
 void MainWindow::on_cacheCleanButton_clicked() {
@@ -654,7 +654,7 @@ void MainWindow::refreshOpenPorts() {
     ui->portsTable->setRowCount(0);
     ui->portsTable->setColumnCount(6);
     QStringList headers;
-    headers << "Protocol" << "State" << "Address" << "Port" << "PID" << "Process";
+    headers << tr("Protocol") << tr("State") << tr("Address") << tr("Port") << tr("PID") << tr("Process");
     ui->portsTable->setHorizontalHeaderLabels(headers);
     for (int i = 0; i < 5; i++) ui->portsTable->horizontalHeader()->setSectionResizeMode(i, QHeaderView::ResizeToContents);
     ui->portsTable->horizontalHeader()->setSectionResizeMode(5, QHeaderView::Stretch);

@@ -34,7 +34,7 @@ void MainWindow::refreshNetworkInfo() {
     ui->ipAddressTable->setRowCount(0);
     ui->ipAddressTable->setColumnCount(4);
     QStringList headers;
-    headers << "Interface" << "IP Address" << "Netmask" << "Status";
+    headers << tr("Interface") << tr("IP Address") << tr("Netmask") << tr("Status");
     ui->ipAddressTable->setHorizontalHeaderLabels(headers);
     ui->ipAddressTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->ipAddressTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
@@ -86,7 +86,7 @@ void MainWindow::refreshNetworkInfo() {
     if (!localIp.isEmpty()) {
         ui->localIpValueLabel->setText(localIp);
     } else {
-        ui->localIpValueLabel->setText("Not available");
+        ui->localIpValueLabel->setText(tr("Not available"));
     }
     
     // Get hostname
@@ -110,11 +110,11 @@ void MainWindow::refreshNetworkInfo() {
         if (!dnsList.isEmpty()) {
             ui->dnsValueLabel->setText(dnsList.join(", "));
         } else {
-            ui->dnsValueLabel->setText("Not configured");
+            ui->dnsValueLabel->setText(tr("Not configured"));
         }
         resolvFile.close();
     } else {
-        ui->dnsValueLabel->setText("Cannot read");
+        ui->dnsValueLabel->setText(tr("Cannot read"));
     }
     
     // Get public IP (async)
@@ -127,7 +127,7 @@ void MainWindow::refreshNetworkInfo() {
             QString publicIp = QString::fromUtf8(reply->readAll()).trimmed();
             ui->publicIpValueLabel->setText(publicIp);
         } else {
-            ui->publicIpValueLabel->setText("Unable to fetch");
+            ui->publicIpValueLabel->setText(tr("Unable to fetch"));
         }
         reply->deleteLater();
         manager->deleteLater();
@@ -143,7 +143,7 @@ void MainWindow::refreshInterfaceStats() {
     ui->interfaceStatsTable->setRowCount(0);
     ui->interfaceStatsTable->setColumnCount(8);
     QStringList headers;
-    headers << "Interface" << "RX Bytes" << "TX Bytes" << "RX Packets" << "TX Packets" << "RX Errors" << "TX Errors" << "Speed";
+    headers << tr("Interface") << tr("RX Bytes") << tr("TX Bytes") << tr("RX Packets") << tr("TX Packets") << tr("RX Errors") << tr("TX Errors") << tr("Speed");
     ui->interfaceStatsTable->setHorizontalHeaderLabels(headers);
     for (int i = 0; i < 8; i++) {
         ui->interfaceStatsTable->horizontalHeader()->setSectionResizeMode(i, QHeaderView::ResizeToContents);
@@ -252,7 +252,7 @@ void MainWindow::refreshBridges() {
     ui->bridgeTable->setRowCount(0);
     ui->bridgeTable->setColumnCount(3);
     QStringList headers;
-    headers << "Bridge Name" << "Interfaces" << "Status";
+    headers << tr("Bridge Name") << tr("Interfaces") << tr("Status");
     ui->bridgeTable->setHorizontalHeaderLabels(headers);
     ui->bridgeTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->bridgeTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
@@ -338,8 +338,8 @@ void MainWindow::on_createBridgeButton_clicked() {
     nmCheck.start("which", QStringList() << "nmcli");
     nmCheck.waitForFinished();
     if (nmCheck.exitCode() != 0) {
-        QMessageBox::warning(this, "Create Bridge",
-                             "NetworkManager (nmcli) is required to create a managed bridge.\nInstall it (e.g. pacman -S networkmanager).");
+        QMessageBox::warning(this, tr("Create Bridge"),
+                             tr("NetworkManager (nmcli) is required to create a managed bridge.\nInstall it (e.g. pacman -S networkmanager)."));
         return;
     }
     
@@ -363,7 +363,7 @@ void MainWindow::on_createBridgeButton_clicked() {
         }
     }
     if (ethernetIfaces.isEmpty()) {
-        QMessageBox::warning(this, "Create Bridge", "No Ethernet interface found. Connect a cable or check your hardware.");
+        QMessageBox::warning(this, tr("Create Bridge"), tr("No Ethernet interface found. Connect a cable or check your hardware."));
         return;
     }
     
@@ -384,26 +384,26 @@ void MainWindow::on_createBridgeButton_clicked() {
     }
     
     QDialog *dialog = new QDialog(this);
-    dialog->setWindowTitle("Create Bridge (NetworkManager)");
+    dialog->setWindowTitle(tr("Create Bridge (NetworkManager)"));
     dialog->setMinimumWidth(400);
     QVBoxLayout *layout = new QVBoxLayout(dialog);
     
     QLabel *infoLabel = new QLabel(
-        "Creates a bridge managed by NetworkManager with DHCP. "
+        tr("Creates a bridge managed by NetworkManager with DHCP. "
         "The selected Ethernet interface will be attached so the bridge gets an IP. "
-        "Use this for VM networking (e.g. libvirt).", dialog);
+        "Use this for VM networking (e.g. libvirt)."), dialog);
     infoLabel->setWordWrap(true);
     layout->addWidget(infoLabel);
     
     QHBoxLayout *brLayout = new QHBoxLayout();
-    brLayout->addWidget(new QLabel("Bridge name:", dialog));
+    brLayout->addWidget(new QLabel(tr("Bridge name:"), dialog));
     QLineEdit *brEdit = new QLineEdit("br0", dialog);
-    brEdit->setPlaceholderText("br0");
+    brEdit->setPlaceholderText(tr("br0"));
     brLayout->addWidget(brEdit);
     layout->addLayout(brLayout);
     
     QHBoxLayout *ifLayout = new QHBoxLayout();
-    ifLayout->addWidget(new QLabel("Interface to attach:", dialog));
+    ifLayout->addWidget(new QLabel(tr("Interface to attach:"), dialog));
     QComboBox *ifaceCombo = new QComboBox(dialog);
     ifaceCombo->addItems(ethernetIfaces);
     int defaultIdx = ethernetIfaces.indexOf(defaultIface);
@@ -414,8 +414,8 @@ void MainWindow::on_createBridgeButton_clicked() {
     layout->addLayout(ifLayout);
     
     QHBoxLayout *btnLayout = new QHBoxLayout();
-    QPushButton *okBtn = new QPushButton("Create", dialog);
-    QPushButton *cancelBtn = new QPushButton("Cancel", dialog);
+    QPushButton *okBtn = new QPushButton(tr("Create"), dialog);
+    QPushButton *cancelBtn = new QPushButton(tr("Cancel"), dialog);
     btnLayout->addWidget(okBtn);
     btnLayout->addWidget(cancelBtn);
     layout->addLayout(btnLayout);
@@ -459,7 +459,7 @@ void MainWindow::on_createBridgeButton_clicked() {
 void MainWindow::on_deleteBridgeButton_clicked() {
     QList<QTableWidgetItem*> selected = ui->bridgeTable->selectedItems();
     if (selected.isEmpty()) {
-        QMessageBox::warning(this, "No Selection", "Please select a bridge to delete.");
+        QMessageBox::warning(this, tr("No Selection"), tr("Please select a bridge to delete."));
         return;
     }
     
@@ -498,7 +498,7 @@ void MainWindow::on_deleteBridgeButton_clicked() {
     ).arg(bridgeName);
     QFile scriptFile(scriptPath);
     if (!scriptFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QMessageBox::warning(this, "Error", "Could not create temporary script.");
+        QMessageBox::warning(this, tr("Error"), tr("Could not create temporary script."));
         return;
     }
     scriptFile.write(scriptContent.toUtf8());
@@ -515,7 +515,7 @@ void MainWindow::refreshLibvirtNetworks() {
     ui->libvirtNetworkTable->setRowCount(0);
     ui->libvirtNetworkTable->setColumnCount(4);
     QStringList headers;
-    headers << "Network Name" << "Type" << "State" << "Autostart";
+    headers << tr("Network Name") << tr("Type") << tr("State") << tr("Autostart");
     ui->libvirtNetworkTable->setHorizontalHeaderLabels(headers);
     ui->libvirtNetworkTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->libvirtNetworkTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
@@ -584,7 +584,7 @@ void MainWindow::on_refreshLibvirtNetworkButton_clicked() {
 void MainWindow::on_startLibvirtNetworkButton_clicked() {
     QList<QTableWidgetItem*> selected = ui->libvirtNetworkTable->selectedItems();
     if (selected.isEmpty()) {
-        QMessageBox::warning(this, "No Selection", "Please select a network to start.");
+        QMessageBox::warning(this, tr("No Selection"), tr("Please select a network to start."));
         return;
     }
     
@@ -607,7 +607,7 @@ void MainWindow::on_startLibvirtNetworkButton_clicked() {
 void MainWindow::on_stopLibvirtNetworkButton_clicked() {
     QList<QTableWidgetItem*> selected = ui->libvirtNetworkTable->selectedItems();
     if (selected.isEmpty()) {
-        QMessageBox::warning(this, "No Selection", "Please select a network to stop.");
+        QMessageBox::warning(this, tr("No Selection"), tr("Please select a network to stop."));
         return;
     }
     
@@ -636,7 +636,7 @@ void MainWindow::on_stopLibvirtNetworkButton_clicked() {
 void MainWindow::on_restartLibvirtNetworkButton_clicked() {
     QList<QTableWidgetItem*> selected = ui->libvirtNetworkTable->selectedItems();
     if (selected.isEmpty()) {
-        QMessageBox::warning(this, "No Selection", "Please select a network to restart.");
+        QMessageBox::warning(this, tr("No Selection"), tr("Please select a network to restart."));
         return;
     }
     
@@ -666,7 +666,7 @@ void MainWindow::refreshInterfaceConfig() {
     ui->interfaceConfigTable->setRowCount(0);
     ui->interfaceConfigTable->setColumnCount(5);
     QStringList headers;
-    headers << "Interface" << "Configuration" << "IP Address" << "Gateway" << "Status";
+    headers << tr("Interface") << tr("Configuration") << tr("IP Address") << tr("Gateway") << tr("Status");
     ui->interfaceConfigTable->setHorizontalHeaderLabels(headers);
     for (int i = 0; i < 5; i++) {
         ui->interfaceConfigTable->horizontalHeader()->setSectionResizeMode(i, QHeaderView::ResizeToContents);
@@ -780,7 +780,7 @@ void MainWindow::on_refreshInterfaceConfigButton_clicked() {
 void MainWindow::on_configureInterfaceButton_clicked() {
     QList<QTableWidgetItem*> selected = ui->interfaceConfigTable->selectedItems();
     if (selected.isEmpty()) {
-        QMessageBox::warning(this, "No Selection", "Please select an interface to configure.");
+        QMessageBox::warning(this, tr("No Selection"), tr("Please select an interface to configure."));
         return;
     }
     
@@ -810,21 +810,21 @@ void MainWindow::configureInterface(const QString &interfaceName) {
     QGroupBox *manualGroup = new QGroupBox("Manual Configuration", dialog);
     QGridLayout *manualLayout = new QGridLayout(manualGroup);
     
-    QLabel *ipLabel = new QLabel("IP Address:", manualGroup);
+    QLabel *ipLabel = new QLabel(tr("IP Address:"), manualGroup);
     QLineEdit *ipEdit = new QLineEdit(manualGroup);
-    ipEdit->setPlaceholderText("192.168.1.100");
+    ipEdit->setPlaceholderText(tr("192.168.1.100"));
     
-    QLabel *netmaskLabel = new QLabel("Netmask:", manualGroup);
+    QLabel *netmaskLabel = new QLabel(tr("Netmask:"), manualGroup);
     QLineEdit *netmaskEdit = new QLineEdit(manualGroup);
-    netmaskEdit->setPlaceholderText("255.255.255.0");
+    netmaskEdit->setPlaceholderText(tr("255.255.255.0"));
     
-    QLabel *gatewayLabel = new QLabel("Gateway:", manualGroup);
+    QLabel *gatewayLabel = new QLabel(tr("Gateway:"), manualGroup);
     QLineEdit *gatewayEdit = new QLineEdit(manualGroup);
-    gatewayEdit->setPlaceholderText("192.168.1.1");
+    gatewayEdit->setPlaceholderText(tr("192.168.1.1"));
     
-    QLabel *dnsLabel = new QLabel("DNS Servers:", manualGroup);
+    QLabel *dnsLabel = new QLabel(tr("DNS Servers:"), manualGroup);
     QLineEdit *dnsEdit = new QLineEdit(manualGroup);
-    dnsEdit->setPlaceholderText("8.8.8.8, 8.8.4.4");
+    dnsEdit->setPlaceholderText(tr("8.8.8.8, 8.8.4.4"));
     
     manualLayout->addWidget(ipLabel, 0, 0);
     manualLayout->addWidget(ipEdit, 0, 1);
@@ -843,8 +843,8 @@ void MainWindow::configureInterface(const QString &interfaceName) {
     
     // Buttons
     QHBoxLayout *buttonLayout = new QHBoxLayout();
-    QPushButton *okButton = new QPushButton("Apply", dialog);
-    QPushButton *cancelButton = new QPushButton("Cancel", dialog);
+    QPushButton *okButton = new QPushButton(tr("Apply"), dialog);
+    QPushButton *cancelButton = new QPushButton(tr("Cancel"), dialog);
     buttonLayout->addWidget(okButton);
     buttonLayout->addWidget(cancelButton);
     layout->addLayout(buttonLayout);
@@ -926,7 +926,7 @@ QString MainWindow::convertNetmaskToCIDR(const QString &netmask) {
 void MainWindow::on_upInterfaceButton_clicked() {
     QList<QTableWidgetItem*> selected = ui->interfaceConfigTable->selectedItems();
     if (selected.isEmpty()) {
-        QMessageBox::warning(this, "No Selection", "Please select an interface to bring up.");
+        QMessageBox::warning(this, tr("No Selection"), tr("Please select an interface to bring up."));
         return;
     }
     
@@ -944,7 +944,7 @@ void MainWindow::on_upInterfaceButton_clicked() {
 void MainWindow::on_downInterfaceButton_clicked() {
     QList<QTableWidgetItem*> selected = ui->interfaceConfigTable->selectedItems();
     if (selected.isEmpty()) {
-        QMessageBox::warning(this, "No Selection", "Please select an interface to bring down.");
+        QMessageBox::warning(this, tr("No Selection"), tr("Please select an interface to bring down."));
         return;
     }
 
@@ -973,7 +973,7 @@ void MainWindow::runScriptInTerminal(const QString &scriptContent, const QString
                          .arg(namePrefix).arg(QCoreApplication::applicationPid()).arg(++scriptRunId);
     QFile scriptFile(scriptPath);
     if (!scriptFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QMessageBox::warning(this, "Error", "Could not create temporary script.");
+        QMessageBox::warning(this, tr("Error"), tr("Could not create temporary script."));
         return;
     }
     scriptFile.write("#!/bin/bash\n");
@@ -1026,7 +1026,7 @@ void MainWindow::refreshWifiNetworks(bool rescan) {
     ui->wifiTable->setRowCount(0);
     ui->wifiTable->setColumnCount(6);
     QStringList headers;
-    headers << "In Use" << "SSID" << "Signal" << "Security" << "Channel" << "Rate";
+    headers << tr("In Use") << tr("SSID") << tr("Signal") << tr("Security") << tr("Channel") << tr("Rate");
     ui->wifiTable->setHorizontalHeaderLabels(headers);
     for (int i = 0; i < 5; i++) {
         ui->wifiTable->horizontalHeader()->setSectionResizeMode(i, QHeaderView::ResizeToContents);
@@ -1035,7 +1035,7 @@ void MainWindow::refreshWifiNetworks(bool rescan) {
 
     QString wifiDev = getWifiDevice();
     if (wifiDev.isEmpty()) {
-        ui->wifiStatusLabel->setText("No Wi-Fi adapter detected.");
+        ui->wifiStatusLabel->setText(tr("No Wi-Fi adapter detected."));
         return;
     }
 
@@ -1051,7 +1051,7 @@ void MainWindow::refreshWifiNetworks(bool rescan) {
     }
 
     if (rescan) {
-        ui->wifiStatusLabel->setText("Scanning...");
+        ui->wifiStatusLabel->setText(tr("Scanning..."));
         QApplication::processEvents();
     }
 
@@ -1065,7 +1065,7 @@ void MainWindow::refreshWifiNetworks(bool rescan) {
     proc.start("nmcli", args);
     proc.waitForFinished(rescan ? 30000 : 10000);
     if (proc.exitCode() != 0) {
-        ui->wifiStatusLabel->setText("❌ Failed to list Wi-Fi networks.");
+        ui->wifiStatusLabel->setText(tr("❌ Failed to list Wi-Fi networks."));
         return;
     }
 
@@ -1095,7 +1095,7 @@ void MainWindow::on_wifiScanButton_clicked() {
 void MainWindow::on_wifiConnectButton_clicked() {
     int row = ui->wifiTable->currentRow();
     if (row < 0) {
-        QMessageBox::warning(this, "No Selection", "Please select a Wi-Fi network to connect to.");
+        QMessageBox::warning(this, tr("No Selection"), tr("Please select a Wi-Fi network to connect to."));
         return;
     }
 
@@ -1150,7 +1150,7 @@ void MainWindow::on_wifiConnectButton_clicked() {
 void MainWindow::on_wifiDisconnectButton_clicked() {
     QString wifiDev = getWifiDevice();
     if (wifiDev.isEmpty()) {
-        QMessageBox::warning(this, "No Wi-Fi", "No Wi-Fi adapter detected.");
+        QMessageBox::warning(this, tr("No Wi-Fi"), tr("No Wi-Fi adapter detected."));
         return;
     }
 
@@ -1183,7 +1183,7 @@ void MainWindow::refreshConnectionsList() {
     ui->connectionsTable->setRowCount(0);
     ui->connectionsTable->setColumnCount(5);
     QStringList headers;
-    headers << "Name" << "Type" << "Device" << "Active" << "Autoconnect";
+    headers << tr("Name") << tr("Type") << tr("Device") << tr("Active") << tr("Autoconnect");
     ui->connectionsTable->setHorizontalHeaderLabels(headers);
     ui->connectionsTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
     for (int i = 1; i < 5; i++) {
@@ -1226,7 +1226,7 @@ void MainWindow::on_connRefreshButton_clicked() {
 void MainWindow::on_connUpButton_clicked() {
     int row = ui->connectionsTable->currentRow();
     if (row < 0) {
-        QMessageBox::warning(this, "No Selection", "Please select a connection to activate.");
+        QMessageBox::warning(this, tr("No Selection"), tr("Please select a connection to activate."));
         return;
     }
     QString name = ui->connectionsTable->item(row, 0)->text();
@@ -1249,7 +1249,7 @@ void MainWindow::on_connUpButton_clicked() {
 void MainWindow::on_connDownButton_clicked() {
     int row = ui->connectionsTable->currentRow();
     if (row < 0) {
-        QMessageBox::warning(this, "No Selection", "Please select a connection to deactivate.");
+        QMessageBox::warning(this, tr("No Selection"), tr("Please select a connection to deactivate."));
         return;
     }
     QString name = ui->connectionsTable->item(row, 0)->text();
@@ -1269,7 +1269,7 @@ void MainWindow::on_connDownButton_clicked() {
 void MainWindow::on_connDeleteButton_clicked() {
     int row = ui->connectionsTable->currentRow();
     if (row < 0) {
-        QMessageBox::warning(this, "No Selection", "Please select a connection to delete.");
+        QMessageBox::warning(this, tr("No Selection"), tr("Please select a connection to delete."));
         return;
     }
     QString name = ui->connectionsTable->item(row, 0)->text();
@@ -1296,7 +1296,7 @@ void MainWindow::on_connDeleteButton_clicked() {
 void MainWindow::on_connAutoconnectButton_clicked() {
     int row = ui->connectionsTable->currentRow();
     if (row < 0) {
-        QMessageBox::warning(this, "No Selection", "Please select a connection.");
+        QMessageBox::warning(this, tr("No Selection"), tr("Please select a connection."));
         return;
     }
     QString name = ui->connectionsTable->item(row, 0)->text();
@@ -1316,9 +1316,9 @@ void MainWindow::on_connAutoconnectButton_clicked() {
 }
 
 void MainWindow::on_restartNetworkManagerButton_clicked() {
-    int ret = QMessageBox::question(this, "Restart NetworkManager",
-                                    "Restart the NetworkManager service?\n\n"
-                                    "All connections will briefly drop and reconnect.",
+    int ret = QMessageBox::question(this, tr("Restart NetworkManager"),
+                                    tr("Restart the NetworkManager service?\n\n"
+                                    "All connections will briefly drop and reconnect."),
                                     QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
     if (ret != QMessageBox::Yes) {
         return;

@@ -48,6 +48,13 @@
            </spacer>
           </item>
           <item>
+           <widget class="QComboBox" name="dashLangCombo">
+            <property name="toolTip">
+             <string>Language / Idioma / Sprache</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QPushButton" name="dashRefreshButton">
             <property name="text">
              <string>🔄 Refresh</string>

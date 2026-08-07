@@ -71,7 +71,7 @@ void MainWindow::populateConfigTable() {
     ui->configTable->setRowCount(0);
     ui->configTable->setColumnCount(3);
     QStringList headers;
-    headers << "File Path" << "Description" << "Edit";
+    headers << tr("File Path") << tr("Description") << tr("Edit");
     ui->configTable->setHorizontalHeaderLabels(headers);
     
     // Set column sizing behavior
@@ -93,7 +93,7 @@ void MainWindow::populateConfigTable() {
         ui->configTable->setItem(row, 1, new QTableWidgetItem(entry.description));
         
         // Edit button
-        QPushButton *editButton = new QPushButton("Edit");
+        QPushButton *editButton = new QPushButton(tr("Edit"));
         editButton->setProperty("filePath", entry.filePath);
         connect(editButton, &QPushButton::clicked, [this, entry]() {
             editConfigFile(entry.filePath);

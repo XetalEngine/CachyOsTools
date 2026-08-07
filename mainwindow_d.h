@@ -19,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) , ui(new Ui::MainW
     qDebug() << "Hello World";
 
     // Set window title
-    setWindowTitle("Arch OS Tools - Linux System Manager");
+    setWindowTitle(tr("Arch OS Tools - Linux System Manager"));
     
     // Clear any minimum size constraints
     setMinimumSize(0, 0);
@@ -315,7 +315,7 @@ shellConfigFiles["ksh"] = QStringList()
     connect(ui->sourcePathTree, &QTreeView::clicked, this, &MainWindow::on_sourcePathTree_clicked);
     connect(ui->destPathTree, &QTreeView::clicked, this, &MainWindow::on_destPathTree_clicked);
     ui->backupProgressBar->setValue(0);
-    ui->backupSummaryLabel->setText("Select destination to begin system backup.");
+    ui->backupSummaryLabel->setText(tr("Select destination to begin system backup."));
 
     // Restore tab setup
     restoreSourceFsModel = nullptr;
@@ -329,7 +329,7 @@ shellConfigFiles["ksh"] = QStringList()
     connect(ui->restoreSourcePathTree, &QTreeView::clicked, this, &MainWindow::on_restoreSourcePathTree_clicked);
     connect(ui->restoreDestPathTree, &QTreeView::clicked, this, &MainWindow::on_restoreDestPathTree_clicked);
     ui->restoreProgressBar->setValue(0);
-    ui->restoreSummaryLabel->setText("Select backup source and restore destination.");
+    ui->restoreSummaryLabel->setText(tr("Select backup source and restore destination."));
 
     // In MainWindow constructor, after ui->setupUi(this):
     connect(ui->tabWidget, &QTabWidget::currentChanged, this, [this](int index) {
@@ -425,7 +425,7 @@ shellConfigFiles["ksh"] = QStringList()
     connect(ui->checkAvailabilityButton, &QPushButton::clicked, this, &MainWindow::checkOfflinePackageAvailability);
     
     // Initialize offline status for online mode (default)
-    ui->offlineStatusLabel->setText("Online mode selected - packages will be downloaded during ISO creation");
+    ui->offlineStatusLabel->setText(tr("Online mode selected - packages will be downloaded during ISO creation"));
     ui->offlineStatusLabel->setStyleSheet("color: #666666;");
     ui->downloadOfflineButton->setVisible(false);
     ui->checkAvailabilityButton->setVisible(false);

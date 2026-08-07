@@ -240,10 +240,10 @@ void MainWindow::on_isolateGpuConfigButton_clicked() {
         openConfigInNano("/etc/modprobe.d/blacklist-amd.conf");
     } else {
         // Ask user which type to create
-        QMessageBox::StandardButton reply = QMessageBox::question(this, "GPU Type", 
-            "Which GPU vendor do you want to blacklist?\n\n"
+        QMessageBox::StandardButton reply = QMessageBox::question(this, tr("GPU Type"), 
+            tr("Which GPU vendor do you want to blacklist?\n\n"
             "Yes = NVIDIA\n"
-            "No = AMD", 
+            "No = AMD"), 
             QMessageBox::Yes | QMessageBox::No);
         
         if (reply == QMessageBox::Yes) {
@@ -264,8 +264,8 @@ void MainWindow::on_isolateGpuBackupButton_clicked() {
     } else if (amdBlacklist.exists()) {
         backupConfigFile("/etc/modprobe.d/blacklist-amd.conf", "AMD Blacklist Configuration");
     } else {
-        QMessageBox::information(this, "No Blacklist Found", 
-            "No GPU blacklist configuration found. Create one first using the Edit button.");
+        QMessageBox::information(this, tr("No Blacklist Found"), 
+            tr("No GPU blacklist configuration found. Create one first using the Edit button."));
     }
 }
 

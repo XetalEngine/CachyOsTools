@@ -87,7 +87,7 @@ void MainWindow::populateAliasTable()
     ui->aliasTable->setRowCount(0);
     ui->aliasTable->setColumnCount(2);
     QStringList headers;
-    headers << "Alias" << "Command";
+    headers << tr("Alias") << tr("Command");
     ui->aliasTable->setHorizontalHeaderLabels(headers);
     
     // Set column sizing behavior
@@ -105,14 +105,14 @@ void MainWindow::populateAliasTable()
 
 void MainWindow::on_addAliasButton_clicked() {
     bool ok1, ok2;
-    QString name = QInputDialog::getText(this, "Add Alias", "Alias name:", QLineEdit::Normal, "", &ok1);
+    QString name = QInputDialog::getText(this, tr("Add Alias"), tr("Alias name:"), QLineEdit::Normal, "", &ok1);
     if (!ok1 || name.trimmed().isEmpty()) return;
-    QString command = QInputDialog::getText(this, "Add Alias", "Alias command:", QLineEdit::Normal, "", &ok2);
+    QString command = QInputDialog::getText(this, tr("Add Alias"), tr("Alias command:"), QLineEdit::Normal, "", &ok2);
     if (!ok2 || command.trimmed().isEmpty()) return;
     // Check for duplicate
     for (const AliasEntry &entry : aliasList) {
         if (entry.name == name) {
-            QMessageBox::warning(this, "Duplicate Alias", "An alias with this name already exists.");
+            QMessageBox::warning(this, tr("Duplicate Alias"), tr("An alias with this name already exists."));
             return;
         }
     }
@@ -127,14 +127,14 @@ void MainWindow::on_editAliasButton_clicked() {
     if (row < 0 || row >= aliasList.size()) return;
     AliasEntry &entry = aliasList[row];
     bool ok1, ok2;
-    QString name = QInputDialog::getText(this, "Edit Alias", "Alias name:", QLineEdit::Normal, entry.name, &ok1);
+    QString name = QInputDialog::getText(this, tr("Edit Alias"), tr("Alias name:"), QLineEdit::Normal, entry.name, &ok1);
     if (!ok1 || name.trimmed().isEmpty()) return;
-    QString command = QInputDialog::getText(this, "Edit Alias", "Alias command:", QLineEdit::Normal, entry.command, &ok2);
+    QString command = QInputDialog::getText(this, tr("Edit Alias"), tr("Alias command:"), QLineEdit::Normal, entry.command, &ok2);
     if (!ok2 || command.trimmed().isEmpty()) return;
     // Check for duplicate (except self)
     for (int i = 0; i < aliasList.size(); ++i) {
         if (i != row && aliasList[i].name == name) {
-            QMessageBox::warning(this, "Duplicate Alias", "An alias with this name already exists.");
+            QMessageBox::warning(this, tr("Duplicate Alias"), tr("An alias with this name already exists."));
             return;
         }
     }
@@ -147,7 +147,7 @@ void MainWindow::on_editAliasButton_clicked() {
 void MainWindow::on_removeAliasButton_clicked() {
     int row = ui->aliasTable->currentRow();
     if (row < 0 || row >= aliasList.size()) return;
-    if (QMessageBox::question(this, "Remove Alias", "Are you sure you want to remove this alias?") != QMessageBox::Yes) return;
+    if (QMessageBox::question(this, tr("Remove Alias"), tr("Are you sure you want to remove this alias?")) != QMessageBox::Yes) return;
     aliasList.removeAt(row);
     saveAliases();
     populateAliasTable();

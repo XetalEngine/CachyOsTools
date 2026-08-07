@@ -85,7 +85,7 @@ void MainWindow::updateBackupSummary() {
     
     bool isValid = validateBackupSelection();
     if (!isValid) {
-        ui->backupSummaryLabel->setText("Please select a valid destination. The source is automatically set to '/' for system backup.");
+        ui->backupSummaryLabel->setText(tr("Please select a valid destination. The source is automatically set to '/' for system backup."));
         ui->startBackupButton->setEnabled(false);
         return;
     }
@@ -98,7 +98,7 @@ void MainWindow::on_startBackupButton_clicked() {
     
     // Prevent multiple launches
     if (backupInProgress) {
-        //QMessageBox::information(this, "Backup in Progress", "A backup is already in progress. Please wait for it to complete.");
+        //QMessageBox::information(this, tr("Backup in Progress"), tr("A backup is already in progress. Please wait for it to complete."));
         return;
     }
     
@@ -170,7 +170,7 @@ void MainWindow::on_startBackupButton_clicked() {
             backupInProgress = false;
         });
     } else {
-        ui->backupSummaryLabel->setText("Could not launch a terminal emulator. Please install konsole, gnome-terminal, xterm, alacritty, or kitty.");
+        ui->backupSummaryLabel->setText(tr("Could not launch a terminal emulator. Please install konsole, gnome-terminal, xterm, alacritty, or kitty."));
     }
     ui->backupProgressBar->setValue(0);
 }
@@ -183,10 +183,10 @@ void MainWindow::handleBackupProgress() {
 }
 void MainWindow::handleBackupFinished(int exitCode, QProcess::ExitStatus) {
     if (exitCode == 0) {
-        ui->backupSummaryLabel->setText("Backup completed successfully.");
+        ui->backupSummaryLabel->setText(tr("Backup completed successfully."));
         ui->backupProgressBar->setValue(100);
     } else {
-        ui->backupSummaryLabel->setText("Backup failed. Please check destination and permissions.");
+        ui->backupSummaryLabel->setText(tr("Backup failed. Please check destination and permissions."));
     }
 }
 
@@ -384,11 +384,11 @@ void MainWindow::on_tcpOptimizationsBackupButton_clicked()
 
 void MainWindow::on_firewallBackupButton_clicked()
 {
-    QMessageBox::information(this, "Firewall Backup", 
-        "Firewall rules are stored in:\n"
+    QMessageBox::information(this, tr("Firewall Backup"), 
+        tr("Firewall rules are stored in:\n"
         "- firewalld: /etc/firewalld/\n"
         "- ufw: /etc/ufw/\n\n"
-        "Backup these directories manually if needed.");
+        "Backup these directories manually if needed."));
 }
 
 void MainWindow::on_pacmanOptimizationsBackupButton_clicked()

@@ -8,8 +8,8 @@ void MainWindow::on_browseIsoOutputButton_clicked()
     // Create the directory if it doesn't exist
     if (!QDir().exists(outputDir)) {
         if (!QDir().mkpath(outputDir)) {
-            QMessageBox::warning(this, "Directory Creation Failed",
-                                 "Failed to create output directory: " + outputDir + "\n\n"
+            QMessageBox::warning(this, tr("Directory Creation Failed"),
+                                 tr("Failed to create output directory: ") + outputDir + "\n\n"
                                  "Please check permissions or try again.");
             return;
         }
@@ -34,8 +34,8 @@ void MainWindow::on_createIsoButton_clicked()
     // Create output directory if it doesn't exist
     if (!QDir().exists(outputDir)) {
         if (!QDir().mkpath(outputDir)) {
-            QMessageBox::warning(this, "Directory Creation Failed",
-                                 "Failed to create output directory: " + outputDir + "\n\n"
+            QMessageBox::warning(this, tr("Directory Creation Failed"),
+                                 tr("Failed to create output directory: ") + outputDir + "\n\n"
                                  "Please check permissions or try again.");
             return;
         }
@@ -86,8 +86,8 @@ void MainWindow::on_createIsoButton_clicked()
 
     // Get sudo password once
     bool ok;
-    QString sudoPassword = QInputDialog::getText(this, "Sudo Password",
-                                                 "Enter your sudo password:",
+    QString sudoPassword = QInputDialog::getText(this, tr("Sudo Password"),
+                                                 tr("Enter your sudo password:"),
                                                  QLineEdit::Password, "", &ok);
     if (!ok || sudoPassword.isEmpty()) {
         ui->createIsoButton->setEnabled(true);
@@ -211,16 +211,16 @@ void MainWindow::on_createIsoButton_clicked()
                 if (exitCode == 0) {
                     ui->isoProgressBar->setValue(100);
                     ui->isoStatusLabel->setPlainText(ui->isoStatusLabel->toPlainText() + "\n✅ System clone ISO created successfully!");
-                    QMessageBox::information(this, "Success",
-                                             "System clone ISO has been created successfully!\n\n"
+                    QMessageBox::information(this, tr("Success"),
+                                             tr("System clone ISO has been created successfully!\n\n"
                                              "The ISO contains an exact copy of your current system "
-                                             "and can be used to install it on other machines.");
+                                             "and can be used to install it on other machines."));
                 } else {
                     ui->isoProgressBar->setValue(0);
                     ui->isoStatusLabel->setPlainText(ui->isoStatusLabel->toPlainText() + "\n❌ ISO creation failed. Check the output above for details.");
-                    QMessageBox::critical(this, "Error",
-                                          "Failed to create ISO. Check the output above for details.\n\n"
-                                          "Exit code: " + QString::number(exitCode));
+                    QMessageBox::critical(this, tr("Error"),
+                                          tr("Failed to create ISO. Check the output above for details.\n\n"
+                                          "Exit code: ") + QString::number(exitCode));
                 }
 
                 // Clean up script file
@@ -233,8 +233,8 @@ void MainWindow::on_createIsoButton_clicked()
         //ui->estimateSizeButton->setEnabled(true);
         ui->isoProgressBar->setValue(0);
         ui->isoStatusLabel->setPlainText(ui->isoStatusLabel->toPlainText() + "\n❌ Process error occurred");
-        QMessageBox::critical(this, "Process Error",
-                              "Error running ISO creation script: " + QString::number(error));
+        QMessageBox::critical(this, tr("Process Error"),
+                              tr("Error running ISO creation script: ") + QString::number(error));
         QFile::remove(scriptPath);
     });
 
@@ -262,7 +262,7 @@ QString MainWindow::createIsoScript(const QString &isoName, const QString &outpu
 
     QFile scriptFile(scriptPath);
     if (!scriptFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QMessageBox::critical(this, "Error", "Failed to create temporary script file");
+        QMessageBox::critical(this, tr("Error"), tr("Failed to create temporary script file"));
         return QString();
     }
 
@@ -847,7 +847,7 @@ QString MainWindow::formatSize(qint64 bytes)
 void MainWindow::on_onlineModeRadio_toggled(bool checked)
 {
     if (checked) {
-        ui->offlineStatusLabel->setText("Online mode selected - packages will be downloaded during ISO creation");
+        ui->offlineStatusLabel->setText(tr("Online mode selected - packages will be downloaded during ISO creation"));
         ui->offlineStatusLabel->setStyleSheet("color: #666666;");
         ui->downloadOfflineButton->setVisible(false);
         ui->checkAvailabilityButton->setVisible(false);
@@ -886,7 +886,7 @@ void MainWindow::checkOfflinePackageAvailability()
         // Update the path to use the old file
         offlinePackagePath = oldFileInfo.absoluteFilePath();
     } else {
-        ui->offlineStatusLabel->setText("❌ Offline package not found. Click download button to get it.");
+        ui->offlineStatusLabel->setText(tr("❌ Offline package not found. Click download button to get it."));
         ui->offlineStatusLabel->setStyleSheet("color: #dc3545; font-weight: bold;");
         ui->downloadOfflineButton->setVisible(true);
     }

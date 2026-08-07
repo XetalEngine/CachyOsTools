@@ -67,6 +67,17 @@ endif()
 
 target_link_libraries(CachyOsTools PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
 
+# GUI translations (pt_BR, de). Skipped gracefully when LinguistTools is not
+# installed — the app then simply runs in English.
+if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
+    find_package(Qt6 QUIET COMPONENTS LinguistTools)
+    if(Qt6LinguistTools_FOUND)
+        qt_add_translations(CachyOsTools TS_FILES
+            translations/cachyostools_pt_BR.ts
+            translations/cachyostools_de.ts)
+    endif()
+endif()
+
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
 # explicit, fixed bundle identifier manually though.

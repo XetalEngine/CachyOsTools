@@ -5,7 +5,7 @@ void MainWindow::on_startRestoreButton_clicked()
     QString dst = getSelectedRestoreDestPath();
     
     if (src.isEmpty() || dst.isEmpty()) {
-        QMessageBox::warning(this, "Invalid Selection", "Please select both source backup and destination.");
+        QMessageBox::warning(this, tr("Invalid Selection"), tr("Please select both source backup and destination."));
         return;
     }
     
@@ -13,14 +13,14 @@ void MainWindow::on_startRestoreButton_clicked()
     bool isSystemRestore = (dst == "/");
     
     if (isSystemRestore) {
-        QMessageBox::StandardButton reply = QMessageBox::question(this, "System Restore", 
-            "This will restore your system backup to the root filesystem.\n\n"
+        QMessageBox::StandardButton reply = QMessageBox::question(this, tr("System Restore"), 
+            tr("This will restore your system backup to the root filesystem.\n\n"
             "⚠️  WARNING: This will overwrite the current system!\n\n"
             "Make sure you:\n"
             "1. Have a working live environment ready\n"
             "2. Have backed up any important data\n"
             "3. Are running this from a live environment\n\n"
-            "Continue with system restore?",
+            "Continue with system restore?"),
             QMessageBox::Yes | QMessageBox::No);
         
         if (reply != QMessageBox::Yes) {
@@ -88,7 +88,7 @@ void MainWindow::on_startRestoreButton_clicked()
         }
         ui->restoreSummaryLabel->setText(message);
     } else {
-        ui->restoreSummaryLabel->setText("Could not launch a terminal emulator. Please install konsole, gnome-terminal, xterm, alacritty, or kitty.");
+        ui->restoreSummaryLabel->setText(tr("Could not launch a terminal emulator. Please install konsole, gnome-terminal, xterm, alacritty, or kitty."));
     }
 }
 
@@ -201,7 +201,7 @@ void MainWindow::updateRestoreSummary() {
     QString dst = getSelectedRestoreDestPath();
     ui->restorePathSummaryLabel->setText("Source: " + src + "\nDestination: " + dst);
     if (!validateRestoreSelection()) {
-        ui->restoreSummaryLabel->setText("Please select valid source and destination (must be different drives, not /mnt or /media, and not subfolders of each other).");
+        ui->restoreSummaryLabel->setText(tr("Please select valid source and destination (must be different drives, not /mnt or /media, and not subfolders of each other)."));
         ui->startRestoreButton->setEnabled(false);
         return;
     }

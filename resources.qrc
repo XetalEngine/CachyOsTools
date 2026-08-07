@@ -2,5 +2,8 @@
     <qresource prefix="/">
         <file>images/XetalEngine.png</file>
         <file>images/XetalLogo.bmp</file>
+        <file>images/flag_us.png</file>
+        <file>images/flag_br.png</file>
+        <file>images/flag_de.png</file>
     </qresource>
 </RCC>

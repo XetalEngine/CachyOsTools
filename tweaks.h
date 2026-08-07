@@ -25,8 +25,8 @@ void MainWindow::showTweakInstructions(const QString &title, const QString &inst
     layout->addWidget(textEdit);
     
     QHBoxLayout *buttonLayout = new QHBoxLayout();
-    QPushButton *copyButton = new QPushButton("Copy to Clipboard", dialog);
-    QPushButton *closeButton = new QPushButton("Close", dialog);
+    QPushButton *copyButton = new QPushButton(tr("Copy to Clipboard"), dialog);
+    QPushButton *closeButton = new QPushButton(tr("Close"), dialog);
     
     connect(copyButton, &QPushButton::clicked, [textEdit]() {
         QApplication::clipboard()->setText(textEdit->toPlainText());
@@ -193,14 +193,14 @@ void MainWindow::on_trimToggle_clicked() {
 }
 void MainWindow::on_trimConfigButton_clicked() {
     // TRIM doesn't use a config file - it's managed via systemd timer
-    QMessageBox::information(this, "TRIM Configuration", 
-        "TRIM is managed via systemd timer, not a config file.\n\n"
+    QMessageBox::information(this, tr("TRIM Configuration"), 
+        tr("TRIM is managed via systemd timer, not a config file.\n\n"
         "To enable/disable TRIM, use the 'Apply' button or run:\n"
         "sudo systemctl enable fstrim.timer\n"
         "sudo systemctl start fstrim.timer\n\n"
         "TRIM can also be enabled via mount options in /etc/fstab\n"
         "by adding 'discard' option, but this is not recommended\n"
-        "as it can impact performance.");
+        "as it can impact performance."));
 }
 void MainWindow::on_tmpfsToggle_clicked() {
     QString instructions = R"(
@@ -737,11 +737,11 @@ void MainWindow::checkPerformanceHacksState() {
 
 // Apply functions
 void MainWindow::on_zramApplyButton_clicked() {
-    int ret = QMessageBox::question(this, "Apply ZRAM", 
-        "This will enable ZRAM (compressed RAM swap).\n\n"
+    int ret = QMessageBox::question(this, tr("Apply ZRAM"), 
+        tr("This will enable ZRAM (compressed RAM swap).\n\n"
         "A config file will be created at /etc/systemd/zram-generator.conf\n"
         "and the service will be started.\n\n"
-        "Continue?",
+        "Continue?"),
         QMessageBox::Yes | QMessageBox::No);
     if (ret != QMessageBox::Yes) return;
     
@@ -758,20 +758,20 @@ void MainWindow::on_zramApplyButton_clicked() {
             return;
         }
     }
-    QMessageBox::warning(this, "Terminal Not Found", "Could not find a suitable terminal emulator.");
+    QMessageBox::warning(this, tr("Terminal Not Found"), tr("Could not find a suitable terminal emulator."));
 }
 
 void MainWindow::on_cpuGovernorApplyButton_clicked() {
     QDialog dialog(this);
-    dialog.setWindowTitle("CPU Governor");
+    dialog.setWindowTitle(tr("CPU Governor"));
     QVBoxLayout *layout = new QVBoxLayout(&dialog);
-    QLabel *label = new QLabel("Select CPU Governor:", &dialog);
+    QLabel *label = new QLabel(tr("Select CPU Governor:"), &dialog);
     layout->addWidget(label);
     QComboBox *combo = new QComboBox(&dialog);
     combo->addItems({"performance", "powersave", "ondemand", "conservative", "schedutil"});
     layout->addWidget(combo);
-    QPushButton *okButton = new QPushButton("Apply", &dialog);
-    QPushButton *cancelButton = new QPushButton("Cancel", &dialog);
+    QPushButton *okButton = new QPushButton(tr("Apply"), &dialog);
+    QPushButton *cancelButton = new QPushButton(tr("Cancel"), &dialog);
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->addWidget(okButton);
     buttonLayout->addWidget(cancelButton);
@@ -791,20 +791,20 @@ void MainWindow::on_cpuGovernorApplyButton_clicked() {
             return;
         }
     }
-    QMessageBox::warning(this, "Terminal Not Found", "Could not find a suitable terminal emulator.");
+    QMessageBox::warning(this, tr("Terminal Not Found"), tr("Could not find a suitable terminal emulator."));
 }
 
 void MainWindow::on_ipv6ApplyButton_clicked() {
     QDialog dialog(this);
-    dialog.setWindowTitle("IPv6 Configuration");
+    dialog.setWindowTitle(tr("IPv6 Configuration"));
     QVBoxLayout *layout = new QVBoxLayout(&dialog);
-    QLabel *label = new QLabel("Enable or disable IPv6?", &dialog);
+    QLabel *label = new QLabel(tr("Enable or disable IPv6?"), &dialog);
     layout->addWidget(label);
     QComboBox *combo = new QComboBox(&dialog);
     combo->addItems({"Enable", "Disable"});
     layout->addWidget(combo);
-    QPushButton *okButton = new QPushButton("Apply", &dialog);
-    QPushButton *cancelButton = new QPushButton("Cancel", &dialog);
+    QPushButton *okButton = new QPushButton(tr("Apply"), &dialog);
+    QPushButton *cancelButton = new QPushButton(tr("Cancel"), &dialog);
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->addWidget(okButton);
     buttonLayout->addWidget(cancelButton);
@@ -814,7 +814,7 @@ void MainWindow::on_ipv6ApplyButton_clicked() {
     
     if (dialog.exec() != QDialog::Accepted) return;
     
-    bool enable = (combo->currentText() == "Enable");
+    bool enable = (combo->currentIndex() == 0); // index 0 = Enable; index survives translation
     QString value = enable ? "0" : "1";
     QString cmd = QString("sudo bash -c 'echo \"net.ipv6.conf.all.disable_ipv6 = %1\" > /etc/sysctl.d/40-ipv6.conf && "
                           "echo \"net.ipv6.conf.default.disable_ipv6 = %1\" >> /etc/sysctl.d/40-ipv6.conf && "
@@ -827,14 +827,14 @@ void MainWindow::on_ipv6ApplyButton_clicked() {
             return;
         }
     }
-    QMessageBox::warning(this, "Terminal Not Found", "Could not find a suitable terminal emulator.");
+    QMessageBox::warning(this, tr("Terminal Not Found"), tr("Could not find a suitable terminal emulator."));
 }
 
 void MainWindow::on_trimApplyButton_clicked() {
-    int ret = QMessageBox::question(this, "Apply TRIM", 
-        "This will enable automatic TRIM for SSDs.\n\n"
+    int ret = QMessageBox::question(this, tr("Apply TRIM"), 
+        tr("This will enable automatic TRIM for SSDs.\n\n"
         "The fstrim.timer service will be enabled and started.\n\n"
-        "Continue?",
+        "Continue?"),
         QMessageBox::Yes | QMessageBox::No);
     if (ret != QMessageBox::Yes) return;
     
@@ -847,37 +847,37 @@ void MainWindow::on_trimApplyButton_clicked() {
             return;
         }
     }
-    QMessageBox::warning(this, "Terminal Not Found", "Could not find a suitable terminal emulator.");
+    QMessageBox::warning(this, tr("Terminal Not Found"), tr("Could not find a suitable terminal emulator."));
 }
 
 void MainWindow::on_tmpfsApplyButton_clicked() {
-    int ret = QMessageBox::warning(this, "Apply tmpfs", 
-        "⚠️ WARNING: This will mount /tmp as tmpfs (RAM disk).\n\n"
+    int ret = QMessageBox::warning(this, tr("Apply tmpfs"), 
+        tr("⚠️ WARNING: This will mount /tmp as tmpfs (RAM disk).\n\n"
         "This requires editing /etc/fstab and a REBOOT.\n\n"
         "All files in /tmp will be lost on reboot.\n\n"
-        "Continue?",
+        "Continue?"),
         QMessageBox::Yes | QMessageBox::No);
     if (ret != QMessageBox::Yes) return;
     
-    QMessageBox::information(this, "Manual Step Required", 
-        "The tmpfs configuration will be added to /etc/fstab.\n\n"
+    QMessageBox::information(this, tr("Manual Step Required"), 
+        tr("The tmpfs configuration will be added to /etc/fstab.\n\n"
         "You will need to REBOOT for this to take effect.\n\n"
-        "Opening /etc/fstab for editing...");
+        "Opening /etc/fstab for editing..."));
     
     openConfigInNano("/etc/fstab");
-    QMessageBox::information(this, "Next Steps", 
-        "Add this line to /etc/fstab:\n\n"
+    QMessageBox::information(this, tr("Next Steps"), 
+        tr("Add this line to /etc/fstab:\n\n"
         "/tmp tmpfs tmpfs defaults,noatime,mode=1777 0 0\n\n"
-        "Then save and REBOOT.");
+        "Then save and REBOOT."));
 }
 
 void MainWindow::on_dnsApplyButton_clicked() {
-    QMessageBox::information(this, "DNS Configuration", 
-        "DNS configuration requires manual editing.\n\n"
+    QMessageBox::information(this, tr("DNS Configuration"), 
+        tr("DNS configuration requires manual editing.\n\n"
         "Opening /etc/resolv.conf for editing...\n\n"
         "Add nameserver lines like:\n"
         "nameserver 8.8.8.8\n"
-        "nameserver 8.8.4.4");
+        "nameserver 8.8.4.4"));
     openConfigInNano("/etc/resolv.conf");
 }
 
@@ -887,43 +887,43 @@ void MainWindow::on_showHiddenFilesApplyButton_clicked() {
     settings.beginGroup("General");
     settings.setValue("ShowHiddenFiles", true);
     settings.endGroup();
-    QMessageBox::information(this, "Applied", "Hidden files will now be shown by default in Dolphin.\n\nYou may need to restart Dolphin for changes to take effect.");
+    QMessageBox::information(this, tr("Applied"), tr("Hidden files will now be shown by default in Dolphin.\n\nYou may need to restart Dolphin for changes to take effect."));
     refreshTweaksStatus();
 }
 
 void MainWindow::on_mitigationsApplyButton_clicked() {
-    int ret = QMessageBox::warning(this, "Security Warning", 
-        "⚠️ WARNING: Disabling mitigations reduces security!\n\n"
+    int ret = QMessageBox::warning(this, tr("Security Warning"), 
+        tr("⚠️ WARNING: Disabling mitigations reduces security!\n\n"
         "This will modify GRUB configuration.\n"
         "You will need to update GRUB and REBOOT.\n\n"
-        "Do you want to DISABLE mitigations?",
+        "Do you want to DISABLE mitigations?"),
         QMessageBox::Yes | QMessageBox::No);
     if (ret != QMessageBox::Yes) return;
     
-    QMessageBox::information(this, "Manual Step Required", 
-        "Opening /etc/default/grub for editing...\n\n"
+    QMessageBox::information(this, tr("Manual Step Required"), 
+        tr("Opening /etc/default/grub for editing...\n\n"
         "Add 'mitigations=off' to GRUB_CMDLINE_LINUX,\n"
         "then run: sudo grub-mkconfig -o /boot/grub/grub.cfg\n"
-        "and REBOOT.");
+        "and REBOOT."));
     openConfigInNano("/etc/default/grub");
 }
 
 void MainWindow::on_performanceHacksApplyButton_clicked() {
-    QMessageBox::information(this, "Performance Hacks", 
-        "These optimizations require multiple steps:\n\n"
+    QMessageBox::information(this, tr("Performance Hacks"), 
+        tr("These optimizations require multiple steps:\n\n"
         "1. Install plocate: sudo pacman -S plocate\n"
         "2. Edit /etc/updatedb.conf\n"
         "3. Set performance mode: sudo powerprofilesctl set performance\n"
         "4. Edit /etc/mkinitcpio.conf to remove plymouth\n"
         "5. Run: sudo mkinitcpio -P\n\n"
-        "See Info button for detailed instructions.");
+        "See Info button for detailed instructions."));
 }
 
 void MainWindow::on_ptraceApplyButton_clicked() {
     QDialog dialog(this);
-    dialog.setWindowTitle("ptrace Configuration");
+    dialog.setWindowTitle(tr("ptrace Configuration"));
     QVBoxLayout *layout = new QVBoxLayout(&dialog);
-    QLabel *label = new QLabel("Select ptrace scope:", &dialog);
+    QLabel *label = new QLabel(tr("Select ptrace scope:"), &dialog);
     layout->addWidget(label);
     QComboBox *combo = new QComboBox(&dialog);
     combo->addItem("0 - Unrestricted (any process can ptrace any other)", "0");
@@ -931,8 +931,8 @@ void MainWindow::on_ptraceApplyButton_clicked() {
     combo->addItem("2 - Admin-only (only root can use ptrace)", "2");
     combo->addItem("3 - Disabled (ptrace completely disabled)", "3");
     layout->addWidget(combo);
-    QPushButton *okButton = new QPushButton("Apply", &dialog);
-    QPushButton *cancelButton = new QPushButton("Cancel", &dialog);
+    QPushButton *okButton = new QPushButton(tr("Apply"), &dialog);
+    QPushButton *cancelButton = new QPushButton(tr("Cancel"), &dialog);
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->addWidget(okButton);
     buttonLayout->addWidget(cancelButton);
@@ -953,22 +953,22 @@ void MainWindow::on_ptraceApplyButton_clicked() {
             return;
         }
     }
-    QMessageBox::warning(this, "Terminal Not Found", "Could not find a suitable terminal emulator.");
+    QMessageBox::warning(this, tr("Terminal Not Found"), tr("Could not find a suitable terminal emulator."));
 }
 
 void MainWindow::on_hidepidApplyButton_clicked() {
-    int ret = QMessageBox::warning(this, "Security Configuration", 
-        "⚠️ WARNING: This requires editing /etc/fstab and remounting /proc.\n\n"
+    int ret = QMessageBox::warning(this, tr("Security Configuration"), 
+        tr("⚠️ WARNING: This requires editing /etc/fstab and remounting /proc.\n\n"
         "This will hide processes from other users.\n\n"
-        "Continue?",
+        "Continue?"),
         QMessageBox::Yes | QMessageBox::No);
     if (ret != QMessageBox::Yes) return;
     
-    QMessageBox::information(this, "Manual Step Required", 
-        "Opening /etc/fstab for editing...\n\n"
+    QMessageBox::information(this, tr("Manual Step Required"), 
+        tr("Opening /etc/fstab for editing...\n\n"
         "Find the /proc line and add hidepid=2:\n"
         "proc /proc proc defaults,hidepid=2 0 0\n\n"
-        "Then run: sudo mount -o remount /proc");
+        "Then run: sudo mount -o remount /proc"));
     openConfigInNano("/etc/fstab");
 }// New Arch Linux Tweaks Implementation
 
@@ -1014,17 +1014,17 @@ void MainWindow::checkSwappinessState() {
 
 void MainWindow::on_swappinessApplyButton_clicked() {
     QDialog dialog(this);
-    dialog.setWindowTitle("Swappiness Configuration");
+    dialog.setWindowTitle(tr("Swappiness Configuration"));
     QVBoxLayout *layout = new QVBoxLayout(&dialog);
-    QLabel *label = new QLabel("Set swappiness value (1-100):", &dialog);
+    QLabel *label = new QLabel(tr("Set swappiness value (1-100):"), &dialog);
     layout->addWidget(label);
     QSpinBox *spinBox = new QSpinBox(&dialog);
     spinBox->setRange(1, 100);
     spinBox->setValue(10);
-    spinBox->setToolTip("Lower values = less swapping (recommended: 10-30)");
+    spinBox->setToolTip(tr("Lower values = less swapping (recommended: 10-30)"));
     layout->addWidget(spinBox);
-    QPushButton *okButton = new QPushButton("Apply", &dialog);
-    QPushButton *cancelButton = new QPushButton("Cancel", &dialog);
+    QPushButton *okButton = new QPushButton(tr("Apply"), &dialog);
+    QPushButton *cancelButton = new QPushButton(tr("Cancel"), &dialog);
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->addWidget(okButton);
     buttonLayout->addWidget(cancelButton);
@@ -1045,7 +1045,7 @@ void MainWindow::on_swappinessApplyButton_clicked() {
             return;
         }
     }
-    QMessageBox::warning(this, "Terminal Not Found", "Could not find a suitable terminal emulator.");
+    QMessageBox::warning(this, tr("Terminal Not Found"), tr("Could not find a suitable terminal emulator."));
 }
 
 // I/O Scheduler
@@ -1102,17 +1102,17 @@ void MainWindow::checkIoSchedulerState() {
 
 void MainWindow::on_ioSchedulerApplyButton_clicked() {
     QDialog dialog(this);
-    dialog.setWindowTitle("I/O Scheduler Configuration");
+    dialog.setWindowTitle(tr("I/O Scheduler Configuration"));
     QVBoxLayout *layout = new QVBoxLayout(&dialog);
-    QLabel *label = new QLabel("Select I/O Scheduler:", &dialog);
+    QLabel *label = new QLabel(tr("Select I/O Scheduler:"), &dialog);
     layout->addWidget(label);
     QComboBox *combo = new QComboBox(&dialog);
     combo->addItems({"none", "mq-deadline", "kyber", "bfq"});
     combo->setCurrentText("mq-deadline");
-    combo->setToolTip("none/mq-deadline/kyber for NVMe, mq-deadline/bfq for SATA");
+    combo->setToolTip(tr("none/mq-deadline/kyber for NVMe, mq-deadline/bfq for SATA"));
     layout->addWidget(combo);
-    QPushButton *okButton = new QPushButton("Apply", &dialog);
-    QPushButton *cancelButton = new QPushButton("Cancel", &dialog);
+    QPushButton *okButton = new QPushButton(tr("Apply"), &dialog);
+    QPushButton *cancelButton = new QPushButton(tr("Cancel"), &dialog);
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->addWidget(okButton);
     buttonLayout->addWidget(cancelButton);
@@ -1134,7 +1134,7 @@ void MainWindow::on_ioSchedulerApplyButton_clicked() {
             return;
         }
     }
-    QMessageBox::warning(this, "Terminal Not Found", "Could not find a suitable terminal emulator.");
+    QMessageBox::warning(this, tr("Terminal Not Found"), tr("Could not find a suitable terminal emulator."));
 }
 
 // Transparent Huge Pages
@@ -1186,17 +1186,17 @@ void MainWindow::checkThpState() {
 
 void MainWindow::on_thpApplyButton_clicked() {
     QDialog dialog(this);
-    dialog.setWindowTitle("Transparent Huge Pages");
+    dialog.setWindowTitle(tr("Transparent Huge Pages"));
     QVBoxLayout *layout = new QVBoxLayout(&dialog);
-    QLabel *label = new QLabel("Select THP mode:", &dialog);
+    QLabel *label = new QLabel(tr("Select THP mode:"), &dialog);
     layout->addWidget(label);
     QComboBox *combo = new QComboBox(&dialog);
     combo->addItem("madvise (Recommended)", "madvise");
     combo->addItem("always (May cause latency)", "always");
     combo->addItem("never (Disabled)", "never");
     layout->addWidget(combo);
-    QPushButton *okButton = new QPushButton("Apply", &dialog);
-    QPushButton *cancelButton = new QPushButton("Cancel", &dialog);
+    QPushButton *okButton = new QPushButton(tr("Apply"), &dialog);
+    QPushButton *cancelButton = new QPushButton(tr("Cancel"), &dialog);
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->addWidget(okButton);
     buttonLayout->addWidget(cancelButton);
@@ -1217,7 +1217,7 @@ void MainWindow::on_thpApplyButton_clicked() {
             return;
         }
     }
-    QMessageBox::warning(this, "Terminal Not Found", "Could not find a suitable terminal emulator.");
+    QMessageBox::warning(this, tr("Terminal Not Found"), tr("Could not find a suitable terminal emulator."));
 }
 
 // TCP Optimizations
@@ -1260,10 +1260,10 @@ void MainWindow::checkTcpOptimizationsState() {
 }
 
 void MainWindow::on_tcpOptimizationsApplyButton_clicked() {
-    int ret = QMessageBox::question(this, "Apply TCP Optimizations", 
-        "This will create TCP optimization settings.\n\n"
+    int ret = QMessageBox::question(this, tr("Apply TCP Optimizations"), 
+        tr("This will create TCP optimization settings.\n\n"
         "These optimizations improve network performance.\n\n"
-        "Continue?",
+        "Continue?"),
         QMessageBox::Yes | QMessageBox::No);
     if (ret != QMessageBox::Yes) return;
     
@@ -1284,7 +1284,7 @@ void MainWindow::on_tcpOptimizationsApplyButton_clicked() {
             return;
         }
     }
-    QMessageBox::warning(this, "Terminal Not Found", "Could not find a suitable terminal emulator.");
+    QMessageBox::warning(this, tr("Terminal Not Found"), tr("Could not find a suitable terminal emulator."));
 }
 
 // Firewall
@@ -1315,14 +1315,14 @@ void MainWindow::on_firewallToggle_clicked() {
 }
 
 void MainWindow::on_firewallConfigButton_clicked() {
-    QMessageBox::information(this, "Firewall Configuration", 
-        "Firewall configuration depends on which firewall you're using:\n\n"
+    QMessageBox::information(this, tr("Firewall Configuration"), 
+        tr("Firewall configuration depends on which firewall you're using:\n\n"
         "For firewalld:\n"
         "sudo firewall-cmd --permanent --add-service=http\n"
         "sudo firewall-cmd --reload\n\n"
         "For ufw:\n"
         "sudo ufw allow 22/tcp\n"
-        "sudo ufw reload");
+        "sudo ufw reload"));
 }
 
 void MainWindow::checkFirewallState() {
@@ -1349,16 +1349,16 @@ void MainWindow::checkFirewallState() {
 
 void MainWindow::on_firewallApplyButton_clicked() {
     QDialog dialog(this);
-    dialog.setWindowTitle("Firewall Configuration");
+    dialog.setWindowTitle(tr("Firewall Configuration"));
     QVBoxLayout *layout = new QVBoxLayout(&dialog);
-    QLabel *label = new QLabel("Select firewall to enable:", &dialog);
+    QLabel *label = new QLabel(tr("Select firewall to enable:"), &dialog);
     layout->addWidget(label);
     QComboBox *combo = new QComboBox(&dialog);
     combo->addItem("firewalld (Recommended)", "firewalld");
     combo->addItem("ufw (Simple)", "ufw");
     layout->addWidget(combo);
-    QPushButton *okButton = new QPushButton("Apply", &dialog);
-    QPushButton *cancelButton = new QPushButton("Cancel", &dialog);
+    QPushButton *okButton = new QPushButton(tr("Apply"), &dialog);
+    QPushButton *cancelButton = new QPushButton(tr("Cancel"), &dialog);
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->addWidget(okButton);
     buttonLayout->addWidget(cancelButton);
@@ -1383,7 +1383,7 @@ void MainWindow::on_firewallApplyButton_clicked() {
             return;
         }
     }
-    QMessageBox::warning(this, "Terminal Not Found", "Could not find a suitable terminal emulator.");
+    QMessageBox::warning(this, tr("Terminal Not Found"), tr("Could not find a suitable terminal emulator."));
 }
 
 // Pacman Optimizations
@@ -1441,21 +1441,21 @@ void MainWindow::checkPacmanOptimizationsState() {
 }
 
 void MainWindow::on_pacmanOptimizationsApplyButton_clicked() {
-    int ret = QMessageBox::question(this, "Apply Pacman Optimizations", 
-        "This will add optimizations to /etc/pacman.conf:\n\n"
+    int ret = QMessageBox::question(this, tr("Apply Pacman Optimizations"), 
+        tr("This will add optimizations to /etc/pacman.conf:\n\n"
         "- ParallelDownloads = 10\n"
         "- Color (if not already enabled)\n"
         "- ILoveCandy (progress bar)\n\n"
-        "Continue?",
+        "Continue?"),
         QMessageBox::Yes | QMessageBox::No);
     if (ret != QMessageBox::Yes) return;
     
-    QMessageBox::information(this, "Manual Configuration", 
-        "Opening /etc/pacman.conf for editing...\n\n"
+    QMessageBox::information(this, tr("Manual Configuration"), 
+        tr("Opening /etc/pacman.conf for editing...\n\n"
         "Add these lines in the [options] section:\n"
         "Color\n"
         "ParallelDownloads = 10\n"
-        "ILoveCandy");
+        "ILoveCandy"));
     openConfigInNano("/etc/pacman.conf");
 }
 
@@ -1500,22 +1500,22 @@ void MainWindow::checkJournaldState() {
 }
 
 void MainWindow::on_journaldApplyButton_clicked() {
-    int ret = QMessageBox::question(this, "Apply Journald Settings", 
-        "This will add log size limits to /etc/systemd/journald.conf:\n\n"
+    int ret = QMessageBox::question(this, tr("Apply Journald Settings"), 
+        tr("This will add log size limits to /etc/systemd/journald.conf:\n\n"
         "SystemMaxUse=500M\n"
         "SystemKeepFree=1G\n"
         "SystemMaxFileSize=50M\n\n"
-        "Continue?",
+        "Continue?"),
         QMessageBox::Yes | QMessageBox::No);
     if (ret != QMessageBox::Yes) return;
     
-    QMessageBox::information(this, "Manual Configuration",
-        "Opening /etc/systemd/journald.conf for editing...\n\n"
+    QMessageBox::information(this, tr("Manual Configuration"),
+        tr("Opening /etc/systemd/journald.conf for editing...\n\n"
         "Uncomment and set:\n"
         "SystemMaxUse=500M\n"
         "SystemKeepFree=1G\n"
         "SystemMaxFileSize=50M\n\n"
-        "Then restart: sudo systemctl restart systemd-journald");
+        "Then restart: sudo systemctl restart systemd-journald"));
     openConfigInNano("/etc/systemd/journald.conf");
 }
 
@@ -1565,11 +1565,11 @@ void MainWindow::checkGamingState() {
 }
 
 void MainWindow::on_gamingApplyButton_clicked() {
-    int ret = QMessageBox::question(this, "Apply Gaming Optimizations",
-        "This raises vm.max_map_count to 2147483642 (the SteamOS/CachyOS value).\n\n"
+    int ret = QMessageBox::question(this, tr("Apply Gaming Optimizations"),
+        tr("This raises vm.max_map_count to 2147483642 (the SteamOS/CachyOS value).\n\n"
         "Many Proton/Steam games need this to avoid crashes and stutter.\n"
         "It is safe for normal desktop use.\n\n"
-        "Continue?",
+        "Continue?"),
         QMessageBox::Yes | QMessageBox::No);
     if (ret != QMessageBox::Yes) return;
 
@@ -1636,15 +1636,15 @@ void MainWindow::checkCpuBoostState() {
 
 void MainWindow::on_cpuBoostApplyButton_clicked() {
     QDialog dialog(this);
-    dialog.setWindowTitle("CPU Turbo Boost");
+    dialog.setWindowTitle(tr("CPU Turbo Boost"));
     QVBoxLayout *layout = new QVBoxLayout(&dialog);
-    layout->addWidget(new QLabel("Turbo boost setting:", &dialog));
+    layout->addWidget(new QLabel(tr("Turbo boost setting:"), &dialog));
     QComboBox *combo = new QComboBox(&dialog);
     combo->addItem("Enable (maximum performance)", "on");
     combo->addItem("Disable (cooler / quieter / battery)", "off");
     layout->addWidget(combo);
-    QPushButton *okButton = new QPushButton("Apply", &dialog);
-    QPushButton *cancelButton = new QPushButton("Cancel", &dialog);
+    QPushButton *okButton = new QPushButton(tr("Apply"), &dialog);
+    QPushButton *cancelButton = new QPushButton(tr("Cancel"), &dialog);
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->addWidget(okButton);
     buttonLayout->addWidget(cancelButton);
@@ -1720,15 +1720,15 @@ void MainWindow::checkNmiWatchdogState() {
 
 void MainWindow::on_nmiWatchdogApplyButton_clicked() {
     QDialog dialog(this);
-    dialog.setWindowTitle("NMI Watchdog");
+    dialog.setWindowTitle(tr("NMI Watchdog"));
     QVBoxLayout *layout = new QVBoxLayout(&dialog);
-    layout->addWidget(new QLabel("NMI watchdog setting:", &dialog));
+    layout->addWidget(new QLabel(tr("NMI watchdog setting:"), &dialog));
     QComboBox *combo = new QComboBox(&dialog);
     combo->addItem("Disable (recommended for desktops)", "0");
     combo->addItem("Enable (kernel lockup debugging)", "1");
     layout->addWidget(combo);
-    QPushButton *okButton = new QPushButton("Apply", &dialog);
-    QPushButton *cancelButton = new QPushButton("Cancel", &dialog);
+    QPushButton *okButton = new QPushButton(tr("Apply"), &dialog);
+    QPushButton *cancelButton = new QPushButton(tr("Cancel"), &dialog);
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->addWidget(okButton);
     buttonLayout->addWidget(cancelButton);
@@ -1788,15 +1788,15 @@ void MainWindow::checkCoreDumpState() {
 
 void MainWindow::on_coreDumpApplyButton_clicked() {
     QDialog dialog(this);
-    dialog.setWindowTitle("Core Dumps");
+    dialog.setWindowTitle(tr("Core Dumps"));
     QVBoxLayout *layout = new QVBoxLayout(&dialog);
-    layout->addWidget(new QLabel("Core dump setting:", &dialog));
+    layout->addWidget(new QLabel(tr("Core dump setting:"), &dialog));
     QComboBox *combo = new QComboBox(&dialog);
     combo->addItem("Disable (privacy + saves disk space)", "disable");
     combo->addItem("Enable (systemd default, for debugging)", "enable");
     layout->addWidget(combo);
-    QPushButton *okButton = new QPushButton("Apply", &dialog);
-    QPushButton *cancelButton = new QPushButton("Cancel", &dialog);
+    QPushButton *okButton = new QPushButton(tr("Apply"), &dialog);
+    QPushButton *cancelButton = new QPushButton(tr("Cancel"), &dialog);
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->addWidget(okButton);
     buttonLayout->addWidget(cancelButton);
@@ -1866,13 +1866,13 @@ void MainWindow::checkMemoryTuningState() {
 }
 
 void MainWindow::on_memoryTuningApplyButton_clicked() {
-    int ret = QMessageBox::question(this, "Apply Memory Cache Tuning",
-        "This applies desktop-friendly memory settings:\n\n"
+    int ret = QMessageBox::question(this, tr("Apply Memory Cache Tuning"),
+        tr("This applies desktop-friendly memory settings:\n\n"
         "vm.vfs_cache_pressure = 50\n"
         "vm.dirty_ratio = 10\n"
         "vm.dirty_background_ratio = 5\n\n"
         "Faster file browsing and fewer stalls during big file copies.\n\n"
-        "Continue?",
+        "Continue?"),
         QMessageBox::Yes | QMessageBox::No);
     if (ret != QMessageBox::Yes) return;
 
@@ -1929,13 +1929,13 @@ void MainWindow::checkInotifyState() {
 }
 
 void MainWindow::on_inotifyApplyButton_clicked() {
-    int ret = QMessageBox::question(this, "Apply Inotify Limits",
-        "This raises the file-watching limits:\n\n"
+    int ret = QMessageBox::question(this, tr("Apply Inotify Limits"),
+        tr("This raises the file-watching limits:\n\n"
         "fs.inotify.max_user_watches = 524288\n"
         "fs.inotify.max_user_instances = 1024\n\n"
         "Fixes 'unable to watch for changes' errors in IDEs,\n"
         "sync tools, and some game launchers.\n\n"
-        "Continue?",
+        "Continue?"),
         QMessageBox::Yes | QMessageBox::No);
     if (ret != QMessageBox::Yes) return;
 

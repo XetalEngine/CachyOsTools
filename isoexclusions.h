@@ -12,7 +12,7 @@
 // One full scan caches every directory size (du) and every file >= 10 MB (find).
 // Filter changes only re-filter the cache, so the tree refreshes instantly.
 void MainWindow::startIsoHomeScan() {
-    ui->isoScanStatusLabel->setText("⏳ Scanning home folder sizes (first scan can take a minute)...");
+    ui->isoScanStatusLabel->setText(tr("⏳ Scanning home folder sizes (first scan can take a minute)..."));
     ui->isoRescanButton->setEnabled(false);
 
     QString home = QDir::homePath();
@@ -210,7 +210,7 @@ void MainWindow::refreshIsoExcludedSizes() {
 
 void MainWindow::updateIsoExcludeSummary() {
     if (isoExcludedPaths.isEmpty()) {
-        ui->isoExcludeSummaryLabel->setText("Nothing excluded — the ISO will contain the complete system.");
+        ui->isoExcludeSummaryLabel->setText(tr("Nothing excluded — the ISO will contain the complete system."));
         ui->isoExcludeSummaryLabel->setStyleSheet("");
         return;
     }
@@ -252,8 +252,8 @@ void MainWindow::syncIsoConfigTreeChecks() {
 
 void MainWindow::saveIsoExcludeProfile() {
     if (isoExcludedPaths.isEmpty()) {
-        QMessageBox::information(this, "Nothing to Save",
-                                 "No exclusions are checked yet.\nCheck some folders/files first, then save.");
+        QMessageBox::information(this, tr("Nothing to Save"),
+                                 tr("No exclusions are checked yet.\nCheck some folders/files first, then save."));
         return;
     }
 
@@ -277,7 +277,7 @@ void MainWindow::saveIsoExcludeProfile() {
 
     QFile file(path);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QMessageBox::warning(this, "Save Failed", "Could not write to:\n" + path);
+        QMessageBox::warning(this, tr("Save Failed"), tr("Could not write to:\n") + path);
         return;
     }
     file.write(QJsonDocument(profile).toJson(QJsonDocument::Indented));
@@ -296,7 +296,7 @@ void MainWindow::loadIsoExcludeProfile() {
 
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QMessageBox::warning(this, "Load Failed", "Could not read:\n" + path);
+        QMessageBox::warning(this, tr("Load Failed"), tr("Could not read:\n") + path);
         return;
     }
     QJsonParseError parseError;
@@ -305,8 +305,8 @@ void MainWindow::loadIsoExcludeProfile() {
 
     if (parseError.error != QJsonParseError::NoError || !doc.isObject() ||
         !doc.object().contains("excludedPaths")) {
-        QMessageBox::warning(this, "Invalid Profile",
-                             "This file is not a valid exclusion profile.");
+        QMessageBox::warning(this, tr("Invalid Profile"),
+                             tr("This file is not a valid exclusion profile."));
         return;
     }
 

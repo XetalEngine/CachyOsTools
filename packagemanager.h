@@ -16,13 +16,13 @@ void MainWindow::checkAurHelpers() {
     
     // Update UI
     if (yayInstalled) {
-        ui->yayStatusLabel->setText("Yay: ✅ Installed");
+        ui->yayStatusLabel->setText(tr("Yay: ✅ Installed"));
         ui->yayStatusLabel->setStyleSheet("color: green;");
         ui->yayInstallButton->setVisible(false);
         ui->yayReinstallButton->setVisible(true);
         ui->yayUninstallButton->setVisible(true);
     } else {
-        ui->yayStatusLabel->setText("Yay: ❌ Not Installed");
+        ui->yayStatusLabel->setText(tr("Yay: ❌ Not Installed"));
         ui->yayStatusLabel->setStyleSheet("color: red;");
         ui->yayInstallButton->setVisible(true);
         ui->yayReinstallButton->setVisible(false);
@@ -30,13 +30,13 @@ void MainWindow::checkAurHelpers() {
     }
     
     if (paruInstalled) {
-        ui->paruStatusLabel->setText("Paru: ✅ Installed");
+        ui->paruStatusLabel->setText(tr("Paru: ✅ Installed"));
         ui->paruStatusLabel->setStyleSheet("color: green;");
         ui->paruInstallButton->setVisible(false);
         ui->paruReinstallButton->setVisible(true);
         ui->paruUninstallButton->setVisible(true);
     } else {
-        ui->paruStatusLabel->setText("Paru: ❌ Not Installed");
+        ui->paruStatusLabel->setText(tr("Paru: ❌ Not Installed"));
         ui->paruStatusLabel->setStyleSheet("color: red;");
         ui->paruInstallButton->setVisible(true);
         ui->paruReinstallButton->setVisible(false);
@@ -48,7 +48,7 @@ void MainWindow::refreshPacmanInstalled() {
     ui->pacmanInstalledTable->setRowCount(0);
     ui->pacmanInstalledTable->setColumnCount(4);
     QStringList headers;
-    headers << "Package Name" << "Version" << "Repository" << "Description";
+    headers << tr("Package Name") << tr("Version") << tr("Repository") << tr("Description");
     ui->pacmanInstalledTable->setHorizontalHeaderLabels(headers);
     ui->pacmanInstalledTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->pacmanInstalledTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
@@ -100,7 +100,7 @@ void MainWindow::searchPacmanAur(const QString &query, int searchMode, int searc
     ui->pacmanAurTable->setRowCount(0);
     ui->pacmanAurTable->setColumnCount(5);
     QStringList headers;
-    headers << "Package Name" << "Version" << "Repository" << "Votes" << "Description";
+    headers << tr("Package Name") << tr("Version") << tr("Repository") << tr("Votes") << tr("Description");
     ui->pacmanAurTable->setHorizontalHeaderLabels(headers);
     ui->pacmanAurTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->pacmanAurTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
@@ -307,7 +307,7 @@ void MainWindow::searchYay(const QString &query, int searchMode, int searchType)
     ui->yayTable->setRowCount(0);
     ui->yayTable->setColumnCount(4);
     QStringList headers;
-    headers << "Package Name" << "Version" << "Votes" << "Description";
+    headers << tr("Package Name") << tr("Version") << tr("Votes") << tr("Description");
     ui->yayTable->setHorizontalHeaderLabels(headers);
     ui->yayTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->yayTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
@@ -478,7 +478,7 @@ void MainWindow::searchParu(const QString &query, int searchMode, int searchType
     ui->paruTable->setRowCount(0);
     ui->paruTable->setColumnCount(4);
     QStringList headers;
-    headers << "Package Name" << "Version" << "Votes" << "Description";
+    headers << tr("Package Name") << tr("Version") << tr("Votes") << tr("Description");
     ui->paruTable->setHorizontalHeaderLabels(headers);
     ui->paruTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->paruTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
@@ -641,18 +641,18 @@ void MainWindow::searchParu(const QString &query, int searchMode, int searchType
 }
 
 void MainWindow::on_clearCacheButton_clicked() {
-    QMessageBox::StandardButton reply = QMessageBox::question(this, "Clear Cache",
-                                                              "This will clear the pacman package cache.\n\n"
+    QMessageBox::StandardButton reply = QMessageBox::question(this, tr("Clear Cache"),
+                                                              tr("This will clear the pacman package cache.\n\n"
                                                               "This action requires sudo privileges.\n\n"
-                                                              "Do you want to continue?",
+                                                              "Do you want to continue?"),
                                                               QMessageBox::Yes | QMessageBox::No);
     if (reply != QMessageBox::Yes) {
         return;
     }
     
     bool ok;
-    QString sudoPassword = QInputDialog::getText(this, "Sudo Password",
-                                                 "Enter your sudo password:",
+    QString sudoPassword = QInputDialog::getText(this, tr("Sudo Password"),
+                                                 tr("Enter your sudo password:"),
                                                  QLineEdit::Password, "", &ok);
     if (!ok || sudoPassword.isEmpty()) {
         return;
@@ -718,7 +718,7 @@ void MainWindow::on_pacmanAurSearch_returnPressed() {
 void MainWindow::on_pacmanUninstallButton_clicked() {
     int row = ui->pacmanInstalledTable->currentRow();
     if (row < 0) {
-        QMessageBox::warning(this, "No Selection", "Please select a package to uninstall.");
+        QMessageBox::warning(this, tr("No Selection"), tr("Please select a package to uninstall."));
         return;
     }
     
@@ -733,8 +733,8 @@ void MainWindow::on_pacmanUninstallButton_clicked() {
     }
     
     bool ok;
-    QString sudoPassword = QInputDialog::getText(this, "Sudo Password",
-                                                 "Enter your sudo password:",
+    QString sudoPassword = QInputDialog::getText(this, tr("Sudo Password"),
+                                                 tr("Enter your sudo password:"),
                                                  QLineEdit::Password, "", &ok);
     if (!ok || sudoPassword.isEmpty()) {
         return;
@@ -764,7 +764,7 @@ void MainWindow::on_pacmanUninstallButton_clicked() {
 void MainWindow::on_pacmanReinstallButton_clicked() {
     int row = ui->pacmanInstalledTable->currentRow();
     if (row < 0) {
-        QMessageBox::warning(this, "No Selection", "Please select a package to reinstall.");
+        QMessageBox::warning(this, tr("No Selection"), tr("Please select a package to reinstall."));
         return;
     }
     
@@ -779,8 +779,8 @@ void MainWindow::on_pacmanReinstallButton_clicked() {
     }
     
     bool ok;
-    QString sudoPassword = QInputDialog::getText(this, "Sudo Password",
-                                                 "Enter your sudo password:",
+    QString sudoPassword = QInputDialog::getText(this, tr("Sudo Password"),
+                                                 tr("Enter your sudo password:"),
                                                  QLineEdit::Password, "", &ok);
     if (!ok || sudoPassword.isEmpty()) {
         return;
@@ -830,7 +830,7 @@ void MainWindow::on_pacmanReinstallButton_clicked() {
 void MainWindow::on_pacmanAurInstallButton_clicked() {
     int row = ui->pacmanAurTable->currentRow();
     if (row < 0) {
-        QMessageBox::warning(this, "No Selection", "Please select a package to install.");
+        QMessageBox::warning(this, tr("No Selection"), tr("Please select a package to install."));
         return;
     }
     
@@ -860,7 +860,7 @@ void MainWindow::on_pacmanAurInstallButton_clicked() {
                 installer = "paru";
                 installerName = "Paru";
             } else {
-                QMessageBox::critical(this, "Error", "AUR package requires Yay or Paru to be installed. Please install one to install AUR packages.");
+                QMessageBox::critical(this, tr("Error"), tr("AUR package requires Yay or Paru to be installed. Please install one to install AUR packages."));
                 return;
             }
         }
@@ -910,7 +910,7 @@ void MainWindow::on_yaySearch_returnPressed() {
 void MainWindow::on_yayInstallPackageButton_clicked() {
     int row = ui->yayTable->currentRow();
     if (row < 0) {
-        QMessageBox::warning(this, "No Selection", "Please select a package to install.");
+        QMessageBox::warning(this, tr("No Selection"), tr("Please select a package to install."));
         return;
     }
     
@@ -935,7 +935,7 @@ void MainWindow::on_yayInstallPackageButton_clicked() {
 void MainWindow::on_yayUninstallPackageButton_clicked() {
     int row = ui->yayTable->currentRow();
     if (row < 0) {
-        QMessageBox::warning(this, "No Selection", "Please select a package to uninstall.");
+        QMessageBox::warning(this, tr("No Selection"), tr("Please select a package to uninstall."));
         return;
     }
     
@@ -974,7 +974,7 @@ void MainWindow::on_paruSearch_returnPressed() {
 void MainWindow::on_paruInstallPackageButton_clicked() {
     int row = ui->paruTable->currentRow();
     if (row < 0) {
-        QMessageBox::warning(this, "No Selection", "Please select a package to install.");
+        QMessageBox::warning(this, tr("No Selection"), tr("Please select a package to install."));
         return;
     }
     
@@ -999,7 +999,7 @@ void MainWindow::on_paruInstallPackageButton_clicked() {
 void MainWindow::on_paruUninstallPackageButton_clicked() {
     int row = ui->paruTable->currentRow();
     if (row < 0) {
-        QMessageBox::warning(this, "No Selection", "Please select a package to uninstall.");
+        QMessageBox::warning(this, tr("No Selection"), tr("Please select a package to uninstall."));
         return;
     }
     
@@ -1022,18 +1022,18 @@ void MainWindow::on_paruUninstallPackageButton_clicked() {
 }
 
 void MainWindow::on_yayInstallButton_clicked() {
-    QMessageBox::StandardButton reply = QMessageBox::question(this, "Install Yay",
-                                                              "This will install Yay AUR helper.\n\n"
+    QMessageBox::StandardButton reply = QMessageBox::question(this, tr("Install Yay"),
+                                                              tr("This will install Yay AUR helper.\n\n"
                                                               "This requires sudo privileges and will clone from GitHub.\n\n"
-                                                              "Do you want to continue?",
+                                                              "Do you want to continue?"),
                                                               QMessageBox::Yes | QMessageBox::No);
     if (reply != QMessageBox::Yes) {
         return;
     }
     
     bool ok;
-    QString sudoPassword = QInputDialog::getText(this, "Sudo Password",
-                                                 "Enter your sudo password:",
+    QString sudoPassword = QInputDialog::getText(this, tr("Sudo Password"),
+                                                 tr("Enter your sudo password:"),
                                                  QLineEdit::Password, "", &ok);
     if (!ok || sudoPassword.isEmpty()) {
         return;
@@ -1064,18 +1064,18 @@ void MainWindow::on_yayReinstallButton_clicked() {
 }
 
 void MainWindow::on_yayUninstallButton_clicked() {
-    QMessageBox::StandardButton reply = QMessageBox::question(this, "Uninstall Yay",
-                                                              "This will uninstall Yay AUR helper.\n\n"
+    QMessageBox::StandardButton reply = QMessageBox::question(this, tr("Uninstall Yay"),
+                                                              tr("This will uninstall Yay AUR helper.\n\n"
                                                               "This requires sudo privileges.\n\n"
-                                                              "Do you want to continue?",
+                                                              "Do you want to continue?"),
                                                               QMessageBox::Yes | QMessageBox::No);
     if (reply != QMessageBox::Yes) {
         return;
     }
     
     bool ok;
-    QString sudoPassword = QInputDialog::getText(this, "Sudo Password",
-                                                 "Enter your sudo password:",
+    QString sudoPassword = QInputDialog::getText(this, tr("Sudo Password"),
+                                                 tr("Enter your sudo password:"),
                                                  QLineEdit::Password, "", &ok);
     if (!ok || sudoPassword.isEmpty()) {
         return;
@@ -1103,18 +1103,18 @@ void MainWindow::on_yayUninstallButton_clicked() {
 }
 
 void MainWindow::on_paruInstallButton_clicked() {
-    QMessageBox::StandardButton reply = QMessageBox::question(this, "Install Paru",
-                                                              "This will install Paru AUR helper.\n\n"
+    QMessageBox::StandardButton reply = QMessageBox::question(this, tr("Install Paru"),
+                                                              tr("This will install Paru AUR helper.\n\n"
                                                               "This requires sudo privileges and will clone from GitHub.\n\n"
-                                                              "Do you want to continue?",
+                                                              "Do you want to continue?"),
                                                               QMessageBox::Yes | QMessageBox::No);
     if (reply != QMessageBox::Yes) {
         return;
     }
     
     bool ok;
-    QString sudoPassword = QInputDialog::getText(this, "Sudo Password",
-                                                 "Enter your sudo password:",
+    QString sudoPassword = QInputDialog::getText(this, tr("Sudo Password"),
+                                                 tr("Enter your sudo password:"),
                                                  QLineEdit::Password, "", &ok);
     if (!ok || sudoPassword.isEmpty()) {
         return;
@@ -1144,18 +1144,18 @@ void MainWindow::on_paruReinstallButton_clicked() {
 }
 
 void MainWindow::on_paruUninstallButton_clicked() {
-    QMessageBox::StandardButton reply = QMessageBox::question(this, "Uninstall Paru",
-                                                              "This will uninstall Paru AUR helper.\n\n"
+    QMessageBox::StandardButton reply = QMessageBox::question(this, tr("Uninstall Paru"),
+                                                              tr("This will uninstall Paru AUR helper.\n\n"
                                                               "This requires sudo privileges.\n\n"
-                                                              "Do you want to continue?",
+                                                              "Do you want to continue?"),
                                                               QMessageBox::Yes | QMessageBox::No);
     if (reply != QMessageBox::Yes) {
         return;
     }
     
     bool ok;
-    QString sudoPassword = QInputDialog::getText(this, "Sudo Password",
-                                                 "Enter your sudo password:",
+    QString sudoPassword = QInputDialog::getText(this, tr("Sudo Password"),
+                                                 tr("Enter your sudo password:"),
                                                  QLineEdit::Password, "", &ok);
     if (!ok || sudoPassword.isEmpty()) {
         return;
