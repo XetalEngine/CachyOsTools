@@ -76,6 +76,16 @@ struct PackageEntry {
     bool isInstalled;
 };
 
+// First-boot hardware adaptation options for the System ISO (each independent;
+// all off = exact clone, the untouched default behavior)
+struct IsoFirstBootOptions {
+    bool fixNetwork = false;
+    bool fixGpu = false;
+    bool changeUser = false;
+    bool regenSsh = false;
+    bool any() const { return fixNetwork || fixGpu || changeUser || regenSsh; }
+};
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -364,6 +374,7 @@ private slots:
     void on_orphanCleanButton_clicked();
     void on_cacheCleanButton_clicked();
     void on_portsRefreshButton_clicked();
+    void on_dashRefreshButton_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -469,7 +480,8 @@ private:
     
     // ISO Creator helper functions
     QString createIsoScript(const QString &isoName, const QString &outputDir, const QString &sudoPassword, bool offlineMode = false,
-                            const QStringList &excludePaths = QStringList());
+                            const QStringList &excludePaths = QStringList(),
+                            const IsoFirstBootOptions &firstBoot = IsoFirstBootOptions());
     QString formatSize(qint64 bytes);
 
     // ISO exclusion panels (big folders / ~/.config)
@@ -502,6 +514,8 @@ private:
     QString colorizeLogLine(const QString &line);
     void fetchArchNews();
     void refreshOpenPorts();
+    void refreshDashboard();
+    void applyAppTheme();
     QProcess *journalFollowProcess = nullptr;
 
     // Uninstall tab helper functions

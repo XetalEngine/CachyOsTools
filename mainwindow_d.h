@@ -1,9 +1,12 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) , ui(new Ui::MainWindow) , currentProcess(nullptr)
 {
     ui->setupUi(this);
-    
+
+    // XETAL theme: card look + green accents on every tab
+    applyAppTheme();
+
     // Set current tab first before applying visibility preferences
-    ui->tabWidget->setCurrentWidget(ui->driveToolsTab);
+    ui->tabWidget->setCurrentWidget(ui->dashboardTab);
     
     // Load all preferences after UI is fully set up and all connections are made
     // Use a longer delay to ensure all signal connections are established before modifying tabs
@@ -345,12 +348,46 @@ shellConfigFiles["ksh"] = QStringList()
             refreshWifiNetworks(false);
             refreshOpenPorts();
         }
+        if (ui->tabWidget->widget(index) == ui->dashboardTab) {
+            refreshDashboard();
+        }
         if (ui->tabWidget->widget(index) == ui->isoCreatorTab) {
             // Lazy first scan of the exclusion panels
             if (!isoHomeScanDone) startIsoHomeScan();
             if (!isoConfigScanDone) startIsoConfigScan();
         }
     });
+
+    // Dashboard: card buttons jump to their tabs, refresh on open and shortly after startup
+    connect(ui->dashDrivesButton, &QPushButton::clicked, this, [this]() { ui->tabWidget->setCurrentWidget(ui->driveToolsTab); });
+    connect(ui->dashServicesButton, &QPushButton::clicked, this, [this]() { ui->tabWidget->setCurrentWidget(ui->servicesTab); });
+    connect(ui->dashUpdatesButton, &QPushButton::clicked, this, [this]() { ui->tabWidget->setCurrentWidget(ui->packageManagerTab); });
+    connect(ui->dashDiskButton, &QPushButton::clicked, this, [this]() { ui->tabWidget->setCurrentWidget(ui->driveToolsTab); });
+    connect(ui->dashIsoButton, &QPushButton::clicked, this, [this]() { ui->tabWidget->setCurrentWidget(ui->isoCreatorTab); });
+    connect(ui->dashSystemButton, &QPushButton::clicked, this, [this]() { ui->tabWidget->setCurrentWidget(ui->logsTab); });
+    QTimer::singleShot(800, this, [this]() { refreshDashboard(); });
+
+    // ISO install mode: Exact Clone and the compatibility options are mutually exclusive
+    connect(ui->isoExactCloneCheck, &QCheckBox::toggled, this, [this](bool checked) {
+        if (checked) {
+            ui->isoCompatNetworkCheck->setChecked(false);
+            ui->isoCompatGpuCheck->setChecked(false);
+            ui->isoCompatUserCheck->setChecked(false);
+            ui->isoCompatSshCheck->setChecked(false);
+        }
+    });
+    auto compatToggled = [this](bool checked) {
+        if (checked) {
+            ui->isoExactCloneCheck->setChecked(false);
+        } else if (!ui->isoCompatNetworkCheck->isChecked() && !ui->isoCompatGpuCheck->isChecked() &&
+                   !ui->isoCompatUserCheck->isChecked() && !ui->isoCompatSshCheck->isChecked()) {
+            ui->isoExactCloneCheck->setChecked(true); // nothing selected -> back to exact clone
+        }
+    };
+    connect(ui->isoCompatNetworkCheck, &QCheckBox::toggled, this, compatToggled);
+    connect(ui->isoCompatGpuCheck, &QCheckBox::toggled, this, compatToggled);
+    connect(ui->isoCompatUserCheck, &QCheckBox::toggled, this, compatToggled);
+    connect(ui->isoCompatSshCheck, &QCheckBox::toggled, this, compatToggled);
 
     // ISO Creator exclusion panels
     connect(ui->isoRescanButton, &QPushButton::clicked, this, [this]() { startIsoHomeScan(); });

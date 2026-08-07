@@ -44,10 +44,29 @@ void MainWindow::on_createIsoButton_clicked()
     // Gather exclusions from the two panels
     QStringList excludePaths = collectIsoExcludePaths();
 
+    // Gather first-boot hardware adaptation options (all off = exact clone)
+    IsoFirstBootOptions firstBoot;
+    if (!ui->isoExactCloneCheck->isChecked()) {
+        firstBoot.fixNetwork = ui->isoCompatNetworkCheck->isChecked();
+        firstBoot.fixGpu = ui->isoCompatGpuCheck->isChecked();
+        firstBoot.changeUser = ui->isoCompatUserCheck->isChecked();
+        firstBoot.regenSsh = ui->isoCompatSshCheck->isChecked();
+    }
+
     // Confirm with user
     QString excludeSummary = excludePaths.isEmpty()
         ? "• Nothing excluded (complete system)\n"
         : QString("• %1 folder(s)/file(s) EXCLUDED from the ISO\n").arg(excludePaths.size());
+    if (firstBoot.any()) {
+        QStringList opts;
+        if (firstBoot.fixNetwork) opts << "network";
+        if (firstBoot.fixGpu) opts << "GPU";
+        if (firstBoot.changeUser) opts << "user/password";
+        if (firstBoot.regenSsh) opts << "SSH keys";
+        excludeSummary += QString("• First-boot hardware adaptation: %1\n").arg(opts.join(", "));
+    } else {
+        excludeSummary += "• Exact clone mode (no first-boot changes)\n";
+    }
     QString message = QString("This will create a system clone ISO with the following settings:\n\n"
     "ISO Name: %1\n"
     "Output Directory: %2\n\n"
@@ -104,7 +123,7 @@ void MainWindow::on_createIsoButton_clicked()
     QFile::copy(":/images/XetalLogo.bmp", logoStageBmp);
 
     // Create and run the ISO creation script
-    QString scriptPath = createIsoScript(isoName, outputDir, sudoPassword, offlineMode, excludePaths);
+    QString scriptPath = createIsoScript(isoName, outputDir, sudoPassword, offlineMode, excludePaths, firstBoot);
     if (scriptPath.isEmpty()) {
         ui->createIsoButton->setEnabled(true);
         return;
@@ -235,7 +254,7 @@ void MainWindow::on_createIsoButton_clicked()
 
 // Helper function to create the ISO creation script
 QString MainWindow::createIsoScript(const QString &isoName, const QString &outputDir, const QString &sudoPassword, bool offlineMode,
-                                    const QStringList &excludePaths)
+                                    const QStringList &excludePaths, const IsoFirstBootOptions &firstBoot)
 {
     // Create temporary script file
     QString tempDir = QDir::tempPath();
@@ -428,6 +447,183 @@ QString MainWindow::createIsoScript(const QString &isoName, const QString &outpu
     out << "[[ -f \"$BASE/XetalEngine.png\" ]] && cp \"$BASE/XetalEngine.png\" \"$PROFILE/airootfs/opt/clone/logo.png\"\n";
     out << "[[ -f \"$BASE/XetalLogo.bmp\" ]] && cp \"$BASE/XetalLogo.bmp\" \"$PROFILE/airootfs/opt/clone/logo.bmp\"\n\n";
 
+    if (firstBoot.any()) {
+        out << "# === First-boot hardware adaptation (selected in the app) ===\n";
+        out << "cat > \"$PROFILE/airootfs/opt/clone/firstboot.conf\" <<'FBCONF'\n";
+        out << "FIX_NETWORK=" << (firstBoot.fixNetwork ? "1" : "0") << "\n";
+        out << "FIX_GPU=" << (firstBoot.fixGpu ? "1" : "0") << "\n";
+        out << "CHANGE_USER=" << (firstBoot.changeUser ? "1" : "0") << "\n";
+        out << "REGEN_SSH=" << (firstBoot.regenSsh ? "1" : "0") << "\n";
+        out << "FBCONF\n\n";
+
+        out << "cat > \"$PROFILE/airootfs/opt/clone/xetal-firstboot.service\" <<'FBUNIT'\n";
+        out << "[Unit]\n";
+        out << "Description=XETAL ENGINE first-boot hardware adaptation\n";
+        out << "ConditionPathExists=/etc/xetal-firstboot.conf\n";
+        out << "Wants=NetworkManager.service\n";
+        out << "After=NetworkManager.service systemd-user-sessions.service\n";
+        out << "Before=display-manager.service getty@tty1.service\n";
+        out << "\n";
+        out << "[Service]\n";
+        out << "Type=oneshot\n";
+        out << "StandardInput=tty\n";
+        out << "StandardOutput=tty\n";
+        out << "TTYPath=/dev/tty1\n";
+        out << "TTYReset=yes\n";
+        out << "TTYVHangup=yes\n";
+        out << "ExecStart=/usr/local/bin/xetal-firstboot.sh\n";
+        out << "TimeoutStartSec=0\n";
+        out << "\n";
+        out << "[Install]\n";
+        out << "WantedBy=multi-user.target\n";
+        out << "FBUNIT\n\n";
+
+        out << "cat > \"$PROFILE/airootfs/opt/clone/xetal-firstboot.sh\" <<'FBSH'\n";
+        out << "#!/usr/bin/env bash\n";
+        out << "CONF=/etc/xetal-firstboot.conf\n";
+        out << "LOG=/var/log/xetal-firstboot.log\n";
+        out << "[ -f \"$CONF\" ] || exit 0\n";
+        out << ". \"$CONF\"\n";
+        out << "exec > >(tee -a \"$LOG\") 2>&1\n";
+        out << "GRN=$'\\e[32m'; RED=$'\\e[31m'; YLW=$'\\e[33m'; CLR=$'\\e[0m'\n";
+        out << "echo \"\"\n";
+        out << "echo \"${GRN}=== XETAL ENGINE first-boot hardware adaptation ===${CLR}\"\n";
+        out << "ok=1\n";
+        out << "\n";
+        out << "# --- d) SSH host keys ---\n";
+        out << "if [ \"${REGEN_SSH:-0}\" = \"1\" ]; then\n";
+        out << "  echo \"[ssh] Regenerating SSH host keys (new machine identity)...\"\n";
+        out << "  rm -f /etc/ssh/ssh_host_*\n";
+        out << "  if command -v ssh-keygen >/dev/null 2>&1; then ssh-keygen -A >/dev/null && echo \"[ssh] done\"; else echo \"[ssh] openssh not installed - skipped\"; fi\n";
+        out << "fi\n";
+        out << "\n";
+        out << "# --- a) Network adaptation ---\n";
+        out << "if [ \"${FIX_NETWORK:-0}\" = \"1\" ]; then\n";
+        out << "  echo \"[net] Adapting network configuration to this hardware...\"\n";
+        out << "  if command -v nmcli >/dev/null 2>&1; then\n";
+        out << "    for uuid in $(nmcli -t -f UUID connection show 2>/dev/null); do\n";
+        out << "      ifname=$(nmcli -g connection.interface-name connection show uuid \"$uuid\" 2>/dev/null)\n";
+        out << "      [ -n \"$ifname\" ] || continue\n";
+        out << "      ip link show \"$ifname\" >/dev/null 2>&1 && continue\n";
+        out << "      master=$(nmcli -g connection.master connection show uuid \"$uuid\" 2>/dev/null)\n";
+        out << "      ctype=$(nmcli -g connection.type connection show uuid \"$uuid\" 2>/dev/null)\n";
+        out << "      if [ -n \"$master\" ]; then\n";
+        out << "        echo \"[net] removing stale bridge-slave for missing '$ifname'\"\n";
+        out << "        nmcli connection delete uuid \"$uuid\" >/dev/null 2>&1\n";
+        out << "      elif [ \"$ctype\" = \"802-3-ethernet\" ]; then\n";
+        out << "        echo \"[net] unbinding wired profile from missing '$ifname' (will match any NIC)\"\n";
+        out << "        nmcli connection modify uuid \"$uuid\" connection.interface-name \"\" >/dev/null 2>&1\n";
+        out << "      fi\n";
+        out << "    done\n";
+        out << "    eth=\"\"\n";
+        out << "    for d in $(nmcli -t -f DEVICE,TYPE device 2>/dev/null | awk -F: '$2==\"ethernet\"{print $1}'); do\n";
+        out << "      eth=\"$d\"\n";
+        out << "      [ \"$(cat /sys/class/net/$d/carrier 2>/dev/null)\" = \"1\" ] && break\n";
+        out << "    done\n";
+        out << "    wifi=$(nmcli -t -f DEVICE,TYPE device 2>/dev/null | awk -F: '$2==\"wifi\"{print $1; exit}')\n";
+        out << "    nmcli -t -f NAME,TYPE connection show 2>/dev/null | awk -F: '$2==\"bridge\"{print $1}' | while read -r br; do\n";
+        out << "      bruuid=$(nmcli -t -g connection.uuid connection show \"$br\" 2>/dev/null | head -1)\n";
+        out << "      have=\"\"\n";
+        out << "      for uuid in $(nmcli -t -f UUID connection show); do\n";
+        out << "        m=$(nmcli -g connection.master connection show uuid \"$uuid\" 2>/dev/null)\n";
+        out << "        if [ \"$m\" = \"$br\" ]; then have=1; elif [ -n \"$bruuid\" ] && [ \"$m\" = \"$bruuid\" ]; then have=1; fi\n";
+        out << "      done\n";
+        out << "      if [ -z \"$have\" ] && [ -n \"$eth\" ]; then\n";
+        out << "        echo \"[net] attaching bridge '$br' to $eth\"\n";
+        out << "        nmcli connection add type bridge-slave ifname \"$eth\" master \"$br\" >/dev/null 2>&1\n";
+        out << "      elif [ -z \"$have\" ] && [ -n \"$wifi\" ]; then\n";
+        out << "        echo \"[net] no ethernet found - switching bridge '$br' to shared/NAT mode over Wi-Fi\"\n";
+        out << "        nmcli connection modify \"$br\" ipv4.method shared ipv6.method ignore >/dev/null 2>&1\n";
+        out << "      fi\n";
+        out << "    done\n";
+        out << "    echo \"[net] done\"\n";
+        out << "  else\n";
+        out << "    echo \"[net] NetworkManager not present - skipped\"\n";
+        out << "  fi\n";
+        out << "fi\n";
+        out << "\n";
+        out << "# --- b) GPU adaptation ---\n";
+        out << "if [ \"${FIX_GPU:-0}\" = \"1\" ]; then\n";
+        out << "  echo \"[gpu] Detecting graphics hardware...\"\n";
+        out << "  gpuinfo=$(lspci -nn 2>/dev/null | grep -Ei 'vga|3d controller|display')\n";
+        out << "  echo \"[gpu] $gpuinfo\"\n";
+        out << "  if echo \"$gpuinfo\" | grep -qi nvidia; then\n";
+        out << "    echo \"[gpu] NVIDIA detected - leaving the existing setup untouched (bulletproof).\"\n";
+        out << "  elif echo \"$gpuinfo\" | grep -Eqi 'amd|ati|radeon'; then\n";
+        out << "    echo \"[gpu] AMD detected - installing drivers and configuring X11 + Wayland...\"\n";
+        out << "    command -v nm-online >/dev/null 2>&1 && nm-online -t 45 >/dev/null 2>&1\n";
+        out << "    pkgs=\"mesa vulkan-radeon libva-mesa-driver xf86-video-amdgpu\"\n";
+        out << "    grep -q \"^\\[multilib\\]\" /etc/pacman.conf 2>/dev/null && pkgs=\"$pkgs lib32-mesa lib32-vulkan-radeon\"\n";
+        out << "    if pacman -Sy --noconfirm --needed $pkgs; then\n";
+        out << "      echo \"[gpu] AMD driver packages installed.\"\n";
+        out << "    else\n";
+        out << "      echo \"${YLW}[gpu] Package install failed (no internet yet?) - will retry on next boot.${CLR}\"\n";
+        out << "      ok=0\n";
+        out << "    fi\n";
+        out << "    mkdir -p /etc/X11/xetal-quarantine\n";
+        out << "    for f in /etc/X11/xorg.conf /etc/X11/xorg.conf.d/*.conf; do\n";
+        out << "      [ -f \"$f\" ] || continue\n";
+        out << "      if grep -qi 'driver.*\"nvidia\"' \"$f\"; then\n";
+        out << "        echo \"[gpu] quarantining X11 config that forces nvidia: $f\"\n";
+        out << "        mv \"$f\" /etc/X11/xetal-quarantine/\n";
+        out << "      fi\n";
+        out << "    done\n";
+        out << "    if [ -f /etc/environment ]; then\n";
+        out << "      sed -i -E 's/^(GBM_BACKEND=nvidia)/#\\1/; s/^(__GLX_VENDOR_LIBRARY_NAME=nvidia)/#\\1/' /etc/environment\n";
+        out << "    fi\n";
+        out << "    [ -f /etc/gdm/custom.conf ] && sed -i 's/^WaylandEnable=false/#WaylandEnable=false/' /etc/gdm/custom.conf\n";
+        out << "    for f in /etc/modprobe.d/*.conf; do\n";
+        out << "      [ -f \"$f\" ] && sed -i 's/^blacklist amdgpu/#blacklist amdgpu/' \"$f\"\n";
+        out << "    done\n";
+        out << "    echo \"[gpu] X11 configs cleaned and Wayland re-enabled where applicable.\"\n";
+        out << "  else\n";
+        out << "    echo \"[gpu] Intel/other GPU detected - mesa already covers it, nothing to do.\"\n";
+        out << "  fi\n";
+        out << "fi\n";
+        out << "\n";
+        out << "# --- c) Username / password (interactive on the console) ---\n";
+        out << "if [ \"${CHANGE_USER:-0}\" = \"1\" ]; then\n";
+        out << "  olduser=$(awk -F: '$3>=1000 && $3<60000 && $1!=\"nobody\"{print $1; exit}' /etc/passwd)\n";
+        out << "  if [ -n \"$olduser\" ]; then\n";
+        out << "    echo \"\"\n";
+        out << "    echo \"${GRN}--- User account setup ---${CLR}\"\n";
+        out << "    echo \"Current main user: $olduser\"\n";
+        out << "    printf \"New username (press Enter to keep '%s'): \" \"$olduser\"\n";
+        out << "    read -r newuser || newuser=\"\"\n";
+        out << "    if [ -n \"$newuser\" ] && [ \"$newuser\" != \"$olduser\" ]; then\n";
+        out << "      if usermod -l \"$newuser\" \"$olduser\" 2>/dev/null; then\n";
+        out << "        groupmod -n \"$newuser\" \"$olduser\" 2>/dev/null\n";
+        out << "        usermod -d \"/home/$newuser\" -m \"$newuser\" 2>/dev/null\n";
+        out << "        echo \"[user] renamed '$olduser' -> '$newuser'\"\n";
+        out << "        olduser=\"$newuser\"\n";
+        out << "      else\n";
+        out << "        echo \"${RED}[user] rename failed - keeping '$olduser'${CLR}\"\n";
+        out << "      fi\n";
+        out << "    fi\n";
+        out << "    echo \"Set a new password for '$olduser' (Ctrl+C to keep the current one):\"\n";
+        out << "    passwd \"$olduser\" || echo \"[user] password unchanged\"\n";
+        out << "  fi\n";
+        out << "fi\n";
+        out << "\n";
+        out << "if [ \"$ok\" = \"1\" ]; then\n";
+        out << "  rm -f \"$CONF\"\n";
+        out << "  systemctl disable xetal-firstboot.service >/dev/null 2>&1\n";
+        out << "  echo \"${GRN}=== Adaptation complete - continuing boot ===${CLR}\"\n";
+        out << "else\n";
+        out << "  n=$(cat /var/lib/xetal-firstboot-tries 2>/dev/null || echo 0)\n";
+        out << "  n=$((n+1)); echo \"$n\" > /var/lib/xetal-firstboot-tries\n";
+        out << "  if [ \"$n\" -ge 3 ]; then\n";
+        out << "    rm -f \"$CONF\"; systemctl disable xetal-firstboot.service >/dev/null 2>&1\n";
+        out << "    echo \"${YLW}Giving up after 3 attempts - see $LOG${CLR}\"\n";
+        out << "  else\n";
+        out << "    echo \"${YLW}Will retry the remaining steps on next boot (attempt $n/3).${CLR}\"\n";
+        out << "  fi\n";
+        out << "fi\n";
+        out << "sleep 2\n";
+        out << "exit 0\n";
+        out << "FBSH\n\n";
+    }
+
     out << "INSTALLER_REL=\"/usr/local/bin/installer.sh\"\n";
     out << "mkdir -p \"$PROFILE/airootfs$(dirname \"$INSTALLER_REL\")\"\n";
     out << "cat > \"$PROFILE/airootfs$INSTALLER_REL\" <<'EOF'\n";
@@ -525,6 +721,14 @@ QString MainWindow::createIsoScript(const QString &isoName, const QString &outpu
     out << "genfstab -U /mnt > /mnt/etc/fstab\n";
     out << ": > /mnt/etc/machine-id\n\n";
 
+    out << "# First-boot hardware adaptation (only present if selected at build time)\n";
+    out << "if [ -f /opt/clone/firstboot.conf ]; then\n";
+    out << "  echo \"${BLU}[+] Installing first-boot hardware adaptation…${CLR}\"\n";
+    out << "  install -Dm755 /opt/clone/xetal-firstboot.sh /mnt/usr/local/bin/xetal-firstboot.sh\n";
+    out << "  install -Dm644 /opt/clone/firstboot.conf /mnt/etc/xetal-firstboot.conf\n";
+    out << "  install -Dm644 /opt/clone/xetal-firstboot.service /mnt/etc/systemd/system/xetal-firstboot.service\n";
+    out << "fi\n\n";
+
     out << "echo \"${BLU}[5/6] Finalize inside chroot…${CLR}\"\n";
     out << "arch-chroot /mnt /bin/bash -e <<CHROOT\n";
     out << "set -euo pipefail\n";
@@ -541,6 +745,7 @@ QString MainWindow::createIsoScript(const QString &isoName, const QString &outpu
 
     out << "if command -v mkinitcpio >/dev/null 2>&1; then mkinitcpio -P || true; fi\n";
     out << "if command -v systemctl   >/dev/null 2>&1; then systemctl enable NetworkManager || true; fi\n";
+    out << "if [ -f /etc/xetal-firstboot.conf ]; then systemctl enable xetal-firstboot.service || true; fi\n";
     out << "CHROOT\n\n";
 
     out << "echo \"${BLU}[6/6] Done.${CLR}\"\n";

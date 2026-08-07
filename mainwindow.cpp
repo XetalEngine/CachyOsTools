@@ -18,6 +18,7 @@
 #include "packagemanager.h"
 #include "uninstalltab.h"
 #include "tabupgrades.h"
+#include "dashboard.h"
 #include "preferences.h"
 #include "network.h"
 

@@ -33,6 +33,7 @@ set(PROJECT_SOURCES
         includes.h
         uninstalltab.h
         tabupgrades.h
+        dashboard.h
         isoexclusions.h
         resources.qrc
         # Additional files (currently empty but may be implemented)

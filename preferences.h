@@ -71,6 +71,7 @@ void MainWindow::showPreferencesDialog() {
     
     QMap<QString, QCheckBox*> checkboxes;
     QMap<QString, QString> tabNames;
+    tabNames["dashboardTab"] = "Dashboard";
     tabNames["driveToolsTab"] = "Drives";
     tabNames["shellToolsTab"] = "Shell";
     tabNames["servicesTab"] = "Services";
@@ -220,6 +221,7 @@ void MainWindow::loadTabVisibilityPreferences() {
     
     // Load visibility for each tab (default to true/visible)
     QStringList tabNames = {
+        "dashboardTab",
         "driveToolsTab", "shellToolsTab", "servicesTab", "tweaksTab",
         "kvmTab", "configTab", "logsTab", "backupTab", "restoreTab",
         "isoCreatorTab", "packageManagerTab", "uninstallTab", "networkTab"
@@ -255,6 +257,7 @@ void MainWindow::applyTabVisibility() {
     
     // Apply visibility to each tab
     QMap<QString, QWidget*> tabs;
+    tabs["dashboardTab"] = ui->dashboardTab;
     tabs["driveToolsTab"] = ui->driveToolsTab;
     tabs["shellToolsTab"] = ui->shellToolsTab;
     tabs["servicesTab"] = ui->servicesTab;
@@ -293,6 +296,7 @@ void MainWindow::applyTabVisibility() {
     
     // Define tab order and titles
     QMap<QString, QString> tabTitles;
+    tabTitles["dashboardTab"] = "Dashboard";
     tabTitles["driveToolsTab"] = "Drives";
     tabTitles["shellToolsTab"] = "Shell";
     tabTitles["servicesTab"] = "Services";
@@ -308,6 +312,7 @@ void MainWindow::applyTabVisibility() {
     tabTitles["networkTab"] = "Network";
 
     QStringList tabOrder = {
+        "dashboardTab",
         "driveToolsTab", "shellToolsTab", "servicesTab", "tweaksTab",
         "kvmTab", "configTab", "logsTab", "backupTab", "restoreTab",
         "isoCreatorTab", "packageManagerTab", "uninstallTab", "networkTab"

@@ -20,6 +20,241 @@
       <property name="currentIndex">
        <number>8</number>
       </property>
+      <widget class="QWidget" name="dashboardTab">
+       <attribute name="title">
+        <string>Dashboard</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_dashboard">
+        <item>
+         <layout class="QHBoxLayout" name="dashTopLayout">
+          <item>
+           <widget class="QLabel" name="dashTitleLabel">
+            <property name="text">
+             <string>System at a glance</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="dashTopSpacer">
+            <property name="orientation">
+             <enum>Qt::Orientation::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="dashRefreshButton">
+            <property name="text">
+             <string>🔄 Refresh</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QGridLayout" name="dashGrid">
+        <item row="0" column="0">
+         <widget class="QGroupBox" name="dashDrivesGroup">
+          <property name="title">
+           <string>💾 Drive Health</string>
+          </property>
+          <layout class="QVBoxLayout" name="dashDrivesLayout">
+           <item>
+            <widget class="QLabel" name="dashDrivesLabel">
+             <property name="text">
+              <string>Loading...</string>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="dashDrivesButton">
+             <property name="text">
+              <string>Open →</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QGroupBox" name="dashServicesGroup">
+          <property name="title">
+           <string>🧩 Services</string>
+          </property>
+          <layout class="QVBoxLayout" name="dashServicesLayout">
+           <item>
+            <widget class="QLabel" name="dashServicesLabel">
+             <property name="text">
+              <string>Loading...</string>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="dashServicesButton">
+             <property name="text">
+              <string>Open →</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QGroupBox" name="dashUpdatesGroup">
+          <property name="title">
+           <string>⬆️ Updates</string>
+          </property>
+          <layout class="QVBoxLayout" name="dashUpdatesLayout">
+           <item>
+            <widget class="QLabel" name="dashUpdatesLabel">
+             <property name="text">
+              <string>Loading...</string>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="dashUpdatesButton">
+             <property name="text">
+              <string>Open →</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QGroupBox" name="dashDiskGroup">
+          <property name="title">
+           <string>📊 Disk Space</string>
+          </property>
+          <layout class="QVBoxLayout" name="dashDiskLayout">
+           <item>
+            <widget class="QLabel" name="dashDiskLabel">
+             <property name="text">
+              <string>Loading...</string>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="dashDiskButton">
+             <property name="text">
+              <string>Open →</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QGroupBox" name="dashIsoGroup">
+          <property name="title">
+           <string>📀 Safety ISO</string>
+          </property>
+          <layout class="QVBoxLayout" name="dashIsoLayout">
+           <item>
+            <widget class="QLabel" name="dashIsoLabel">
+             <property name="text">
+              <string>Loading...</string>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="dashIsoButton">
+             <property name="text">
+              <string>Open →</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QGroupBox" name="dashSystemGroup">
+          <property name="title">
+           <string>🧠 System</string>
+          </property>
+          <layout class="QVBoxLayout" name="dashSystemLayout">
+           <item>
+            <widget class="QLabel" name="dashSystemLabel">
+             <property name="text">
+              <string>Loading...</string>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="dashSystemButton">
+             <property name="text">
+              <string>Open →</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        </layout>
+        </item>
+        <item>
+         <widget class="QLabel" name="dashPromoLabel">
+          <property name="text">
+           <string>Loading...</string>
+          </property>
+          <property name="openExternalLinks">
+           <bool>true</bool>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>52</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
       <widget class="QWidget" name="driveToolsTab">
        <attribute name="title">
         <string>Drives</string>
@@ -3147,6 +3382,60 @@
                </widget>
               </item>
              </layout>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="isoInstallModeGroup">
+              <property name="title">
+               <string>Installation Mode</string>
+              </property>
+              <layout class="QVBoxLayout" name="isoInstallModeLayout">
+               <item>
+                <widget class="QCheckBox" name="isoExactCloneCheck">
+                 <property name="text">
+                  <string>1) Exact Clone (default) — restore the system exactly as it is. Flawless on same/similar hardware.</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="isoCompatLabel">
+                 <property name="text">
+                  <string>2) Hardware Compatibility Options — first-boot adaptation for DIFFERENT hardware (each optional):</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="isoCompatNetworkCheck">
+                 <property name="text">
+                  <string>    a) Auto-detect network cards — repair bridges &amp; adapter bindings on first boot</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="isoCompatGpuCheck">
+                 <property name="text">
+                  <string>    b) Auto-detect GPU — NVIDIA: leave untouched; AMD: install drivers + configure X11 &amp; Wayland</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="isoCompatUserCheck">
+                 <property name="text">
+                  <string>    c) Offer username &amp; password change on first boot</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="isoCompatSshCheck">
+                 <property name="text">
+                  <string>    d) Regenerate SSH host keys (new machine identity)</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
             </item>
             <item>
              <widget class="QGroupBox" name="isoModeGroup">
