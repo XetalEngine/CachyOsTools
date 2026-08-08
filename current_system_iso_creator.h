@@ -823,6 +823,18 @@ QString MainWindow::createIsoScript(const QString &isoName, const QString &outpu
     out << "echo \"[*] Building ISO with mkarchiso (home-only dirs)…\"\n";
     out << "echo \"[*] Available space before ISO build:\"\n";
     out << "df -h . | tail -1\n";
+    // An interrupted mkarchiso leaves /proc, /sys and /dev bind-mounted inside the
+    // work dir. rm -rf would then walk into the LIVE filesystem and fail with
+    // "Operation not permitted" on every process entry, blocking every later build.
+    // Release anything still mounted under $WORK first, deepest path first.
+    out << "unmount_work() {\n";
+    out << "  local m\n";
+    out << "  while read -r m; do\n";
+    out << "    echo \"[*] Releasing leftover mount: $m\"\n";
+    out << "    run_sudo umount -l \"$m\" 2>/dev/null || true\n";
+    out << "  done < <(awk -v w=\"$WORK\" '$2 == w || index($2, w \"/\") == 1 {print $2}' /proc/self/mounts | sort -r)\n";
+    out << "}\n";
+    out << "unmount_work\n";
     out << "run_sudo rm -rf \"$WORK\" \"$OUT\"\n";
     out << "mkdir -p \"$OUT\"\n";
     out << "run_sudo mkarchiso -v -w \"$WORK\" -o \"$OUT\" \"$PROFILE\"\n\n";
@@ -831,6 +843,7 @@ QString MainWindow::createIsoScript(const QString &isoName, const QString &outpu
     out << "echo \"[✓] ISO ready in: $OUT\"\n";
     out << "ls -lh \"$OUT\"/*.iso || true\n";
     out << "echo \"[*] Final cleanup - removing work directory:\"\n";
+    out << "unmount_work\n";
     out << "run_sudo rm -rf \"$WORK\"\n";
 
     // Clean up offline cache if used
