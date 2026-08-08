@@ -1948,23 +1948,23 @@ Installieren mit: sudo pacman -S smartmontools</translation>
     </message>
     <message>
         <source>Every PCI and USB device, the kernel driver it uses, and its modules.</source>
-        <translation>Alle PCI- und USB-Geräte, der verwendete Kerneltreiber und seine Module.</translation>
+        <translation type="vanished">Alle PCI- und USB-Geräte, der verwendete Kerneltreiber und seine Module.</translation>
     </message>
     <message>
         <source>ℹ️ Module Info</source>
-        <translation>ℹ️ Modul-Info</translation>
+        <translation type="vanished">ℹ️ Modul-Info</translation>
     </message>
     <message>
         <source>▶️ Load Module</source>
-        <translation>▶️ Modul laden</translation>
+        <translation type="vanished">▶️ Modul laden</translation>
     </message>
     <message>
         <source>⏏️ Unload Module</source>
-        <translation>⏏️ Modul entladen</translation>
+        <translation type="vanished">⏏️ Modul entladen</translation>
     </message>
     <message>
         <source>🚫 Blacklist Module</source>
-        <translation>🚫 Modul blockieren</translation>
+        <translation type="vanished">🚫 Modul blockieren</translation>
     </message>
     <message>
         <source>Driver in use</source>
@@ -1976,11 +1976,11 @@ Installieren mit: sudo pacman -S smartmontools</translation>
     </message>
     <message>
         <source>No Module</source>
-        <translation>Kein Modul</translation>
+        <translation type="vanished">Kein Modul</translation>
     </message>
     <message>
         <source>Select a device that has a kernel module.</source>
-        <translation>Wähle ein Gerät mit einem Kernelmodul.</translation>
+        <translation type="vanished">Wähle ein Gerät mit einem Kernelmodul.</translation>
     </message>
     <message>
         <source>No modinfo available for '%1' (may be built into the kernel).</source>
@@ -1999,12 +1999,72 @@ Installieren mit: sudo pacman -S smartmontools</translation>
         <translation>Modul entladen</translation>
     </message>
     <message>
+        <source>🔍 Filter devices, vendors or drivers...</source>
+        <translation>🔍 Geräte, Hersteller oder Treiber filtern...</translation>
+    </message>
+    <message>
+        <source>🔎 Properties</source>
+        <translation>🔎 Eigenschaften</translation>
+    </message>
+    <message>
+        <source>📄 Export Report</source>
+        <translation>📄 Bericht exportieren</translation>
+    </message>
+    <message>
+        <source>Double-click or right-click a device for full properties, driver details and module actions.</source>
+        <translation>Doppelklick oder Rechtsklick auf ein Gerät für vollständige Eigenschaften, Treiberdetails und Modulaktionen.</translation>
+    </message>
+    <message>
+        <source>Vendor</source>
+        <translation>Hersteller</translation>
+    </message>
+    <message>
+        <source>Driver</source>
+        <translation>Treiber</translation>
+    </message>
+    <message>
+        <source>IRQ</source>
+        <translation>IRQ</translation>
+    </message>
+    <message>
+        <source>Link / Speed</source>
+        <translation>Link / Geschwindigkeit</translation>
+    </message>
+    <message>
+        <source>📋 Copy device ID</source>
+        <translation>📋 Geräte-ID kopieren</translation>
+    </message>
+    <message>
+        <source>📋 Copy full device line</source>
+        <translation>📋 Ganze Gerätezeile kopieren</translation>
+    </message>
+    <message>
+        <source>🌐 Search this device online</source>
+        <translation>🌐 Dieses Gerät online suchen</translation>
+    </message>
+    <message>
+        <source>ℹ️ Module info (%1)</source>
+        <translation>ℹ️ Modul-Info (%1)</translation>
+    </message>
+    <message>
+        <source>▶️ Load module</source>
+        <translation>▶️ Modul laden</translation>
+    </message>
+    <message>
+        <source>⏏️ Unload module</source>
+        <translation>⏏️ Modul entladen</translation>
+    </message>
+    <message>
         <source>Unloading '%1' can take away your display, network or input if it is in use.
 
 Continue?</source>
         <translation>Das Entladen von '%1' kann Anzeige, Netzwerk oder Eingabe lahmlegen, wenn es in Benutzung ist.
 
 Fortfahren?</translation>
+    </message>
+    <message>
+        <source>🚫 Blacklist module</source>
+        <translation>🚫 Modul blockieren</translation>
     </message>
     <message>
         <source>Blacklist Module</source>
@@ -2017,8 +2077,202 @@ Blacklisting your GPU, disk or network driver will break the system. Continue?</
         <translation type="unfinished" />
     </message>
     <message>
+        <source>Export Device Report</source>
+        <translation>Gerätebericht exportieren</translation>
+    </message>
+    <message>
+        <source>Text files (*.txt)</source>
+        <translation>Textdateien (*.txt)</translation>
+    </message>
+    <message>
+        <source>Export Failed</source>
+        <translation>Export fehlgeschlagen</translation>
+    </message>
+    <message>
+        <source>Exported</source>
+        <translation>Exportiert</translation>
+    </message>
+    <message>
+        <source>Device report written to:
+%1</source>
+        <translation>Gerätebericht geschrieben nach:
+%1</translation>
+    </message>
+    <message>
+        <source>Select a device first.</source>
+        <translation>Wähle zuerst ein Gerät.</translation>
+    </message>
+    <message>
+        <source>General</source>
+        <translation>Allgemein</translation>
+    </message>
+    <message>
+        <source>Class</source>
+        <translation>Klasse</translation>
+    </message>
+    <message>
+        <source>Bus / Port</source>
+        <translation>Bus / Port</translation>
+    </message>
+    <message>
+        <source>PCI address</source>
+        <translation>PCI-Adresse</translation>
+    </message>
+    <message>
+        <source>Hardware IDs</source>
+        <translation>Hardware-IDs</translation>
+    </message>
+    <message>
+        <source>Subsystem</source>
+        <translation>Subsystem</translation>
+    </message>
+    <message>
+        <source>Revision</source>
+        <translation>Revision</translation>
+    </message>
+    <message>
+        <source>Serial number</source>
+        <translation>Seriennummer</translation>
+    </message>
+    <message>
+        <source>USB version</source>
+        <translation>USB-Version</translation>
+    </message>
+    <message>
+        <source>Max power draw</source>
+        <translation>Max. Stromaufnahme</translation>
+    </message>
+    <message>
+        <source>(none — device is unclaimed)</source>
+        <translation>(keiner — Gerät ohne Treiber)</translation>
+    </message>
+    <message>
+        <source>Note</source>
+        <translation>Hinweis</translation>
+    </message>
+    <message>
+        <source>Bound to VFIO — reserved for GPU/device passthrough to a VM.</source>
+        <translation>An VFIO gebunden — reserviert für GPU-/Geräte-Passthrough an eine VM.</translation>
+    </message>
+    <message>
+        <source>Module version</source>
+        <translation>Modulversion</translation>
+    </message>
+    <message>
+        <source>License</source>
+        <translation>Lizenz</translation>
+    </message>
+    <message>
+        <source>Author</source>
+        <translation>Autor</translation>
+    </message>
+    <message>
+        <source>Signed by</source>
+        <translation>Signiert von</translation>
+    </message>
+    <message>
+        <source>Signature algorithm</source>
+        <translation>Signaturalgorithmus</translation>
+    </message>
+    <message>
+        <source>Resources</source>
+        <translation>Ressourcen</translation>
+    </message>
+    <message>
+        <source>%1  (%2 interrupts since boot)</source>
+        <translation>%1  (%2 Interrupts seit dem Start)</translation>
+    </message>
+    <message>
+        <source>IOMMU group</source>
+        <translation>IOMMU-Gruppe</translation>
+    </message>
+    <message>
+        <source>%1 — used for VFIO/GPU passthrough</source>
+        <translation>%1 — für VFIO-/GPU-Passthrough verwendet</translation>
+    </message>
+    <message>
+        <source>NUMA node</source>
+        <translation>NUMA-Knoten</translation>
+    </message>
+    <message>
+        <source>none (single-node system)</source>
+        <translation>keiner (Ein-Knoten-System)</translation>
+    </message>
+    <message>
+        <source>Memory / I/O</source>
+        <translation>Speicher / E/A</translation>
+    </message>
+    <message>
+        <source>PCI Express link</source>
+        <translation>PCI-Express-Link</translation>
+    </message>
+    <message>
+        <source>Current</source>
+        <translation>Aktuell</translation>
+    </message>
+    <message>
+        <source>%1  ×%2</source>
+        <translation>%1  ×%2</translation>
+    </message>
+    <message>
+        <source>Maximum</source>
+        <translation>Maximum</translation>
+    </message>
+    <message>
+        <source>⚠ Running at reduced width — check the slot or riser</source>
+        <translation>⚠ Läuft mit reduzierter Breite — Slot oder Riser prüfen</translation>
+    </message>
+    <message>
+        <source>Link speed is below maximum (normal at idle — GPUs downclock the link to save power)</source>
+        <translation>Linkgeschwindigkeit unter Maximum (im Leerlauf normal — GPUs takten den Link zum Stromsparen herunter)</translation>
+    </message>
+    <message>
+        <source>✅ Running at full speed and width</source>
+        <translation>✅ Läuft mit voller Geschwindigkeit und Breite</translation>
+    </message>
+    <message>
+        <source>Power</source>
+        <translation>Energie</translation>
+    </message>
+    <message>
+        <source>Power state</source>
+        <translation>Energiezustand</translation>
+    </message>
+    <message>
+        <source>D3cold allowed</source>
+        <translation>D3cold erlaubt</translation>
+    </message>
+    <message>
+        <source>yes</source>
+        <translation>ja</translation>
+    </message>
+    <message>
+        <source>no</source>
+        <translation>nein</translation>
+    </message>
+    <message>
+        <source>Connection</source>
+        <translation>Verbindung</translation>
+    </message>
+    <message>
+        <source>Properties — %1</source>
+        <translation>Eigenschaften — %1</translation>
+    </message>
+    <message>
         <source>USB Devices</source>
         <translation>USB-Geräte</translation>
+    </message>
+    <message>
+        <source>%1
+%2
+Double-click for full properties</source>
+        <translation>%1
+%2
+Doppelklick für vollständige Eigenschaften</translation>
+    </message>
+    <message>
+        <source>%1 PCI · %2 USB · %3 unclaimed</source>
+        <translation>%1 PCI · %2 USB · %3 ohne Treiber</translation>
     </message>
     <message>
         <source>SMART Information:</source>

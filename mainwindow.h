@@ -21,6 +21,7 @@
 #include <QComboBox>
 #include <QListWidget>
 #include <QHBoxLayout>
+#include <QLineEdit>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -513,6 +514,10 @@ private:
     void setupControlPanelTabs();
     void setupDeviceManagerTab();
     void refreshDeviceManager();
+    void showDeviceProperties(QTreeWidgetItem *item);
+    void showModuleInfo(const QString &mod);
+    QLineEdit *devMgrFilter = nullptr;
+    QLabel *devMgrCountLabel = nullptr;
     void setupUsersGroupsTab();
     void refreshUsersGroups();
     void setupRestorePointsTab();
