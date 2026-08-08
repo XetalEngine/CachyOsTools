@@ -501,7 +501,9 @@ private:
 
     // Self-updater (Dashboard -> Welcome): git-based check + pull/rebuild/restart
     void checkForAppUpdates();
+    void checkForAppUpdatesViaApi();
     void runAppUpdate();
+    void runAppUpdateFromClone();
     QPushButton *dashUpdateBtn = nullptr;
 
     // System ISO tab: missing-dependency bar (one install button per tool)

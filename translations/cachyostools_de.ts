@@ -1619,12 +1619,62 @@ Klicken zum Herunterladen, Neubauen und Neustarten.</translation>
         <translation>Klicken zum Herunterladen, Neubauen und Neustarten.</translation>
     </message>
     <message>
+        <source>⬆️ UPDATE AVAILABLE</source>
+        <translation>⬆️ UPDATE VERFÜGBAR</translation>
+    </message>
+    <message>
+        <source>Latest change: %1
+Click to download, rebuild and restart.</source>
+        <translation>Letzte Änderung: %1
+Klicken zum Herunterladen, Neubauen und Neustarten.</translation>
+    </message>
+    <message>
+        <source>Cannot Self-Update</source>
+        <translation>Selbst-Update nicht möglich</translation>
+    </message>
+    <message>
+        <source>This copy of CachyOsTools is not a recognizable install directory,
+so it cannot update itself.
+
+Get the newest version with:
+  git clone %1</source>
+        <translation>Diese Kopie von CachyOsTools liegt nicht in einem erkennbaren Installationsverzeichnis
+und kann sich daher nicht selbst aktualisieren.
+
+Neueste Version holen mit:
+  git clone %1</translation>
+    </message>
+    <message>
+        <source>This will, in a visible terminal:
+
+1. Download the newest version from GitHub
+2. Build it (needs cmake, qt6-base and a compiler)
+3. Replace the copy in:
+    %1
+4. Offer to restart when done
+
+Your settings and saved profiles are untouched.
+
+Continue?</source>
+        <translation>Dies wird in einem sichtbaren Terminal:
+
+1. Die neueste Version von GitHub herunterladen
+2. Sie bauen (benötigt cmake, qt6-base und einen Compiler)
+3. Die Kopie ersetzen in:
+    %1
+4. Danach einen Neustart anbieten
+
+Deine Einstellungen und gespeicherten Profile bleiben unberührt.
+
+Fortfahren?</translation>
+    </message>
+    <message>
         <source>Not a Git Install</source>
-        <translation>Keine Git-Installation</translation>
+        <translation type="vanished">Keine Git-Installation</translation>
     </message>
     <message>
         <source>The running app was not started from a git checkout, so it cannot self-update.</source>
-        <translation>Die laufende App wurde nicht aus einem Git-Checkout gestartet und kann sich daher nicht selbst aktualisieren.</translation>
+        <translation type="vanished">Die laufende App wurde nicht aus einem Git-Checkout gestartet und kann sich daher nicht selbst aktualisieren.</translation>
     </message>
     <message>
         <source>
