@@ -2531,6 +2531,50 @@ Size: %2 KB</source>
 Tamanho: %2 KB</translation>
     </message>
     <message>
+        <source>legacy BIOS</source>
+        <translation>BIOS legado</translation>
+    </message>
+    <message>
+        <source>UEFI GOP</source>
+        <translation>UEFI GOP</translation>
+    </message>
+    <message>
+        <source>
+
+Contents: %1 ROM image(s) — %2%3</source>
+        <translation>
+
+Conteúdo: %1 imagem(ns) ROM — %2%3</translation>
+    </message>
+    <message>
+        <source>
+The image chain terminates correctly, so this dump is complete.</source>
+        <translation>
+A cadeia de imagens termina corretamente, então esta extração está completa.</translation>
+    </message>
+    <message>
+        <source>
+⚠ The image chain does not terminate — the dump may be truncated.</source>
+        <translation>
+⚠ A cadeia de imagens não termina — a extração pode estar truncada.</translation>
+    </message>
+    <message>
+        <source>
+
+⚠ No UEFI GOP image found. OVMF-based VMs usually need one; consider the ROM for your exact card from TechPowerUp.</source>
+        <translation>
+
+⚠ Nenhuma imagem UEFI GOP encontrada. VMs baseadas em OVMF geralmente precisam de uma; considere a ROM exata da sua placa no TechPowerUp.</translation>
+    </message>
+    <message>
+        <source>
+
+Note: this is the PCI expansion ROM, which is what a VM reads. Full flash dumps from nvflash/TechPowerUp are larger because they include the rest of the chip beyond the ROM images — those extra bytes are not used for passthrough.</source>
+        <translation>
+
+Nota: esta é a ROM de expansão PCI, que é o que uma VM lê. Extrações completas do flash (nvflash/TechPowerUp) são maiores porque incluem o restante do chip além das imagens ROM — esses bytes extras não são usados no passthrough.</translation>
+    </message>
+    <message>
         <source>
 
 No pre-header found — the file is ready to use as-is

@@ -642,6 +642,42 @@ void MainWindow::dumpDeviceVbios(const QVariantMap &p) {
     proc->start(term, QStringList() << "-e" << "bash" << "-c" << script);
 }
 
+// Walks the chain of PCI expansion-ROM images (each has a 0x55AA header and a
+// PCIR structure) and reports what the dump actually contains. A vBIOS is only
+// useful for passthrough if it carries the UEFI GOP image and the chain
+// terminates properly — this is what tells a complete dump from a truncated one.
+struct VbiosScan {
+    int images = 0;
+    bool hasLegacy = false;
+    bool hasUefi = false;
+    bool terminated = false;      // last image flagged as last
+    qint64 structureBytes = 0;    // total length declared by the image chain
+};
+static VbiosScan scanVbios(const QByteArray &d) {
+    VbiosScan s;
+    qint64 off = 0;
+    while (off + 0x1a < d.size() && s.images < 16) {
+        if (static_cast<unsigned char>(d[off]) != 0x55 || static_cast<unsigned char>(d[off + 1]) != 0xAA) break;
+        const quint16 pcirOff = static_cast<unsigned char>(d[off + 0x18])
+                              | (static_cast<unsigned char>(d[off + 0x19]) << 8);
+        const qint64 p = off + pcirOff;
+        if (p + 0x16 > d.size() || d.mid(p, 4) != "PCIR") break;
+        const quint16 lenBlocks = static_cast<unsigned char>(d[p + 0x10])
+                                | (static_cast<unsigned char>(d[p + 0x11]) << 8);
+        const quint8 codeType  = static_cast<unsigned char>(d[p + 0x14]);
+        const quint8 indicator = static_cast<unsigned char>(d[p + 0x15]);
+        const qint64 imgLen = static_cast<qint64>(lenBlocks) * 512;
+        if (imgLen <= 0) break;
+        if (codeType == 0x00) s.hasLegacy = true;
+        if (codeType == 0x03) s.hasUefi = true;
+        ++s.images;
+        s.structureBytes = off + imgLen;
+        if (indicator & 0x80) { s.terminated = true; break; }
+        off += imgLen;
+    }
+    return s;
+}
+
 // NVIDIA ROMs carry a pre-header before the real image; OVMF chokes on it.
 // The keeper image starts at the 0x55 0xAA signature that is followed by "VIDEO".
 void MainWindow::patchVbiosIfNeeded(const QString &romPath) {
@@ -658,7 +694,23 @@ void MainWindow::patchVbiosIfNeeded(const QString &romPath) {
         if (data.mid(i, window).contains("VIDEO")) keepFrom = i;   // last such signature wins
     }
 
+    const VbiosScan scan = scanVbios(data);
     QString info = tr("vBIOS saved to:\n%1\n\nSize: %2 KB").arg(romPath).arg(data.size() / 1024);
+    if (scan.images > 0) {
+        QStringList kinds;
+        if (scan.hasLegacy) kinds << tr("legacy BIOS");
+        if (scan.hasUefi) kinds << tr("UEFI GOP");
+        info += tr("\n\nContents: %1 ROM image(s) — %2%3")
+                    .arg(scan.images).arg(kinds.join(" + "),
+                         scan.terminated ? tr("\nThe image chain terminates correctly, so this dump is complete.")
+                                         : tr("\n⚠ The image chain does not terminate — the dump may be truncated."));
+        if (!scan.hasUefi)
+            info += tr("\n\n⚠ No UEFI GOP image found. OVMF-based VMs usually need one; "
+                       "consider the ROM for your exact card from TechPowerUp.");
+        info += tr("\n\nNote: this is the PCI expansion ROM, which is what a VM reads. Full flash "
+                   "dumps from nvflash/TechPowerUp are larger because they include the rest of the "
+                   "chip beyond the ROM images — those extra bytes are not used for passthrough.");
+    }
     if (keepFrom <= 0) {
         info += tr("\n\nNo pre-header found — the file is ready to use as-is\n"
                    "(AMD cards normally need no patching).");
