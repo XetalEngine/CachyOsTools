@@ -375,6 +375,23 @@ static QString xetalInstalledSha(const QString &installDir) {
     return QString::fromUtf8(f.readAll()).trimmed();
 }
 
+// Restart through ./run.sh in the project root when it exists: after an update
+// the freshly built binary may not be the one this process was started from,
+// and run.sh already knows where to find the current build.
+static void xetalRestartApp() {
+    QDir dir(QCoreApplication::applicationDirPath());
+    for (int i = 0; i < 4; ++i) {
+        if (dir.exists("run.sh") && dir.exists("CMakeLists.txt")) {
+            const QString runSh = dir.absoluteFilePath("run.sh");
+            if (QProcess::startDetached("bash", QStringList() << runSh, dir.absolutePath()))
+                return;
+            break;                       // run.sh found but unlaunchable: fall through
+        }
+        if (!dir.cdUp()) break;
+    }
+    QProcess::startDetached(QCoreApplication::applicationFilePath(), QStringList());
+}
+
 void MainWindow::checkForAppUpdates() {
     // Testing aid: CACHYOSTOOLS_FAKE_UPDATE=<n> pretends n commits are available
     const QString fake = qEnvironmentVariable("CACHYOSTOOLS_FAKE_UPDATE");
@@ -512,7 +529,7 @@ void MainWindow::runAppUpdate() {
                 proc->deleteLater();
                 if (QMessageBox::question(this, tr("Restart CachyOsTools?"),
                         tr("If the update succeeded, a restart loads the new version.\n\nRestart now?")) == QMessageBox::Yes) {
-                    QProcess::startDetached(QCoreApplication::applicationFilePath(), QStringList());
+                    xetalRestartApp();
                     qApp->quit();
                 }
             });
@@ -574,7 +591,7 @@ void MainWindow::runAppUpdateFromClone() {
                 proc->deleteLater();
                 if (QMessageBox::question(this, tr("Restart CachyOsTools?"),
                         tr("If the update succeeded, a restart loads the new version.\n\nRestart now?")) == QMessageBox::Yes) {
-                    QProcess::startDetached(QCoreApplication::applicationFilePath(), QStringList());
+                    xetalRestartApp();
                     qApp->quit();
                 }
             });
