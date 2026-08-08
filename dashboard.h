@@ -375,17 +375,26 @@ static QString xetalInstalledSha(const QString &installDir) {
     return QString::fromUtf8(f.readAll()).trimmed();
 }
 
-// Restart through ./run.sh in the project root when it exists: after an update
-// the freshly built binary may not be the one this process was started from,
-// and run.sh already knows where to find the current build.
+// Restart through ./run.sh in the project root, inside a terminal window.
+// run.sh itself only exec()s the binary, so launching it bare would give no
+// console; wrapping it in a terminal reproduces how the app is run by hand and
+// keeps the app's stdout/qDebug output visible after an update.
 static void xetalRestartApp() {
     QDir dir(QCoreApplication::applicationDirPath());
     for (int i = 0; i < 4; ++i) {
         if (dir.exists("run.sh") && dir.exists("CMakeLists.txt")) {
-            const QString runSh = dir.absoluteFilePath("run.sh");
-            if (QProcess::startDetached("bash", QStringList() << runSh, dir.absolutePath()))
+            const QString root = dir.absolutePath();
+            for (const QString &t : {QString("konsole"), QString("gnome-terminal"), QString("xterm"),
+                                     QString("alacritty"), QString("kitty")}) {
+                if (QStandardPaths::findExecutable(t).isEmpty()) continue;
+                if (QProcess::startDetached(t, QStringList() << "-e" << "bash" << "-c"
+                        << QString("cd '%1' && ./run.sh").arg(root)))
+                    return;
+            }
+            // No terminal available: still prefer run.sh over the raw binary
+            if (QProcess::startDetached("bash", QStringList() << dir.absoluteFilePath("run.sh"), root))
                 return;
-            break;                       // run.sh found but unlaunchable: fall through
+            break;
         }
         if (!dir.cdUp()) break;
     }
