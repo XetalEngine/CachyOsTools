@@ -2061,6 +2061,22 @@ Installieren mit: sudo pacman -S smartmontools</translation>
         <translation>📄 Bericht exportieren</translation>
     </message>
     <message>
+        <source>📂 Dumps</source>
+        <translation>📂 Dumps</translation>
+    </message>
+    <message>
+        <source>Open the folder holding vBIOS/firmware dumps</source>
+        <translation>Ordner mit vBIOS-/Firmware-Dumps öffnen</translation>
+    </message>
+    <message>
+        <source>💾 Dump Firmware ▾</source>
+        <translation>💾 Firmware auslesen ▾</translation>
+    </message>
+    <message>
+        <source>Dump system firmware tables (ACPI, SMBIOS, monitor EDID)</source>
+        <translation>System-Firmware-Tabellen auslesen (ACPI, SMBIOS, Monitor-EDID)</translation>
+    </message>
+    <message>
         <source>Double-click or right-click a device for full properties, driver details and module actions.</source>
         <translation>Doppelklick oder Rechtsklick auf ein Gerät für vollständige Eigenschaften, Treiberdetails und Modulaktionen.</translation>
     </message>
@@ -2081,12 +2097,44 @@ Installieren mit: sudo pacman -S smartmontools</translation>
         <translation>Link / Geschwindigkeit</translation>
     </message>
     <message>
+        <source>🧬 ACPI tables (DSDT, IVRS/DMAR, SSDTs)</source>
+        <translation>🧬 ACPI-Tabellen (DSDT, IVRS/DMAR, SSDTs)</translation>
+    </message>
+    <message>
+        <source>🪪 SMBIOS / DMI tables</source>
+        <translation>🪪 SMBIOS-/DMI-Tabellen</translation>
+    </message>
+    <message>
+        <source>🖥️ Monitor EDIDs</source>
+        <translation>🖥️ Monitor-EDIDs</translation>
+    </message>
+    <message>
+        <source>🔩 Motherboard BIOS (SPI flash)...</source>
+        <translation>🔩 Mainboard-BIOS (SPI-Flash)...</translation>
+    </message>
+    <message>
         <source>📋 Copy device ID</source>
         <translation>📋 Geräte-ID kopieren</translation>
     </message>
     <message>
         <source>📋 Copy full device line</source>
         <translation>📋 Ganze Gerätezeile kopieren</translation>
+    </message>
+    <message>
+        <source>💾 Dump vBIOS (for GPU passthrough)</source>
+        <translation>💾 vBIOS auslesen (für GPU-Passthrough)</translation>
+    </message>
+    <message>
+        <source>📜 Kernel messages for this device</source>
+        <translation>📜 Kernelmeldungen zu diesem Gerät</translation>
+    </message>
+    <message>
+        <source>No kernel messages mention this device in the current boot.</source>
+        <translation>Keine Kernelmeldung erwähnt dieses Gerät im aktuellen Boot.</translation>
+    </message>
+    <message>
+        <source>Kernel messages — %1</source>
+        <translation>Kernelmeldungen — %1</translation>
     </message>
     <message>
         <source>🌐 Search this device online</source>
@@ -2225,6 +2273,46 @@ Blacklisting your GPU, disk or network driver will break the system. Continue?</
         <translation>Signaturalgorithmus</translation>
     </message>
     <message>
+        <source>Attached hardware</source>
+        <translation>Angeschlossene Hardware</translation>
+    </message>
+    <message>
+        <source>Network interface</source>
+        <translation>Netzwerkschnittstelle</translation>
+    </message>
+    <message>
+        <source>MAC address</source>
+        <translation>MAC-Adresse</translation>
+    </message>
+    <message>
+        <source>Link speed</source>
+        <translation>Verbindungsgeschwindigkeit</translation>
+    </message>
+    <message>
+        <source>%1 Mb/s</source>
+        <translation>%1 Mb/s</translation>
+    </message>
+    <message>
+        <source>Disk model</source>
+        <translation>Datenträgermodell</translation>
+    </message>
+    <message>
+        <source>Disk firmware</source>
+        <translation>Datenträger-Firmware</translation>
+    </message>
+    <message>
+        <source>Disk serial</source>
+        <translation>Datenträger-Seriennummer</translation>
+    </message>
+    <message>
+        <source>Temperature</source>
+        <translation>Temperatur</translation>
+    </message>
+    <message>
+        <source>%1 °C</source>
+        <translation>%1 °C</translation>
+    </message>
+    <message>
         <source>Resources</source>
         <translation>Ressourcen</translation>
     </message>
@@ -2251,6 +2339,62 @@ Blacklisting your GPU, disk or network driver will break the system. Continue?</
     <message>
         <source>Memory / I/O</source>
         <translation>Speicher / E/A</translation>
+    </message>
+    <message>
+        <source>Interrupt mode</source>
+        <translation>Interrupt-Modus</translation>
+    </message>
+    <message>
+        <source>legacy IRQ</source>
+        <translation>Legacy-IRQ</translation>
+    </message>
+    <message>
+        <source>MSI/MSI-X (%1 vector(s))</source>
+        <translation>MSI/MSI-X (%1 Vektor(en))</translation>
+    </message>
+    <message>
+        <source>Primary display</source>
+        <translation>Primäre Anzeige</translation>
+    </message>
+    <message>
+        <source>yes — this is the GPU the system booted with</source>
+        <translation>ja — mit dieser GPU hat das System gebootet</translation>
+    </message>
+    <message>
+        <source>VM passthrough readiness</source>
+        <translation>Bereitschaft für VM-Passthrough</translation>
+    </message>
+    <message>
+        <source>Reset support</source>
+        <translation>Reset-Unterstützung</translation>
+    </message>
+    <message>
+        <source>⚠ none advertised — the card may not survive a VM restart</source>
+        <translation>⚠ keines angegeben — die Karte übersteht einen VM-Neustart evtl. nicht</translation>
+    </message>
+    <message>
+        <source>%1%2</source>
+        <translation>%1%2</translation>
+    </message>
+    <message>
+        <source>  (FLR — clean reset between VM boots)</source>
+        <translation>  (FLR — sauberer Reset zwischen VM-Starts)</translation>
+    </message>
+    <message>
+        <source>vBIOS ROM</source>
+        <translation>vBIOS-ROM</translation>
+    </message>
+    <message>
+        <source>available — right-click the device to dump it</source>
+        <translation>verfügbar — Rechtsklick auf das Gerät zum Auslesen</translation>
+    </message>
+    <message>
+        <source>not exposed by this device</source>
+        <translation>von diesem Gerät nicht bereitgestellt</translation>
+    </message>
+    <message>
+        <source>Boot GPU: single-GPU passthrough needs hook scripts (see the KVM tab).</source>
+        <translation>Boot-GPU: Einzel-GPU-Passthrough benötigt Hook-Skripte (siehe KVM-Tab).</translation>
     </message>
     <message>
         <source>PCI Express link</source>
@@ -2323,6 +2467,195 @@ Doppelklick für vollständige Eigenschaften</translation>
     <message>
         <source>%1 PCI · %2 USB · %3 unclaimed</source>
         <translation>%1 PCI · %2 USB · %3 ohne Treiber</translation>
+    </message>
+    <message>
+        <source>No ROM</source>
+        <translation>Kein ROM</translation>
+    </message>
+    <message>
+        <source>This device does not expose a readable ROM.</source>
+        <translation>Dieses Gerät stellt kein lesbares ROM bereit.</translation>
+    </message>
+    <message>
+        <source>The card's ROM will be read directly from the kernel (needs sudo).</source>
+        <translation>Das ROM der Karte wird direkt über den Kernel gelesen (benötigt sudo).</translation>
+    </message>
+    <message>
+        <source>
+
+⚠ This is the GPU your system booted with, so the dump may be the BIOS-shadowed copy rather than a pristine image. If the VM later refuses to boot with it, grab the exact ROM for your card from TechPowerUp instead.</source>
+        <translation>
+
+⚠ Dies ist die GPU, mit der das System gebootet hat — der Dump kann die vom BIOS gespiegelte Kopie statt eines unberührten Abbilds sein. Weigert sich die VM später damit zu starten, lade das exakte ROM deiner Karte von TechPowerUp.</translation>
+    </message>
+    <message>
+        <source>Dump vBIOS</source>
+        <translation>vBIOS auslesen</translation>
+    </message>
+    <message>
+        <source>%1
+
+Continue?</source>
+        <translation>%1
+
+Fortfahren?</translation>
+    </message>
+    <message>
+        <source>Save vBIOS ROM</source>
+        <translation>vBIOS-ROM speichern</translation>
+    </message>
+    <message>
+        <source>ROM images (*.rom)</source>
+        <translation>ROM-Abbilder (*.rom)</translation>
+    </message>
+    <message>
+        <source>Dump Failed</source>
+        <translation>Auslesen fehlgeschlagen</translation>
+    </message>
+    <message>
+        <source>No ROM data was produced.
+
+This usually means the card refuses to expose its ROM while it is in use. Options: dump it from a live USB session, or download the ROM for your exact card from TechPowerUp.</source>
+        <translation>Es wurden keine ROM-Daten erzeugt.
+
+Meist bedeutet das, dass die Karte ihr ROM während der Nutzung nicht bereitstellt. Optionen: aus einer Live-USB-Sitzung auslesen oder das exakte ROM deiner Karte von TechPowerUp laden.</translation>
+    </message>
+    <message>
+        <source>vBIOS saved to:
+%1
+
+Size: %2 KB</source>
+        <translation>vBIOS gespeichert unter:
+%1
+
+Größe: %2 KB</translation>
+    </message>
+    <message>
+        <source>
+
+No pre-header found — the file is ready to use as-is
+(AMD cards normally need no patching).</source>
+        <translation>
+
+Kein Pre-Header gefunden — die Datei ist direkt verwendbar
+(AMD-Karten brauchen normalerweise keinen Patch).</translation>
+    </message>
+    <message>
+        <source>vBIOS Dumped</source>
+        <translation>vBIOS ausgelesen</translation>
+    </message>
+    <message>
+        <source>Patch for Passthrough?</source>
+        <translation>Für Passthrough patchen?</translation>
+    </message>
+    <message>
+        <source>
+
+This looks like an NVIDIA ROM with a %1-byte pre-header, which stops OVMF from initialising the card in a VM.
+
+Write a patched copy with the header removed?</source>
+        <translation>
+
+Dies sieht nach einem NVIDIA-ROM mit %1 Byte Pre-Header aus, der OVMF daran hindert, die Karte in einer VM zu initialisieren.
+
+Eine gepatchte Kopie ohne Header schreiben?</translation>
+    </message>
+    <message>
+        <source>Patch Failed</source>
+        <translation>Patchen fehlgeschlagen</translation>
+    </message>
+    <message>
+        <source>Patched vBIOS Ready</source>
+        <translation>Gepatchtes vBIOS bereit</translation>
+    </message>
+    <message>
+        <source>Patched ROM written to:
+%1
+
+Use it in the VM's XML:
+  &lt;rom file="%1"/&gt;
+
+Tip: copy it to /var/lib/libvirt/vbios/ so libvirt can read it under its own AppArmor/SELinux rules.</source>
+        <translation>Gepatchtes ROM geschrieben nach:
+%1
+
+In der VM-XML verwenden:
+  &lt;rom file="%1"/&gt;
+
+Tipp: nach /var/lib/libvirt/vbios/ kopieren, damit libvirt es unter seinen AppArmor/SELinux-Regeln lesen kann.</translation>
+    </message>
+    <message>
+        <source>Dump ACPI Tables</source>
+        <translation>ACPI-Tabellen auslesen</translation>
+    </message>
+    <message>
+        <source>Copies every ACPI table the firmware published (DSDT, SSDTs, and the IOMMU tables IVRS/DMAR) into:
+
+%1
+
+Handy for passthrough debugging and for decompiling with iasl.
+
+Continue?</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <source>Dump SMBIOS / DMI</source>
+        <translation>SMBIOS / DMI auslesen</translation>
+    </message>
+    <message>
+        <source>Saves the raw SMBIOS tables (board, BIOS version, memory layout) to:
+
+%1
+
+A readable text copy is written alongside it.
+
+Continue?</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <source>No EDIDs Available</source>
+        <translation>Keine EDIDs verfügbar</translation>
+    </message>
+    <message>
+        <source>No monitor EDID is exposed by the kernel right now.
+
+The proprietary NVIDIA driver does not publish EDIDs through /sys/class/drm — they are available on nouveau, AMD and Intel graphics, or via a live USB session.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <source>EDIDs Dumped</source>
+        <translation>EDIDs ausgelesen</translation>
+    </message>
+    <message>
+        <source>%1 monitor EDID(s) written to:
+%2
+
+Useful for virtual-display spoofing in a VM (Looking Glass) and for forcing modes with drm.edid_firmware.</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <source>Unlike a graphics card's vBIOS, the motherboard's UEFI firmware is NOT exposed by the kernel — it lives on an SPI flash chip and can only be read with flashrom.
+
+Two honest warnings:
+• On most modern AMD/Intel boards the chipset blocks reads (protected ranges), so the attempt usually returns an error or a garbage image.
+• flashrom writes are how boards get bricked. This app only ever offers the READ (-r) operation, never a write.
+
+For a usable BIOS image, download the update file for your exact board from the vendor.
+
+</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <source>flashrom is installed. Attempt a read-only dump now?</source>
+        <translation>flashrom ist installiert. Jetzt einen Nur-Lese-Dump versuchen?</translation>
+    </message>
+    <message>
+        <source>flashrom is not installed. Install it and attempt a read-only dump?</source>
+        <translation>flashrom ist nicht installiert. Installieren und einen Nur-Lese-Dump versuchen?</translation>
+    </message>
+    <message>
+        <source>Motherboard BIOS</source>
+        <translation>Mainboard-BIOS</translation>
     </message>
     <message>
         <source>SMART Information:</source>

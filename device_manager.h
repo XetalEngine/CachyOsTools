@@ -14,6 +14,21 @@ static QVariantMap devMgrProps(QTreeWidgetItem *item) {
     return item ? item->data(0, Qt::UserRole).toMap() : QVariantMap();
 }
 
+// All hardware dumps (vBIOS ROMs, firmware) land in a "dumps" folder beside
+// the application, created on demand and kept out of git.
+static QString xetalDumpsDir() {
+    // Prefer the project/install root (where CMakeLists.txt lives) so dumps land
+    // in one place whether the app was started from the root or a build dir.
+    QDir dir(QCoreApplication::applicationDirPath());
+    for (int i = 0; i < 4; ++i) {
+        if (dir.exists("CMakeLists.txt")) break;
+        if (!dir.cdUp()) { dir.setPath(QCoreApplication::applicationDirPath()); break; }
+    }
+    const QString path = dir.absolutePath() + "/dumps";
+    QDir().mkpath(path);
+    return path;
+}
+
 // "16.0 GT/s PCIe" -> 16.0 ; used to spot links running below their capacity
 static double devMgrLinkGTs(const QString &s) {
     return QRegularExpression("([0-9.]+)\\s*GT/s").match(s).captured(1).toDouble();
@@ -32,10 +47,16 @@ void MainWindow::setupDeviceManagerTab() {
     QPushButton *refreshBtn = new QPushButton(tr("🔄 Refresh"), ui->deviceManagerSubTab);
     QPushButton *propsBtn = new QPushButton(tr("🔎 Properties"), ui->deviceManagerSubTab);
     QPushButton *exportBtn = new QPushButton(tr("📄 Export Report"), ui->deviceManagerSubTab);
+    QPushButton *dumpsBtn = new QPushButton(tr("📂 Dumps"), ui->deviceManagerSubTab);
+    dumpsBtn->setToolTip(tr("Open the folder holding vBIOS/firmware dumps"));
+    QPushButton *fwDumpBtn = new QPushButton(tr("💾 Dump Firmware ▾"), ui->deviceManagerSubTab);
+    fwDumpBtn->setToolTip(tr("Dump system firmware tables (ACPI, SMBIOS, monitor EDID)"));
     bar->addWidget(devMgrFilter);
     bar->addWidget(devMgrCountLabel);
     bar->addStretch();
     bar->addWidget(propsBtn);
+    bar->addWidget(fwDumpBtn);
+    bar->addWidget(dumpsBtn);
     bar->addWidget(exportBtn);
     bar->addWidget(refreshBtn);
     layout->addLayout(bar);
@@ -55,6 +76,18 @@ void MainWindow::setupDeviceManagerTab() {
     devMgrTree->setContextMenuPolicy(Qt::CustomContextMenu);
     layout->addWidget(devMgrTree);
 
+    connect(fwDumpBtn, &QPushButton::clicked, this, [this, fwDumpBtn]() {
+        QMenu menu(this);
+        menu.addAction(tr("🧬 ACPI tables (DSDT, IVRS/DMAR, SSDTs)"), this, [this]() { dumpFirmware("acpi"); });
+        menu.addAction(tr("🪪 SMBIOS / DMI tables"), this, [this]() { dumpFirmware("dmi"); });
+        menu.addAction(tr("🖥️ Monitor EDIDs"), this, [this]() { dumpFirmware("edid"); });
+        menu.addSeparator();
+        menu.addAction(tr("🔩 Motherboard BIOS (SPI flash)..."), this, [this]() { dumpFirmware("bios"); });
+        menu.exec(fwDumpBtn->mapToGlobal(QPoint(0, fwDumpBtn->height())));
+    });
+    connect(dumpsBtn, &QPushButton::clicked, this, []() {
+        QDesktopServices::openUrl(QUrl::fromLocalFile(xetalDumpsDir()));
+    });
     connect(refreshBtn, &QPushButton::clicked, this, &MainWindow::refreshDeviceManager);
     connect(propsBtn, &QPushButton::clicked, this, [this]() { showDeviceProperties(devMgrTree->currentItem()); });
     connect(devMgrTree, &QTreeWidget::itemDoubleClicked, this, [this](QTreeWidgetItem *item, int) { showDeviceProperties(item); });
@@ -95,6 +128,31 @@ void MainWindow::setupDeviceManagerTab() {
             for (int c = 0; c < 6; ++c) cols << item->text(c);
             QGuiApplication::clipboard()->setText(cols.join("  |  "));
         });
+        if (p.value("hasrom").toString() == "1") {
+            menu.addSeparator();
+            menu.addAction(tr("💾 Dump vBIOS (for GPU passthrough)"), this, [this, p]() { dumpDeviceVbios(p); });
+        }
+        menu.addAction(tr("📜 Kernel messages for this device"), this, [this, p]() {
+            QProcess proc;
+            proc.start("bash", QStringList() << "-c" << QString(
+                "journalctl -k -b 2>/dev/null | grep -i '%1' | tail -60").arg(p.value("addr").toString()));
+            proc.waitForFinished(5000);
+            QString out = QString::fromUtf8(proc.readAllStandardOutput()).trimmed();
+            if (out.isEmpty()) out = tr("No kernel messages mention this device in the current boot.");
+            QDialog dlg(this);
+            dlg.setWindowTitle(tr("Kernel messages — %1").arg(p.value("device").toString()));
+            dlg.resize(900, 500);
+            QVBoxLayout *dl = new QVBoxLayout(&dlg);
+            QPlainTextEdit *text = new QPlainTextEdit(out, &dlg);
+            text->setReadOnly(true);
+            text->setFont(QFont("monospace"));
+            dl->addWidget(text);
+            QPushButton *closeBtn = new QPushButton(tr("Close"), &dlg);
+            connect(closeBtn, &QPushButton::clicked, &dlg, &QDialog::accept);
+            dl->addWidget(closeBtn);
+            dlg.exec();
+        });
+        menu.addSeparator();
         menu.addAction(tr("🌐 Search this device online"), this, [p]() {
             QDesktopServices::openUrl(QUrl("https://duckduckgo.com/?q=" +
                 QUrl::toPercentEncoding(p.value("vendor").toString() + " " + p.value("device").toString() + " linux driver")));
@@ -231,6 +289,24 @@ void MainWindow::showDeviceProperties(QTreeWidgetItem *item) {
         }
     }
 
+    // What this controller actually drives (NIC, NVMe) and how hot it runs
+    if (!p.value("netif").toString().isEmpty() || !p.value("diskmodel").toString().isEmpty()
+        || !p.value("temp").toString().isEmpty()) {
+        html += section(tr("Attached hardware"));
+        html += row(tr("Network interface"), p.value("netif").toString());
+        html += row(tr("MAC address"), p.value("mac").toString());
+        html += row(tr("Link speed"), p.value("netspeed").toString().isEmpty() ? QString()
+                    : tr("%1 Mb/s").arg(p.value("netspeed").toString()));
+        html += row(tr("Disk model"), p.value("diskmodel").toString());
+        html += row(tr("Disk firmware"), p.value("diskfw").toString());
+        html += row(tr("Disk serial"), p.value("diskserial").toString());
+        if (!p.value("temp").toString().isEmpty()) {
+            const int t = p.value("temp").toInt();
+            html += row(tr("Temperature"), tr("%1 °C").arg(t),
+                        t >= 80 ? "#c0392b" : (t >= 65 ? "#e67e22" : "#27ae60"));
+        }
+    }
+
     html += section(tr("Resources"));
     const QString irq = p.value("irq").toString();
     if (!irq.isEmpty() && irq != "0" && irq != "-") {
@@ -248,6 +324,25 @@ void MainWindow::showDeviceProperties(QTreeWidgetItem *item) {
         html += QString("<tr><td style='color:#888; padding:3px 18px 3px 0; vertical-align:top;'>%1</td>"
                         "<td style='padding:3px 0;'><pre style='margin:0; color:#9cdcfe;'>%2</pre></td></tr>")
                 .arg(tr("Memory / I/O"), p.value("resources").toString().toHtmlEscaped());
+
+    if (!isUsb) {
+        html += row(tr("Interrupt mode"), p.value("msi").toString().isEmpty() ? tr("legacy IRQ")
+                    : tr("MSI/MSI-X (%1 vector(s))").arg(p.value("msi").toString()));
+        if (p.value("bootvga").toString() == "1")
+            html += row(tr("Primary display"), tr("yes — this is the GPU the system booted with"));
+
+        // Everything a passthrough attempt depends on, in one place
+        html += section(tr("VM passthrough readiness"));
+        const QString reset = p.value("reset").toString();
+        html += row(tr("Reset support"), reset.isEmpty() ? tr("⚠ none advertised — the card may not survive a VM restart")
+                    : tr("%1%2").arg(reset, reset.contains("flr") ? tr("  (FLR — clean reset between VM boots)") : QString()),
+                    reset.isEmpty() ? "#e67e22" : "#27ae60");
+        html += row(tr("IOMMU group"), p.value("iommu").toString());
+        html += row(tr("vBIOS ROM"), p.value("hasrom").toString() == "1"
+                    ? tr("available — right-click the device to dump it") : tr("not exposed by this device"));
+        if (p.value("bootvga").toString() == "1")
+            html += row(tr("Note"), tr("Boot GPU: single-GPU passthrough needs hook scripts (see the KVM tab)."), "#888");
+    }
 
     if (!isUsb && !p.value("linkcur").toString().isEmpty()) {
         html += section(tr("PCI Express link"));
@@ -316,11 +411,28 @@ void MainWindow::refreshDeviceManager() {
                 };
 
                 int pciCount = 0, usbCount = 0, unclaimed = 0;
-                const QStringList blocks = QString::fromUtf8(proc->readAllStandardOutput()).split("@DEV\n", Qt::SkipEmptyParts);
+                const QString all = QString::fromUtf8(proc->readAllStandardOutput());
+
+                // Pass 1: the @EXTRA blocks, keyed by PCI address
+                QHash<QString, QVariantMap> extras;
+                for (const QString &block : all.split("@EXTRA\n", Qt::SkipEmptyParts)) {
+                    QVariantMap e;
+                    for (const QString &line : block.split('\n')) {
+                        if (line.startsWith("@DEV")) break;          // extras section ended
+                        const int eq = line.indexOf('=');
+                        if (eq > 0) e.insert(line.left(eq), line.mid(eq + 1));
+                    }
+                    const QString addr = e.value("addr").toString();
+                    if (!addr.isEmpty() && e.size() > 1) extras.insert(addr, e);
+                }
+
+                // Pass 2: the devices themselves
+                const QStringList blocks = all.split("@DEV\n", Qt::SkipEmptyParts);
                 for (const QString &block : blocks) {
                     QVariantMap p;
                     QString resources;
                     for (const QString &line : block.split('\n')) {
+                        if (line.startsWith("@EXTRA")) break;
                         const int eq = line.indexOf('=');
                         if (eq <= 0) continue;
                         const QString key = line.left(eq), val = line.mid(eq + 1);
@@ -329,6 +441,10 @@ void MainWindow::refreshDeviceManager() {
                     }
                     if (p.value("device").toString().isEmpty()) continue;
                     p.insert("resources", resources);
+                    // merge the sysfs extras for this address
+                    const QVariantMap e = extras.value(p.value("addr").toString());
+                    for (auto it = e.constBegin(); it != e.constEnd(); ++it)
+                        if (it.key() != "addr") p.insert(it.key(), it.value());
 
                     const bool isUsb = p.value("type").toString() == "usb";
                     QTreeWidgetItem *item = new QTreeWidgetItem(groupItem(isUsb ? tr("USB Devices") : p.value("class").toString()));
@@ -408,6 +524,33 @@ function flush_dev(  n, i, parts) {
 /^IOMMUGroup:/ { iommu=$2 }
 END { flush_dev() }
 '
+# Per-device extras that need directory listings (merged by address in C++):
+# vBIOS ROM presence, reset support, boot GPU flag, MSI count, temperature,
+# and any attached network interface or NVMe disk.
+for d in /sys/bus/pci/devices/*/; do
+  a=$(basename "$d")
+  printf "@EXTRA\naddr=%s\n" "$a"
+  [ -e "$d/rom" ] && echo "hasrom=1"
+  r=$(cat "$d/reset_method" 2>/dev/null); [ -n "$r" ] && echo "reset=$r"
+  [ "$(cat "$d/boot_vga" 2>/dev/null)" = "1" ] && echo "bootvga=1"
+  n=$(ls "$d/msi_irqs" 2>/dev/null | wc -l); [ "$n" -gt 0 ] && echo "msi=$n"
+  for h in "$d"hwmon/hwmon*/temp1_input "$d"nvme/*/hwmon*/temp1_input; do
+    [ -f "$h" ] && { t=$(cat "$h" 2>/dev/null); [ -n "$t" ] && echo "temp=$((t/1000))"; break; }
+  done
+  for ni in "$d"net/*/; do
+    [ -d "$ni" ] || continue
+    echo "netif=$(basename "$ni")"
+    echo "mac=$(cat "$ni/address" 2>/dev/null)"
+    s=$(cat "$ni/speed" 2>/dev/null); [ -n "$s" ] && [ "$s" != "-1" ] && echo "netspeed=$s"
+  done
+  for nv in "$d"nvme/*/; do
+    [ -d "$nv" ] || continue
+    echo "diskmodel=$(cat "$nv/model" 2>/dev/null | xargs)"
+    echo "diskfw=$(cat "$nv/firmware_rev" 2>/dev/null | xargs)"
+    echo "diskserial=$(cat "$nv/serial" 2>/dev/null | xargs)"
+  done
+done
+
 # USB devices: real hardware only (skip hubs/interfaces)
 for u in /sys/bus/usb/devices/*/; do
   [ -f "$u/idVendor" ] || continue
@@ -432,4 +575,210 @@ for u in /sys/bus/usb/devices/*/; do
     "$(cat "$u/bMaxPower" 2>/dev/null)" "$spdtxt"
 done
 )SCRIPT");
+}
+
+// vBIOS dump, GPU-Z style but native: the kernel exposes the card's ROM at
+// /sys/bus/pci/devices/<addr>/rom once it is enabled for reading.
+// For passthrough, NVIDIA ROMs additionally need their pre-header stripped —
+// we offer to do that here so no hex editor is required.
+void MainWindow::dumpDeviceVbios(const QVariantMap &p) {
+    const QString addr = p.value("addr").toString();
+    const QString romPath = "/sys/bus/pci/devices/" + addr + "/rom";
+    if (!QFile::exists(romPath)) {
+        QMessageBox::information(this, tr("No ROM"),
+            tr("This device does not expose a readable ROM."));
+        return;
+    }
+
+    QString notice = tr("The card's ROM will be read directly from the kernel (needs sudo).");
+    if (p.value("bootvga").toString() == "1")
+        notice += tr("\n\n⚠ This is the GPU your system booted with, so the dump may be the "
+                     "BIOS-shadowed copy rather than a pristine image. If the VM later refuses "
+                     "to boot with it, grab the exact ROM for your card from TechPowerUp instead.");
+    if (QMessageBox::question(this, tr("Dump vBIOS"),
+            tr("%1\n\nContinue?").arg(notice)) != QMessageBox::Yes) return;
+
+    // Timestamped so repeat dumps never silently overwrite an earlier one
+    const QString name = QString(p.value("device").toString())
+                             .remove(QRegularExpression("[^A-Za-z0-9._-]+")).left(40);
+    const QString suggested = QString("%1/vbios-%2-%3.rom")
+        .arg(xetalDumpsDir(), name, QDateTime::currentDateTime().toString("yyyyMMdd-HHmmss"));
+    const QString outPath = QFileDialog::getSaveFileName(this, tr("Save vBIOS ROM"), suggested, tr("ROM images (*.rom)"));
+    if (outPath.isEmpty()) return;
+
+    // Enable ROM reading, copy it out, disable again — all as root, visibly.
+    // Run the terminal as a child process so we know when the dump finished.
+    const QString script = QString(
+        "echo '== Reading vBIOS of %1'; "
+        "echo 1 | sudo tee %2 >/dev/null && "
+        "sudo cat %2 > '%3' && sudo chown \"$USER\" '%3'; "
+        "echo 0 | sudo tee %2 >/dev/null; "
+        "echo; ls -la '%3'; echo; echo '== Done.'; read -p 'Press Enter to close...'")
+        .arg(addr, romPath, outPath);
+
+    QString term;
+    for (const QString &t : {QString("konsole"), QString("gnome-terminal"), QString("xterm"), QString("alacritty"), QString("kitty")}) {
+        if (!QStandardPaths::findExecutable(t).isEmpty()) { term = t; break; }
+    }
+    if (term.isEmpty()) {
+        QMessageBox::warning(this, tr("Terminal Not Found"),
+            tr("Could not find a suitable terminal emulator. Please install one of: konsole, gnome-terminal, xterm, alacritty, or kitty"));
+        return;
+    }
+    QProcess *proc = new QProcess(this);
+    connect(proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+            [this, proc, outPath](int, QProcess::ExitStatus) {
+                proc->deleteLater();
+                QFileInfo fi(outPath);
+                if (!fi.exists() || fi.size() == 0) {
+                    QMessageBox::warning(this, tr("Dump Failed"),
+                        tr("No ROM data was produced.\n\nThis usually means the card refuses to expose its ROM "
+                           "while it is in use. Options: dump it from a live USB session, or download the ROM "
+                           "for your exact card from TechPowerUp."));
+                    return;
+                }
+                patchVbiosIfNeeded(outPath);
+            });
+    proc->start(term, QStringList() << "-e" << "bash" << "-c" << script);
+}
+
+// NVIDIA ROMs carry a pre-header before the real image; OVMF chokes on it.
+// The keeper image starts at the 0x55 0xAA signature that is followed by "VIDEO".
+void MainWindow::patchVbiosIfNeeded(const QString &romPath) {
+    QFile f(romPath);
+    if (!f.open(QIODevice::ReadOnly)) return;
+    const QByteArray data = f.readAll();
+    f.close();
+    if (data.size() < 4) return;
+
+    int keepFrom = -1;
+    for (int i = 0; i + 1 < data.size(); ++i) {
+        if (static_cast<unsigned char>(data[i]) != 0x55 || static_cast<unsigned char>(data[i + 1]) != 0xAA) continue;
+        const int window = qMin(512, data.size() - i);
+        if (data.mid(i, window).contains("VIDEO")) keepFrom = i;   // last such signature wins
+    }
+
+    QString info = tr("vBIOS saved to:\n%1\n\nSize: %2 KB").arg(romPath).arg(data.size() / 1024);
+    if (keepFrom <= 0) {
+        info += tr("\n\nNo pre-header found — the file is ready to use as-is\n"
+                   "(AMD cards normally need no patching).");
+        QMessageBox::information(this, tr("vBIOS Dumped"), info);
+        return;
+    }
+
+    if (QMessageBox::question(this, tr("Patch for Passthrough?"),
+            info + tr("\n\nThis looks like an NVIDIA ROM with a %1-byte pre-header, which stops OVMF "
+                      "from initialising the card in a VM.\n\nWrite a patched copy with the header removed?")
+                   .arg(keepFrom)) != QMessageBox::Yes) return;
+
+    QString patchedPath = romPath;
+    patchedPath.replace(QRegularExpression("\\.rom$"), "");
+    patchedPath += "-patched.rom";
+    QFile out(patchedPath);
+    if (!out.open(QIODevice::WriteOnly)) {
+        QMessageBox::warning(this, tr("Patch Failed"), tr("Could not write %1").arg(patchedPath));
+        return;
+    }
+    out.write(data.mid(keepFrom));
+    out.close();
+    QMessageBox::information(this, tr("Patched vBIOS Ready"),
+        tr("Patched ROM written to:\n%1\n\nUse it in the VM's XML:\n"
+           "  <rom file=\"%1\"/>\n\n"
+           "Tip: copy it to /var/lib/libvirt/vbios/ so libvirt can read it under its own AppArmor/SELinux rules.")
+        .arg(patchedPath));
+}
+
+// System-wide firmware dumps. Everything here is a plain read of what the
+// kernel already exposes — except the motherboard BIOS, which needs flashrom
+// and is often blocked by the chipset (explained rather than attempted blindly).
+void MainWindow::dumpFirmware(const QString &kind) {
+    const QString stamp = QDateTime::currentDateTime().toString("yyyyMMdd-HHmmss");
+    const QString dir = xetalDumpsDir();
+
+    if (kind == "acpi") {
+        const QString outDir = QString("%1/acpi-%2").arg(dir, stamp);
+        if (QMessageBox::question(this, tr("Dump ACPI Tables"),
+                tr("Copies every ACPI table the firmware published (DSDT, SSDTs, and the "
+                   "IOMMU tables IVRS/DMAR) into:\n\n%1\n\n"
+                   "Handy for passthrough debugging and for decompiling with iasl.\n\nContinue?").arg(outDir))
+            != QMessageBox::Yes) return;
+        runSudoCommandInTerminal(QString(
+            "mkdir -p '%1' && sudo cp /sys/firmware/acpi/tables/* '%1'/ 2>/dev/null; "
+            "sudo chown -R \"$USER\" '%1'; "
+            "echo; ls -la '%1'; echo; echo '== ACPI tables dumped. Decompile with: iasl -d %1/DSDT'; "
+            "read -p 'Press Enter to close...'").arg(outDir));
+        return;
+    }
+
+    if (kind == "dmi") {
+        const QString outFile = QString("%1/smbios-dmi-%2.bin").arg(dir, stamp);
+        if (QMessageBox::question(this, tr("Dump SMBIOS / DMI"),
+                tr("Saves the raw SMBIOS tables (board, BIOS version, memory layout) to:\n\n%1\n\n"
+                   "A readable text copy is written alongside it.\n\nContinue?").arg(outFile))
+            != QMessageBox::Yes) return;
+        runSudoCommandInTerminal(QString(
+            "sudo cp /sys/firmware/dmi/tables/DMI '%1' && sudo chown \"$USER\" '%1'; "
+            "command -v dmidecode >/dev/null && sudo dmidecode > '%1.txt' && sudo chown \"$USER\" '%1.txt'; "
+            "echo; ls -la '%1'*; echo; echo '== SMBIOS/DMI dumped.'; read -p 'Press Enter to close...'").arg(outFile));
+        return;
+    }
+
+    if (kind == "edid") {
+        QStringList found;
+        const QDir drm("/sys/class/drm");
+        for (const QString &out : drm.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+            QFile e("/sys/class/drm/" + out + "/edid");
+            if (e.exists() && e.size() > 0) found << out;
+        }
+        if (found.isEmpty()) {
+            QMessageBox::information(this, tr("No EDIDs Available"),
+                tr("No monitor EDID is exposed by the kernel right now.\n\n"
+                   "The proprietary NVIDIA driver does not publish EDIDs through /sys/class/drm — "
+                   "they are available on nouveau, AMD and Intel graphics, or via a live USB session."));
+            return;
+        }
+        const QString outDir = QString("%1/edid-%2").arg(dir, stamp);
+        QDir().mkpath(outDir);
+        int saved = 0;
+        for (const QString &out : found) {
+            QFile in("/sys/class/drm/" + out + "/edid");
+            if (!in.open(QIODevice::ReadOnly)) continue;
+            QFile dst(QString("%1/%2.edid").arg(outDir, out));
+            if (dst.open(QIODevice::WriteOnly)) { dst.write(in.readAll()); dst.close(); ++saved; }
+            in.close();
+        }
+        QMessageBox::information(this, tr("EDIDs Dumped"),
+            tr("%1 monitor EDID(s) written to:\n%2\n\nUseful for virtual-display spoofing in a VM "
+               "(Looking Glass) and for forcing modes with drm.edid_firmware.").arg(saved).arg(outDir));
+        return;
+    }
+
+    if (kind == "bios") {
+        // Honest handling: reading the SPI flash is a different class of operation
+        const bool haveFlashrom = !QStandardPaths::findExecutable("flashrom").isEmpty();
+        QString msg = tr(
+            "Unlike a graphics card's vBIOS, the motherboard's UEFI firmware is NOT exposed by the "
+            "kernel — it lives on an SPI flash chip and can only be read with flashrom.\n\n"
+            "Two honest warnings:\n"
+            "• On most modern AMD/Intel boards the chipset blocks reads (protected ranges), so the "
+            "attempt usually returns an error or a garbage image.\n"
+            "• flashrom writes are how boards get bricked. This app only ever offers the READ (-r) "
+            "operation, never a write.\n\n"
+            "For a usable BIOS image, download the update file for your exact board from the vendor.\n\n");
+        msg += haveFlashrom ? tr("flashrom is installed. Attempt a read-only dump now?")
+                            : tr("flashrom is not installed. Install it and attempt a read-only dump?");
+        if (QMessageBox::question(this, tr("Motherboard BIOS"), msg) != QMessageBox::Yes) return;
+
+        const QString outFile = QString("%1/motherboard-bios-%2.bin").arg(dir, stamp);
+        runSudoCommandInTerminal(QString(
+            "%1"
+            "echo '== Attempting a READ-ONLY dump of the SPI flash...'; "
+            "echo '== (no write operation is performed)'; echo; "
+            "sudo flashrom -p internal -r '%2' ; "
+            "if [ -s '%2' ]; then sudo chown \"$USER\" '%2'; echo; echo '== Saved: %2'; "
+            "else echo; echo '== No image produced - the chipset most likely blocks reads. Use the vendor BIOS file instead.'; fi; "
+            "read -p 'Press Enter to close...'")
+            .arg(haveFlashrom ? "" : "sudo pacman -S --needed flashrom || exit 1; ", outFile));
+        return;
+    }
 }

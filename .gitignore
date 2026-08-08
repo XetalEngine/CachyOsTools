@@ -109,3 +109,5 @@ Thumbs.db
 # Documentation build
 docs/_build/
 docs/build/ 
+# Hardware dumps written by the Device Manager (vBIOS ROMs, firmware images)
+dumps/

@@ -518,6 +518,9 @@ private:
     void refreshDeviceManager();
     void showDeviceProperties(QTreeWidgetItem *item);
     void showModuleInfo(const QString &mod);
+    void dumpDeviceVbios(const QVariantMap &p);
+    void patchVbiosIfNeeded(const QString &romPath);
+    void dumpFirmware(const QString &kind);
     QLineEdit *devMgrFilter = nullptr;
     QLabel *devMgrCountLabel = nullptr;
     void setupUsersGroupsTab();
