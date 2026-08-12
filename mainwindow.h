@@ -22,6 +22,7 @@
 #include <QListWidget>
 #include <QHBoxLayout>
 #include <QLineEdit>
+#include <QCheckBox>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -41,6 +42,23 @@ struct DriveInfo {
     QString uuid;
     QString model;
     QString serial;
+};
+
+// One row of the Cleaner catalogue. paths are bash patterns (globs allowed,
+// $H = home); sizeCmd/cleanCmd override the default du/rm handling when the
+// right tool is something else (paccache, journalctl, balooctl...).
+struct CleanTarget {
+    QString id;
+    QString label;
+    QString detail;          // what deleting it actually costs you
+    int tier = 0;            // 0 = regenerates for free, 1 = costs something
+    bool system = false;     // lives outside home, needs root
+    QStringList paths;
+    QString sizeCmd;         // echoes a byte count instead of du-ing paths
+    QString cleanCmd;        // runs instead of rm -rf on paths
+    QString needsBinary;     // category is hidden when this tool is missing
+    qint64 bytes = 0;
+    bool available = true;
 };
 
 struct AliasEntry {
@@ -593,6 +611,32 @@ private:
     QString themeBg;
     QString themeText;
     QProcess *journalFollowProcess = nullptr;
+
+    // Cleaner tab: curated cache categories + a du size tree for manual hunting
+    void setupCleanerTab();
+    QList<CleanTarget> buildCleanTargets() const;
+    bool isCleanablePath(const QString &path) const;
+    void startCleanerScan();
+    void rebuildCleanerCategoryTree();
+    void startCleanerTreeScan(const QString &rootPath);
+    void rebuildCleanerSizeTree();
+    void updateCleanerSummary();
+    void runCleanerClean();
+    QWidget *cleanerTab = nullptr;
+    QTreeWidget *cleanCatTree = nullptr;
+    QTreeWidget *cleanSizeTree = nullptr;
+    QLabel *cleanStatusLabel = nullptr;
+    QLabel *cleanSummaryLabel = nullptr;
+    QCheckBox *cleanSystemCheck = nullptr;
+    QLineEdit *cleanFolderEdit = nullptr;
+    QPushButton *cleanRunButton = nullptr;
+    QList<CleanTarget> cleanTargets;
+    QSet<QString> cleanSelectedIds;              // checked categories
+    QSet<QString> cleanSelectedPaths;            // checked size-tree paths
+    QHash<QString, qint64> cleanTreeDirSizes;    // dir path -> bytes (du cache)
+    QList<QPair<QString, qint64>> cleanTreeBigFiles;
+    QString cleanTreeRoot;
+    bool cleanScanDone = false;
 
     // Uninstall tab helper functions
     void refreshUninstallList();

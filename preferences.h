@@ -84,6 +84,7 @@ void MainWindow::showPreferencesDialog() {
     tabNames["isoCreatorTab"] = "System ISO";
     tabNames["packageManagerTab"] = "PKG Install";
     tabNames["uninstallTab"] = "PKG Uninstall";
+    tabNames["cleanerTab"] = "Cleaner";
     tabNames["networkTab"] = "Network";
     tabNames["themeTab"] = "Theme";
 
@@ -225,7 +226,7 @@ void MainWindow::loadTabVisibilityPreferences() {
         "dashboardTab",
         "driveToolsTab", "shellToolsTab", "servicesTab", "tweaksTab",
         "kvmTab", "configTab", "logsTab", "backupTab", "restoreTab",
-        "isoCreatorTab", "packageManagerTab", "uninstallTab", "networkTab", "themeTab"
+        "isoCreatorTab", "packageManagerTab", "uninstallTab", "cleanerTab", "networkTab", "themeTab"
     };
     
     for (const QString &tabName : tabNames) {
@@ -271,6 +272,7 @@ void MainWindow::applyTabVisibility() {
     tabs["isoCreatorTab"] = ui->isoCreatorTab;
     tabs["packageManagerTab"] = ui->packageManagerTab;
     tabs["uninstallTab"] = ui->uninstallTab;
+    tabs["cleanerTab"] = cleanerTab;   // built in code, not in the .ui
     tabs["networkTab"] = ui->networkTab;
     tabs["themeTab"] = ui->themeTab;
     
@@ -311,6 +313,7 @@ void MainWindow::applyTabVisibility() {
     tabTitles["isoCreatorTab"] = tr("System ISO");
     tabTitles["packageManagerTab"] = tr("PKG Install");
     tabTitles["uninstallTab"] = tr("PKG Uninstall");
+    tabTitles["cleanerTab"] = tr("Cleaner");
     tabTitles["networkTab"] = tr("Network");
     tabTitles["themeTab"] = tr("Theme");
 
@@ -318,7 +321,7 @@ void MainWindow::applyTabVisibility() {
         "dashboardTab",
         "driveToolsTab", "shellToolsTab", "servicesTab", "tweaksTab",
         "kvmTab", "configTab", "logsTab", "backupTab", "restoreTab",
-        "isoCreatorTab", "packageManagerTab", "uninstallTab", "networkTab", "themeTab"
+        "isoCreatorTab", "packageManagerTab", "uninstallTab", "cleanerTab", "networkTab", "themeTab"
     };
     
     // Store all widgets before removing tabs to prevent deletion

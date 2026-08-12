@@ -44,6 +44,7 @@ set(PROJECT_SOURCES
         thememanager.h
         dashboard.h
         isoexclusions.h
+        cleaner.h
         resources.qrc
         # Additional files (currently empty but may be implemented)
         drivetools.h

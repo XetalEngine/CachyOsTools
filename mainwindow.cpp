@@ -28,6 +28,7 @@
 #include "tabupgrades.h"
 #include "thememanager.h"
 #include "dashboard.h"
+#include "cleaner.h"
 #include "preferences.h"
 #include "network.h"
 

@@ -16,6 +16,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) , ui(new Ui::MainW
     // System ISO tab: offer per-dependency install buttons if the build-script offer was missed
     setupIsoDepsCheck();
 
+    // Cleaner tab (built in code, appended here; applyTabVisibility reorders it)
+    setupCleanerTab();
+
     // Set current tab first before applying visibility preferences
     ui->tabWidget->setCurrentWidget(ui->dashboardTab);
     
