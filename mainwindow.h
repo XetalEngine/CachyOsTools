@@ -411,6 +411,12 @@ private:
     void saveAliases();
     AliasEntry parseAliasLine(const QString &line, const QString &shell);
     QString aliasToLine(const AliasEntry &alias, const QString &shell);
+    // Alias -> .desktop shortcut (optionally pinned to the KDE start menu favorites)
+    void showAliasToDesktopDialog(const AliasEntry &entry);
+    bool writeAliasDesktopEntry(const AliasEntry &entry, const QString &appName, const QString &command,
+                                const QString &icon, const QString &category, bool runInTerminal,
+                                bool keepTerminalOpen, QString &desktopFileOut, QString &errorOut);
+    bool addDesktopFileToKdeFavorites(const QString &desktopFilePath, QString &errorOut);
     // Service management
     QList<ServiceEntry> serviceList;
     bool showUserServices = false;
