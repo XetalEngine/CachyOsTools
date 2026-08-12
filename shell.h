@@ -277,10 +277,26 @@ bool MainWindow::writeAliasDesktopEntry(const AliasEntry &entry, const QString &
     const QString dataDir = QDir::homePath() + "/.local/share";
     const QString appsDir = dataDir + "/applications";
     const QString scriptDir = dataDir + "/cachyostools/launchers";
+    const QString iconDir = dataDir + "/cachyostools/icons";
 
-    if (!QDir().mkpath(appsDir) || !QDir().mkpath(scriptDir)) {
+    if (!QDir().mkpath(appsDir) || !QDir().mkpath(scriptDir) || !QDir().mkpath(iconDir)) {
         errorOut = tr("Could not create %1").arg(appsDir);
         return false;
+    }
+
+    // A browsed icon is copied next to the launcher, so the shortcut keeps its
+    // icon even if the original file is later moved or deleted.
+    QString iconValue = icon;
+    QFileInfo iconInfo(icon);
+    if (iconInfo.isFile()) {
+        QString suffix = iconInfo.suffix().isEmpty() ? QString("png") : iconInfo.suffix().toLower();
+        QString stored = iconDir + "/" + slug + "." + suffix;
+        if (QFileInfo(stored).canonicalFilePath() != iconInfo.canonicalFilePath()) {
+            QFile::remove(stored);
+            if (QFile::copy(icon, stored)) iconValue = stored;
+        } else {
+            iconValue = stored;
+        }
     }
 
     // 1. The launcher script
@@ -314,7 +330,7 @@ bool MainWindow::writeAliasDesktopEntry(const AliasEntry &entry, const QString &
     content += "GenericName=" + tr("Shell Alias") + "\n";
     content += "Comment=" + oneLine(tr("Runs the '%1' shell alias: %2").arg(entry.name, command)) + "\n";
     content += "Exec=" + scriptPath + "\n";
-    content += "Icon=" + oneLine(icon) + "\n";
+    content += "Icon=" + oneLine(iconValue) + "\n";
     content += "Terminal=" + QString(runInTerminal ? "true" : "false") + "\n";
     content += "Categories=" + category + ";\n";
     content += "StartupNotify=false\n";
