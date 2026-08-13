@@ -23,6 +23,10 @@
 #include <QHBoxLayout>
 #include <QLineEdit>
 #include <QCheckBox>
+#include <QSpinBox>
+#include <QGroupBox>
+#include <QFileSystemWatcher>
+#include <functional>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -96,6 +100,21 @@ struct PackageEntry {
     QString description;
     QString repository;
     bool isInstalled;
+};
+
+// One thing that starts itself when you log in: an XDG .desktop entry (yours or
+// a package's) or an enabled systemd user unit.
+struct AutostartEntry {
+    QString name;
+    QString exec;
+    QString comment;
+    QString path;          // file on disk; empty for units with no fragment
+    QString type;          // "xdg" | "systemd"
+    QString onlyShowIn;    // OnlyShowIn= — the entry is desktop-specific
+    bool enabled = true;
+    bool system = false;   // shipped by a package, not written by the user
+    bool isOverride = false;
+    int delay = 0;         // X-GNOME-Autostart-Delay, seconds
 };
 
 // First-boot hardware adaptation options for the System ISO (each independent;
@@ -637,6 +656,93 @@ private:
     QList<QPair<QString, qint64>> cleanTreeBigFiles;
     QString cleanTreeRoot;
     bool cleanScanDone = false;
+
+    // Pacman Doctor (PKG Install -> Pacman -> Repair): diagnose and fix the
+    // five classic pacman failures — mirrors, keyring, db.lck, a bad update,
+    // an untuned pacman.conf.
+    void setupPacmanDoctorTab();
+    void refreshPacmanDoctor();
+    void pacmanRankMirrorsDialog();
+    void pacmanFixKeyringDialog();
+    void pacmanDowngradeDialog();
+    void pacmanApplyConfTuning();
+    QWidget *pacDocTab = nullptr;
+    QLabel *pacDocDiagLabel = nullptr;
+    QLabel *pacDocStatusLabel = nullptr;
+    QListWidget *pacDocPacnewList = nullptr;
+    QSpinBox *pacDocParallelSpin = nullptr;
+    QCheckBox *pacDocColorCheck = nullptr;
+    QCheckBox *pacDocCandyCheck = nullptr;
+    QCheckBox *pacDocVerboseCheck = nullptr;
+    QCheckBox *pacDocCheckSpaceCheck = nullptr;
+    QCheckBox *pacDocTimeoutCheck = nullptr;
+    QStringList pacDocRankers;                     // mirror tools found on this box
+    QFileSystemWatcher *pacDocWatcher = nullptr;   // re-diagnose the moment a fix lands
+    QTimer *pacDocDebounce = nullptr;
+    bool pacDocBusy = false;
+    bool pacmanDoctorVisible() const;
+
+    // A repair runs detached in a terminal, so there is no finished() to wait on.
+    // Re-run the given check on a decaying schedule until the dust settles.
+    void scheduleStagedRecheck(const std::function<void()> &recheck);
+
+    // Sensors & Power (Dashboard sub-tab, next to Devices)
+    void setupSensorsPowerTab();
+    void refreshSensorsPower();
+    void refreshPowerPanel();
+    QWidget *sensSubTab = nullptr;
+    QTreeWidget *sensTree = nullptr;
+    QLabel *sensSummaryLabel = nullptr;
+    QLabel *sensMissingLabel = nullptr;
+    QCheckBox *sensLiveCheck = nullptr;
+    QTimer *sensTimer = nullptr;
+    QHash<QString, QTreeWidgetItem *> sensChipItems;  // chip -> node, so live
+    QHash<QString, QTreeWidgetItem *> sensRowItems;   // "chip|label" -> row, updates
+    bool sensBusy = false;                            // don't stack reader processes
+    bool sensPowerBusy = false;
+    bool sensPopulating = false;                      // refilling combos, ignore activations
+    QComboBox *powProfileCombo = nullptr;
+    QComboBox *powGovCombo = nullptr;
+    QComboBox *powEppCombo = nullptr;
+    QLabel *powProfileLabel = nullptr;
+    QGroupBox *powBatteryGroup = nullptr;
+    QLabel *powBatteryLabel = nullptr;
+    QSpinBox *powThresholdSpin = nullptr;
+    QLabel *fanStatusLabel = nullptr;
+    QString sensBatteryPath;
+
+    // Network Shares (Network sub-tab): mount SMB/NFS, and export folders via Samba
+    void setupNetworkSharesTab();
+    void refreshNetworkShares();
+    void refreshMountedShares();
+    void refreshSambaShares();
+    void discoverNetworkShares();
+    void listHostShares(const QString &host);
+    void showMountShareDialog(const QString &type, const QString &server, const QString &share);
+    void showAddSambaShareDialog();
+    QWidget *sharesSubTab = nullptr;
+    QTableWidget *shrMountedTable = nullptr;
+    QTreeWidget *shrDiscoverTree = nullptr;
+    QTableWidget *shrSambaTable = nullptr;
+    QLabel *shrStatusLabel = nullptr;
+    QLabel *shrSambaStatusLabel = nullptr;
+    QLineEdit *shrHostEdit = nullptr;
+    QFileSystemWatcher *shrWatcher = nullptr;      // fstab / smb.conf changed under us
+    QTimer *shrDebounce = nullptr;
+    bool networkSharesVisible() const;
+
+    // Autostart (Services sub-tab): XDG entries + systemd user units in one list
+    void setupAutostartTab();
+    void refreshAutostart();
+    void populateAutostartTable();
+    void addAutostartEntryDialog();
+    void setAutostartEnabled(bool enabled);
+    int currentAutostartIndex();
+    QWidget *autostartTab = nullptr;
+    QTableWidget *autoTable = nullptr;
+    QLabel *autoStatusLabel = nullptr;
+    QCheckBox *autoShowSystemCheck = nullptr;
+    QList<AutostartEntry> autostartList;
 
     // Uninstall tab helper functions
     void refreshUninstallList();

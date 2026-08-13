@@ -6,7 +6,7 @@
 
 ### The control panel Arch never had.
 
-**Clone your entire system to a bootable ISO. Manage kernels, users, devices and firewalls like it's one app — because it is. Set up GPU passthrough without praying. In three languages.**
+**Clone your entire system to a bootable ISO. Manage kernels, users, devices, sensors and firewalls like it's one app — because it is. Fix pacman when it breaks. Set up GPU passthrough without praying. In three languages.**
 
 <br>
 
@@ -38,6 +38,17 @@
 
 ---
 
+## 🆕 Fresh in this build
+
+|   |   |   |
+|---|---|---|
+| 🌡️ | **Sensors & Power** | Every hwmon reading, live — coloured against each chip's *own* limits, NVIDIA included. Plus the knobs you reach for when one goes red |
+| 🩺 | **Pacman Doctor** | Diagnoses stale mirrors, a broken keyring, a stuck `db.lck`, pending `.pacnew`s — and fixes each one. Downgrade included |
+| 📁 | **Network Shares** | Finds the NAS on your LAN, mounts it, and shares your folders back — without a password ever touching a dialog |
+| 🚀 | **Autostart** | msconfig for Arch. XDG entries *and* systemd user units in one list; add anything with a file picker |
+
+---
+
 ## 🎯 Why This Exists
 
 Windows users get a Control Panel. Mac users get System Settings. Arch users get... 47 terminal commands and a wiki tab that never closes.
@@ -51,6 +62,7 @@ Windows users get a Control Panel. Mac users get System Settings. Arch users get
 | 🔌 | **A real Device Manager** — every PCI/USB device, its driver, its modules. Load, unload, blacklist |
 | 🖥️ | **GPU passthrough for humans** — complete Single-GPU and Dual-GPU guides plus step-by-step VFIO setup with per-step backups |
 | 📦 | **Packages without borders** — official repos, AUR, and yes, **.deb files** converted into native pacman packages |
+| 🩺 | **When pacman breaks, it tells you why** — stale mirrors, a dead keyring, a leftover lock, unmerged `.pacnew`s. One click each to fix, and a downgrade button for the update that shouldn't have shipped |
 | 🛡️ | **Guardrails everywhere** — it refuses to delete your running kernel, your own account, or format a mounted drive. It knows better, because we made those mistakes for you |
 
 ---
@@ -124,15 +136,37 @@ Your system, **exactly as it is right now**, burned into a bootable ISO with a g
 </td>
 <td width="55%">
 
-Seven tools that used to be seven terminal sessions, living as Dashboard sub-tabs:
+Eight tools that used to be eight terminal sessions, living as Dashboard sub-tabs:
 
 - **🔌 Devices** — PCI/USB tree, drivers in use, module info / load / unload / blacklist
+- **🌡️ Sensors & Power** — every hwmon reading live, coloured against each chip's *own* limits (NVIDIA included), plus the switches you reach for when one goes red: power profile, CPU governor, energy preference, battery charge limit that survives a reboot, and the fancontrol service
 - **👥 Users & Groups** — accounts with avatars, group membership editor (wheel, libvirt, docker...), password & shell changes
 - **🧬 Kernels** — scans `/boot` itself so *custom and source-built kernels show up too*; one-click install of 9 popular kernels including **linux-tkg built from source**; GRUB default picker
 - **🪪 System Properties** — hostname, machine-id, hardware identity — the sysdm.cpl you missed
 - **⏪ Restore Points** — snapper/btrfs snapshots: list, create, delete, and honest rollback guidance
 - **🌱 Environment** — the two-pane variables dialog, for `/etc/environment` and your user session
 
+</td>
+</tr>
+</table>
+
+### 🌡️ Sensors & Power — the panel that watches back
+
+<table>
+<tr>
+<td width="55%">
+
+`lm_sensors` in a terminal tells you a number. This tells you whether that number is **a problem** — every reading is coloured against the limits *that chip reports for itself*, not a hard-coded guess.
+
+- **Live, and honest about it** — refreshes every 2s, but only while you're looking at it. No background polling, no `du` storms
+- **NVIDIA too** — lm_sensors can't see the proprietary stack, so the GPU is read straight from the driver
+- **No lm_sensors? Still works** — falls back to raw `/sys/class/hwmon`, and offers to run `sensors-detect`
+- **The knobs, right there** — power profile, CPU governor, energy preference, and a battery charge limit that installs a systemd unit so it survives reboots
+- **Fan control without the footgun** — it launches `pwmconfig` and manages the service, and warns you *why* your fans stop during the probe
+
+</td>
+<td width="45%">
+<img src="images/dash-sensors.png" alt="Sensors and Power">
 </td>
 </tr>
 </table>
@@ -166,9 +200,33 @@ Three sub-tabs, from "read this first" to "click and done":
 <td width="55%">
 
 - **PKG Install** — official repos + AUR search, Yay/Paru management, update checker with **Arch news feed** (read it before big upgrades!)
+- **🩺 Repair** — the pacman doctor. One click diagnoses stale mirrors, a broken keyring, a leftover `db.lck`, pending `.pacnew` files and a cache that ate your disk — then fixes each one. Includes **downgrade a package** from your cache (with optional `IgnorePkg` hold), because the fastest way out of a bad update is backwards
 - **📦 Install .deb** — Debian packages converted via debtap into *native, pacman-tracked* packages. Full conversion visible in the terminal
 - **PKG Uninstall** — everything sorted by size with install dates, orphan cleanup, cache cleaner. Find the 1.2 GB you forgot about
 
+</td>
+</tr>
+</table>
+
+<div align="center">
+<img src="images/tab-pkg-repair.png" alt="Pacman Doctor" width="920">
+<br>
+<sub><i>Ten checks, ten dots. Each one turns green the moment the fix actually lands — even if you ran it in your own terminal.</i></sub>
+</div>
+
+<br>
+
+### 📁 Shares & 🚀 Autostart — the two applets Arch forgot
+
+<table>
+<tr>
+<td width="50%">
+<img src="images/net-shares.png" alt="Network Shares">
+<sub><b>Network Shares</b> — mDNS + NetBIOS discovery finds the NAS, double-click a share to mount it. Boot-time mounts get <code>x-systemd.automount</code> and a root-only credentials file; the password is typed into the terminal, never into a dialog. It also shares <i>your</i> folders over Samba — and flatly refuses to export <code>/</code>, <code>/home</code>, <code>/etc</code> or your <code>.ssh</code>.</sub>
+</td>
+<td width="50%">
+<img src="images/tab-autostart.png" alt="Autostart">
+<sub><b>Autostart</b> — your <code>~/.config/autostart</code> entries, the ones packages dropped in <code>/etc/xdg/autostart</code>, and your enabled systemd user units, in <b>one list</b>. Add anything with a file picker: it sets the execute bit, warns about a missing shebang, and can delay the start. Disabling a package's entry writes a personal <code>Hidden=true</code> override instead of touching <code>/etc</code>.</sub>
 </td>
 </tr>
 </table>
@@ -179,8 +237,9 @@ Three sub-tabs, from "read this first" to "click and done":
 |---|---|
 | **💾 Drives** | Mount, format, SMART health checks, take-ownership, **burn ISO → USB** with triple-checked device confirmation |
 | **🌐 Network** | Interfaces, bridges (with one-click *fix bridge on new hardware*), libvirt networks, Wi-Fi, saved connections, open ports — and the **🛡️ Firewall manager** (ufw/firewalld rules) right next to them |
+| **📁 Shares** | Mount SMB/NFS from anything on your LAN, and export your own folders over Samba — *detailed above* |
 | **🔧 Tweaks** | ZRAM, CPU governor, gaming optimizations (`vm.max_map_count`), mitigations, TRIM, swappiness, I/O schedulers, pacman candy — each with Info, Apply, Backup, and Edit Config |
-| **⚙️ Services** | Start/stop/enable, failed-service banner, per-service journal, boot-time analysis |
+| **⚙️ Services** | Start/stop/enable, failed-service banner, per-service journal, boot-time analysis — with **🚀 Autostart** as its second sub-tab |
 | **📋 Logs** | journald with boot selector, live follow mode, hardware reports |
 | **📄 System Config** | Curated config file list with a **built-in sudo-capable editor** — because Kate can't and nano won't hold your hand |
 | **🎨 Theme** | XETAL presets or your own accent/background — the whole app reskins live |
@@ -198,9 +257,11 @@ Three sub-tabs, from "read this first" to "click and done":
 <br>
 
 <details>
-<summary><b>🎛️ Control Panel</b> — Users &amp; Groups · System Properties · Restore Points · Environment</summary>
+<summary><b>🎛️ Control Panel</b> — Sensors &amp; Power · Users &amp; Groups · Kernels · System Properties · Restore Points · Environment</summary>
 <br>
+<img src="images/dash-sensors.png" alt="Sensors and Power" width="900">
 <img src="images/dash-users.png" alt="Users and Groups" width="900">
+<img src="images/dash-kernels.png" alt="Kernel Manager" width="900">
 <img src="images/dash-sysprops.png" alt="System Properties" width="900">
 <img src="images/dash-restore.png" alt="Restore Points" width="900">
 <img src="images/dash-environment.png" alt="Environment Variables" width="900">
@@ -222,24 +283,27 @@ Three sub-tabs, from "read this first" to "click and done":
 </details>
 
 <details>
-<summary><b>📦 Packages</b> — Install · Uninstall</summary>
+<summary><b>📦 Packages</b> — Install · Repair · Uninstall</summary>
 <br>
 <img src="images/tab-pkg-install.png" alt="PKG Install" width="900">
+<img src="images/tab-pkg-repair.png" alt="Pacman Doctor" width="900">
 <img src="images/tab-pkg-uninstall.png" alt="PKG Uninstall" width="900">
 </details>
 
 <details>
-<summary><b>🌐 Network &amp; Firewall</b></summary>
+<summary><b>🌐 Network</b> — Interfaces · Firewall · Shares</summary>
 <br>
 <img src="images/tab-network.png" alt="Network" width="900">
 <img src="images/net-firewall.png" alt="Firewall" width="900">
+<img src="images/net-shares.png" alt="Network Shares" width="900">
 </details>
 
 <details>
-<summary><b>🔧 System</b> — Tweaks · Services · Logs · Config · Shell · Theme</summary>
+<summary><b>🔧 System</b> — Tweaks · Services · Autostart · Logs · Config · Shell · Theme</summary>
 <br>
 <img src="images/tab-tweaks.png" alt="Tweaks" width="900">
 <img src="images/tab-services.png" alt="Services" width="900">
+<img src="images/tab-autostart.png" alt="Autostart" width="900">
 <img src="images/tab-logs.png" alt="Logs" width="900">
 <img src="images/tab-system-config.png" alt="System Config" width="900">
 <img src="images/tab-shell.png" alt="Shell" width="900">
@@ -254,6 +318,7 @@ Three sub-tabs, from "read this first" to "click and done":
 2. **Show, don't hide.** Every privileged operation runs in a visible terminal — you see exactly what's executed, always.
 3. **Backup before touch.** Config-changing features create timestamped backups first.
 4. **Refuse the footgun.** Delete your running kernel? Your own account? Burn an ISO over your system disk? The app says no so you don't have to say oops.
+5. **Never lie about the current state.** A panel that shows a stale reading is worse than one that shows nothing. The diagnostics watch the files they report on, so a fix turns the dot green the moment it lands — even when you ran that fix yourself, in your own terminal, with this app just sitting there.
 
 ---
 

@@ -2,6 +2,7 @@
 
 #include <QNetworkInterface>
 #include <QHostInfo>
+#include <QStandardItemModel>
 #include <QNetworkAddressEntry>
 #include <QRegularExpression>
 #include <QFile>
@@ -343,27 +344,61 @@ void MainWindow::on_createBridgeButton_clicked() {
         return;
     }
     
-    // Get ethernet interfaces (exclude virtual/bridge)
-    QStringList ethernetIfaces;
-    QProcess ipProc;
-    ipProc.start("ip", QStringList() << "-o" << "link" << "show" << "type" << "ethernet");
-    ipProc.waitForFinished();
-    if (ipProc.exitCode() == 0) {
-        QString out = QString::fromUtf8(ipProc.readAllStandardOutput());
-        for (const QString &line : out.split('\n', Qt::SkipEmptyParts)) {
-            // "2: enp7s0: <...>" -> enp7s0
-            QRegularExpression re("^\\d+:\\s+(\\S+):");
-            QRegularExpressionMatch m = re.match(line.trimmed());
-            if (m.hasMatch()) {
-                QString iface = m.captured(1);
-                if (!iface.startsWith("br") && !iface.startsWith("vir")) {
-                    ethernetIfaces << iface;
-                }
-            }
+    // Find the physical Ethernet NICs.
+    //
+    // `ip link show type ethernet` does NOT work for this: `type` filters on the
+    // rtnetlink link *kind*, and a real NIC reports no kind at all, so the command
+    // succeeds with empty output on an ordinary machine. Ask NetworkManager (we
+    // already require it above), and fall back to sysfs if that comes back empty.
+    QStringList allNics;
+    QProcess nmDev;
+    nmDev.start("nmcli", QStringList() << "-t" << "-f" << "DEVICE,TYPE" << "device" << "status");
+    nmDev.waitForFinished(5000);
+    for (const QString &line : QString::fromUtf8(nmDev.readAllStandardOutput()).split('\n', Qt::SkipEmptyParts)) {
+        const QStringList f = line.split(':');
+        if (f.size() >= 2 && f[1] == "ethernet" && !f[0].isEmpty()) allNics << f[0];
+    }
+    if (allNics.isEmpty()) {
+        // sysfs: a real device node, ARPHRD_ETHER (type 1), and not a Wi-Fi radio
+        for (const QFileInfo &fi : QDir("/sys/class/net").entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+            const QString name = fi.fileName();
+            const QString base = "/sys/class/net/" + name;
+            if (!QFile::exists(base + "/device")) continue;             // virtual (lo, br0, wg0)
+            if (QFile::exists(base + "/wireless") || QFile::exists(base + "/phy80211")) continue;
+            QFile typeFile(base + "/type");
+            if (!typeFile.open(QIODevice::ReadOnly)) continue;
+            if (QString::fromUtf8(typeFile.readAll()).trimmed() != "1") continue;
+            allNics << name;
         }
     }
-    if (ethernetIfaces.isEmpty()) {
-        QMessageBox::warning(this, tr("Create Bridge"), tr("No Ethernet interface found. Connect a cable or check your hardware."));
+    allNics.removeDuplicates();
+
+    // A NIC can belong to exactly one bridge, so anything already enslaved is
+    // off the table — /sys/class/net/<if>/master points at its current owner.
+    QHash<QString, QString> nicMaster;
+    QStringList freeNics, busyNics;
+    for (const QString &nic : allNics) {
+        const QFileInfo masterLink(QString("/sys/class/net/%1/master").arg(nic));
+        const QString master = masterLink.exists()
+                             ? QFileInfo(masterLink.symLinkTarget()).fileName() : QString();
+        nicMaster.insert(nic, master);
+        if (master.isEmpty()) freeNics << nic; else busyNics << nic;
+    }
+
+    if (allNics.isEmpty()) {
+        QMessageBox::warning(this, tr("Create Bridge"),
+            tr("No Ethernet interface found.\n\nOnly wired adapters can be bridged — Wi-Fi cannot, "
+               "because 802.11 will not let a station forward frames for other MAC addresses."));
+        return;
+    }
+    if (freeNics.isEmpty()) {
+        QStringList lines;
+        for (const QString &nic : busyNics)
+            lines << QString("    %1  →  %2").arg(nic, nicMaster.value(nic));
+        QMessageBox::information(this, tr("Create Bridge"),
+            tr("Every Ethernet interface here is already attached to a bridge:\n\n%1\n\n"
+               "A NIC can only belong to one bridge at a time. Point your VMs at the existing "
+               "bridge, or delete it first if you want to build a different one.").arg(lines.join('\n')));
         return;
     }
     
@@ -405,8 +440,14 @@ void MainWindow::on_createBridgeButton_clicked() {
     QHBoxLayout *ifLayout = new QHBoxLayout();
     ifLayout->addWidget(new QLabel(tr("Interface to attach:"), dialog));
     QComboBox *ifaceCombo = new QComboBox(dialog);
-    ifaceCombo->addItems(ethernetIfaces);
-    int defaultIdx = ethernetIfaces.indexOf(defaultIface);
+    for (const QString &nic : freeNics) ifaceCombo->addItem(nic, nic);
+    // Show the enslaved ones too, greyed out, so "where did my NIC go?" answers itself
+    for (const QString &nic : busyNics) {
+        ifaceCombo->addItem(tr("%1  — already in %2").arg(nic, nicMaster.value(nic)), QString());
+        if (QStandardItemModel *m = qobject_cast<QStandardItemModel *>(ifaceCombo->model()))
+            m->item(ifaceCombo->count() - 1)->setEnabled(false);
+    }
+    int defaultIdx = freeNics.indexOf(defaultIface);
     if (defaultIdx >= 0) {
         ifaceCombo->setCurrentIndex(defaultIdx);
     }
@@ -423,7 +464,8 @@ void MainWindow::on_createBridgeButton_clicked() {
     connect(cancelBtn, &QPushButton::clicked, dialog, &QDialog::reject);
     connect(okBtn, &QPushButton::clicked, [dialog, brEdit, ifaceCombo, this]() {
         QString bridgeName = brEdit->text().trimmed();
-        QString iface = ifaceCombo->currentText().trimmed();
+        // The label carries a suffix for enslaved NICs; the real name is in the data
+        QString iface = ifaceCombo->currentData().toString().trimmed();
         if (bridgeName.isEmpty()) {
             bridgeName = "br0";
         }

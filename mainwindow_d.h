@@ -19,6 +19,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) , ui(new Ui::MainW
     // Cleaner tab (built in code, appended here; applyTabVisibility reorders it)
     setupCleanerTab();
 
+    // PKG Install -> Pacman -> Repair
+    setupPacmanDoctorTab();
+
+    // Network -> Shares
+    setupNetworkSharesTab();
+
+    // Services -> Autostart (also wraps the existing Services page in sub-tabs)
+    setupAutostartTab();
+
     // Set current tab first before applying visibility preferences
     ui->tabWidget->setCurrentWidget(ui->dashboardTab);
     
@@ -361,6 +370,7 @@ shellConfigFiles["ksh"] = QStringList()
             refreshConnectionsList();
             refreshWifiNetworks(false);
             refreshOpenPorts();
+            refreshNetworkShares();
         }
         if (ui->tabWidget->widget(index) == ui->dashboardTab) {
             refreshDashboard();

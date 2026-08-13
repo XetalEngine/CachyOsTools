@@ -31,6 +31,10 @@
 #include "cleaner.h"
 #include "preferences.h"
 #include "network.h"
+#include "pacman_doctor.h"
+#include "sensors_power.h"
+#include "network_shares.h"
+#include "autostart.h"
 
 void MainWindow::setNumlockSetting(bool enabled) {
     QString value = enabled ? "1" : "0";

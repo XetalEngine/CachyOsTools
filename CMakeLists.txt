@@ -45,6 +45,11 @@ set(PROJECT_SOURCES
         dashboard.h
         isoexclusions.h
         cleaner.h
+        script_helpers.h
+        pacman_doctor.h
+        sensors_power.h
+        network_shares.h
+        autostart.h
         resources.qrc
         # Additional files (currently empty but may be implemented)
         drivetools.h

@@ -115,11 +115,19 @@ void MainWindow::setupControlPanelTabs() {
     setupEnvVarsTab();
     setupSystemPropsTab();
 
+    // Sensors & Power is built in code, so it slots in right after Devices
+    // instead of wherever the .ui happens to put it.
+    setupSensorsPowerTab();
+    // "&&" — a single & in a tab title is eaten as a keyboard mnemonic
+    ui->dashSubTabs->insertTab(ui->dashSubTabs->indexOf(ui->deviceManagerSubTab) + 1,
+                               sensSubTab, tr("🌡️ Sensors && Power"));
+
     connect(ui->dashSubTabs, &QTabWidget::currentChanged, this, [this](int) {
         QWidget *page = ui->dashSubTabs->currentWidget();
         if (!page) return;
         const QString name = page->objectName();
         if (name == "deviceManagerSubTab") refreshDeviceManager();
+        else if (name == "sensorsPowerSubTab") refreshSensorsPower();
         else if (name == "usersGroupsSubTab") refreshUsersGroups();
         else if (name == "kernelManagerSubTab") refreshKernelManager();
         else if (name == "envVarsSubTab") refreshEnvVars();
