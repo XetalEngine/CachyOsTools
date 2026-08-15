@@ -51,7 +51,7 @@ QList<CleanTarget> MainWindow::buildCleanTargets() const {
         "for d in \"$H\"/.local/share/Trash /run/media/\"$U\"/*/.Trash-\"$I\" /media/\"$U\"/*/.Trash-\"$I\"; do\n"
         "  [ -d \"$d\" ] || continue\n"
         "  echo \"  emptying $d\"\n"
-        "  rm -rf -- \"$d/files\" \"$d/info\" \"$d/expunged\"\n"
+        "  $RM \"$d/files\" \"$d/info\" \"$d/expunged\"\n"
         "done\n";
 
     add("thumbnails", tr("🖼️ Thumbnail cache"),
@@ -102,11 +102,30 @@ QList<CleanTarget> MainWindow::buildCleanTargets() const {
     add("baloo", tr("🔍 Baloo file index (KDE)"),
         tr("KDE re-indexes your files afterwards — heavy disk use for a while, then search works again."),
         1, false, {"\"$H\"/.local/share/baloo"});
+    // balooctl's "Stopping the File Indexer" spins dots forever when the index is
+    // busy and then reports "failed to stop!" anyway, so every call is bounded by
+    // `timeout` and we make sure the process is really gone before deleting under
+    // it. balooctl talks to the *calling user's* KDE session, so it never gets
+    // sudo — only the removal does.
     t.last().cleanCmd =
-        "if command -v balooctl6 >/dev/null 2>&1; then balooctl6 purge || balooctl6 disable\n"
-        "elif command -v balooctl >/dev/null 2>&1; then balooctl purge || balooctl disable\n"
-        "else rm -rf -- \"$H\"/.local/share/baloo; fi\n"
-        "rm -rf -- \"$H\"/.local/share/baloo/index*\n";
+        "B=\"\"\n"
+        "command -v balooctl6 >/dev/null 2>&1 && B=balooctl6\n"
+        "[ -z \"$B\" ] && command -v balooctl >/dev/null 2>&1 && B=balooctl\n"
+        "if [ -n \"$B\" ]; then\n"
+        "  echo '  suspending the indexer'\n"
+        "  timeout 15 \"$B\" suspend >/dev/null 2>&1 || true\n"
+        "  echo '  disabling the indexer (bounded to 30s)'\n"
+        "  timeout 30 \"$B\" disable  >/dev/null 2>&1 || true\n"
+        "fi\n"
+        "if pgrep -x baloo_file >/dev/null 2>&1; then\n"
+        "  echo '  indexer still running — stopping it'\n"
+        "  pkill -x baloo_file 2>/dev/null || true\n"
+        "  sleep 1\n"
+        "  pkill -9 -x baloo_file 2>/dev/null || true\n"
+        "fi\n"
+        "echo \"  removing $H/.local/share/baloo\"\n"
+        "$RM \"$H\"/.local/share/baloo\n"
+        "echo '  re-enable later with:  balooctl6 enable'\n";
 
     // Commands filled in at the bottom of this function, once every other
     // category has registered the ~/.cache paths it claims.
@@ -201,7 +220,7 @@ QList<CleanTarget> MainWindow::buildCleanTargets() const {
             "if [ ${#p[@]} -eq 0 ]; then echo 0; "
             "else du -scxb \"${p[@]}\" 2>/dev/null | tail -n1 | cut -f1; fi\n";
         c.cleanCmd = selectRest +
-            "for f in \"${p[@]}\"; do echo \"  removing $f\"; rm -rf -- \"$f\"; done\n";
+            "for f in \"${p[@]}\"; do echo \"  removing $f\"; $RM \"$f\"; done\n";
     }
 
     return t;
@@ -704,7 +723,10 @@ void MainWindow::runCleanerClean() {
     confirm.setWindowTitle(tr("Clean These?"));
     confirm.setIcon(QMessageBox::Warning);
     confirm.setText(tr("About to delete %1 item(s). This cannot be undone.").arg(summary.size()));
-    confirm.setInformativeText(detail + tr("\n\nEverything runs in a terminal so you see each path."));
+    confirm.setInformativeText(detail + tr("\n\nEverything runs in a terminal so you see each path. "
+                                           "You will be asked for your sudo password once — caches "
+                                           "routinely contain root-owned files that would otherwise "
+                                           "be silently skipped."));
     confirm.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
     confirm.setDefaultButton(QMessageBox::Cancel);
     if (confirm.exec() != QMessageBox::Yes) return;
@@ -716,8 +738,21 @@ void MainWindow::runCleanerClean() {
                                                     : QString::fromLocal8Bit(qgetenv("USER"))) + "\n"
         "I=" + QString::number(getuid()) + "\n"
         "before=$(df -B1 --output=avail / | tail -n1)\n"
-        "echo '=== CachyOsTools Cleaner ==='\n";
-    if (needsSudo) script += "sudo -v || exit 1\n";
+        "echo '=== CachyOsTools Cleaner ==='\n"
+        "\n"
+        // Caches collect root-owned strays — anything a tool once ran under sudo
+        // (memflow PDBs, docker, pip as root) leaves files the user cannot delete,
+        // and the clean silently half-finished. So ask once, up front, always.
+        "echo 'Cleaning needs root for files other users or root left in your caches.'\n"
+        "sudo -v || { echo 'No sudo — nothing was deleted.'; exit 1; }\n"
+        // A big clean outlives sudo's 5-minute timestamp; refresh until we exit.
+        "( while kill -0 $$ 2>/dev/null; do sudo -n -v 2>/dev/null; sleep 45; done ) &\n"
+        "\n"
+        // Every deletion goes through $RM. Tools that talk to the user's session
+        // (balooctl, flatpak --user) deliberately do NOT, or they would act on
+        // root's session instead of yours.
+        "RM=\"sudo rm -rf --\"\n";
+    Q_UNUSED(needsSudo)
 
     for (const CleanTarget *c : chosen) {
         script += QString("echo; echo '--- %1 ---'\n").arg(QString(c->label).replace('\'', ' '));
@@ -726,7 +761,7 @@ void MainWindow::runCleanerClean() {
             body = c->cleanCmd;
         } else {
             body = QString("for f in %1; do [ -e \"$f\" ] || continue; "
-                           "echo \"  removing $f\"; rm -rf -- \"$f\"; done\n").arg(c->paths.join(' '));
+                           "echo \"  removing $f\"; $RM \"$f\"; done\n").arg(c->paths.join(' '));
         }
         // System categories run each line under sudo rather than the whole
         // script, so $H stays the user's home and not /root.
@@ -734,6 +769,7 @@ void MainWindow::runCleanerClean() {
             script += "sudo bash -s <<'CLEANEOF'\n";
             script += "shopt -s nullglob\n";
             script += QString("H=%1\n").arg(cleanQuote(QDir::homePath()));
+            script += "RM=\"rm -rf --\"\n";   // already root inside this heredoc
             script += body;
             script += "CLEANEOF\n";
         } else {
@@ -742,9 +778,8 @@ void MainWindow::runCleanerClean() {
     }
 
     for (const QString &p : paths) {
-        bool sys = !p.startsWith(QDir::homePath());
         script += QString("echo \"  removing %1\"\n").arg(p);
-        script += QString("%1rm -rf -- %2\n").arg(sys ? "sudo " : "", cleanQuote(p));
+        script += QString("$RM %1\n").arg(cleanQuote(p));
     }
 
     script +=
