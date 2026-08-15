@@ -181,6 +181,45 @@ private slots:
     void refreshDrives();
     void refreshServices();
     void handleServiceAction(const QString &action);
+    // ── Tweaks tab: KDE Plasma section ──────────────────────────────────────
+    void on_kdeGlMaxFramesToggle_clicked();
+    void on_kdeGlMaxFramesApplyButton_clicked();
+    void on_kdeGlMaxFramesConfigButton_clicked();
+    void on_kdeGlMaxFramesBackupButton_clicked();
+    void on_kdeTripleBufferToggle_clicked();
+    void on_kdeTripleBufferApplyButton_clicked();
+    void on_kdeTripleBufferConfigButton_clicked();
+    void on_kdeTripleBufferBackupButton_clicked();
+    void on_kdeGlYieldToggle_clicked();
+    void on_kdeGlYieldApplyButton_clicked();
+    void on_kdeGlYieldConfigButton_clicked();
+    void on_kdeGlYieldBackupButton_clicked();
+    void on_kdeShaderCacheRamToggle_clicked();
+    void on_kdeShaderCacheRamApplyButton_clicked();
+    void on_kdeShaderCacheRamConfigButton_clicked();
+    void on_kdeShaderCacheRamBackupButton_clicked();
+    void on_kdeQmlCacheRamToggle_clicked();
+    void on_kdeQmlCacheRamApplyButton_clicked();
+    void on_kdeQmlCacheRamConfigButton_clicked();
+    void on_kdeQmlCacheRamBackupButton_clicked();
+    void on_kdePipelineCacheRamToggle_clicked();
+    void on_kdePipelineCacheRamApplyButton_clicked();
+    void on_kdePipelineCacheRamConfigButton_clicked();
+    void on_kdePipelineCacheRamBackupButton_clicked();
+    void on_kdeQtCacheRamToggle_clicked();
+    void on_kdeQtCacheRamApplyButton_clicked();
+    void on_kdeQtCacheRamConfigButton_clicked();
+    void on_kdeQtCacheRamBackupButton_clicked();
+    void on_kdeDisableQmlCacheToggle_clicked();
+    void on_kdeDisableQmlCacheApplyButton_clicked();
+    void on_kdeDisableQmlCacheConfigButton_clicked();
+    void on_kdeDisableQmlCacheBackupButton_clicked();
+    void on_kdePanelFloatingToggle_clicked();
+    void on_kdePanelFloatingApplyButton_clicked();
+    void on_kdePanelFloatingConfigButton_clicked();
+    void on_kdePanelFloatingBackupButton_clicked();
+    void on_kdeOpenEnvFolderButton_clicked();
+    void on_kdeDisableAllButton_clicked();
     // Tweaks tab slots
     void on_zramToggle_clicked();
     void on_zramConfigButton_clicked();
@@ -480,6 +519,25 @@ private:
     
     // Tweaks tab state checking functions
     void refreshTweaksStatus();
+    // ── KDE Plasma tweaks ───────────────────────────────────────────────────
+    void refreshKdeTweaksStatus();
+    QString kdeEnvDir() const;
+    QString kdeEnvFile(const QString &basename) const;
+    bool    kdeEnvEnabled(const QString &basename) const;
+    bool    kdeEnvWrite(const QString &basename, const QString &body);
+    bool    kdeEnvRemove(const QString &basename);
+    void    kdeEnvToggleApply(const QString &basename, const QString &body, const QString &title);
+    void    kdeEnvEditConfig(const QString &basename, const QString &body);
+    void    kdeEnvBackup(const QString &basename, const QString &description);
+    void checkkdeGlMaxFramesState();
+    void checkkdeTripleBufferState();
+    void checkkdeGlYieldState();
+    void checkkdeShaderCacheRamState();
+    void checkkdeQmlCacheRamState();
+    void checkkdePipelineCacheRamState();
+    void checkkdeQtCacheRamState();
+    void checkkdeDisableQmlCacheState();
+    void checkkdePanelFloatingState();
     void checkZramState();
     void checkCpuGovernorState();
     void checkIpv6State();

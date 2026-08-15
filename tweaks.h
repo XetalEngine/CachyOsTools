@@ -572,6 +572,7 @@ void MainWindow::refreshTweaksStatus() {
     checkCoreDumpState();
     checkMemoryTuningState();
     checkInotifyState();
+    refreshKdeTweaksStatus();
 }
 
 void MainWindow::updateTweakStatusLabel(QLabel *label, const QString &status, bool enabled) {
