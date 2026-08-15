@@ -436,9 +436,23 @@ void MainWindow::loadWindowGeometry() {
     if (!state.isEmpty()) {
         restoreState(state);
     }
-    
+
     // Clear any minimum size constraints that might have been restored
     setMinimumSize(0, 0);
+
+    // A geometry saved on a big screen must not come back bigger than the screen
+    // it is being restored onto. This also rescues a session saved while a layout
+    // bug was forcing the window oversized: without the clamp that size persists
+    // in QSettings and every later launch reopens huge even after the bug is
+    // fixed. Leaves the window alone when it already fits.
+    if (QScreen *screen = this->screen() ? this->screen() : QGuiApplication::primaryScreen()) {
+        const QRect avail = screen->availableGeometry();
+        const int w = qMin(width(), avail.width());
+        const int h = qMin(height(), avail.height());
+        if (w != width() || h != height()) resize(w, h);
+        if (!avail.contains(frameGeometry().topLeft()))
+            move(avail.topLeft());
+    }
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {

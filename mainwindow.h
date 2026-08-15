@@ -220,6 +220,22 @@ private slots:
     void on_kdePanelFloatingBackupButton_clicked();
     void on_kdeOpenEnvFolderButton_clicked();
     void on_kdeDisableAllButton_clicked();
+    // KDE known-issue fixes
+    void on_kdeFixFolderDragToggle_clicked();
+    void on_kdeFixFolderDragApplyButton_clicked();
+    void on_kdeFixFolderDragBackupButton_clicked();
+    void on_kdeFixFolderDragConfigButton_clicked();
+    void on_kdeFixWidgetsLockedToggle_clicked();
+    void on_kdeFixWidgetsLockedApplyButton_clicked();
+    void on_kdeFixConfigCorruptToggle_clicked();
+    void on_kdeFixConfigCorruptApplyButton_clicked();
+    void on_kdeFixConfigCorruptBackupButton_clicked();
+    void on_kdeFixConfigCorruptConfigButton_clicked();
+    void on_kdeFixPlasmaCacheToggle_clicked();
+    void on_kdeFixPlasmaCacheApplyButton_clicked();
+    void on_kdeRescanIssuesButton_clicked();
+    void on_kdeRestartShellButton_clicked();
+    void on_kdeRestartKwinButton_clicked();
     // Tweaks tab slots
     void on_zramToggle_clicked();
     void on_zramConfigButton_clicked();
@@ -538,6 +554,19 @@ private:
     void checkkdeQtCacheRamState();
     void checkkdeDisableQmlCacheState();
     void checkkdePanelFloatingState();
+    // ── KDE known-issue fixes ───────────────────────────────────────────────
+    QString     kdeAppletsRcPath() const;
+    bool        kdeStopPlasmaShell();
+    void        kdeStartPlasmaShell();
+    QStringList kdeFolderContainmentIds() const;
+    QStringList kdeScanFolderDragIssues() const;
+    QStringList kdeScanConfigCorruption() const;
+    int         kdeWidgetsLockedState() const;   // -1 unknown, 0 unlocked, 1 locked
+    qint64      kdePlasmaCacheBytes() const;
+    void checkkdeFixFolderDragState();
+    void checkkdeFixWidgetsLockedState();
+    void checkkdeFixConfigCorruptState();
+    void checkkdeFixPlasmaCacheState();
     void checkZramState();
     void checkCpuGovernorState();
     void checkIpv6State();

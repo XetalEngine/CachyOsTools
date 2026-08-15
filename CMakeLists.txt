@@ -35,6 +35,7 @@ set(PROJECT_SOURCES
         systemconfigs.h
         tweaks.h
         kde_tweaks.h
+        kde_fixes.h
         shell.h
         executecommands.h
         current_system_iso_creator.h

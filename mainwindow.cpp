@@ -9,6 +9,7 @@
 #include "services.h"
 #include "tweaks.h"
 #include "kde_tweaks.h"
+#include "kde_fixes.h"
 #include "systemconfigs.h"
 #include "systemlogs.h"
 #include "systembackup.h"

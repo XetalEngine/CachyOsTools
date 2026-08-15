@@ -543,4 +543,9 @@ void MainWindow::refreshKdeTweaksStatus() {
     checkkdeQtCacheRamState();
     checkkdeDisableQmlCacheState();
     checkkdePanelFloatingState();
+    // Known-issue rows (kde_fixes.h)
+    checkkdeFixFolderDragState();
+    checkkdeFixWidgetsLockedState();
+    checkkdeFixConfigCorruptState();
+    checkkdeFixPlasmaCacheState();
 }
