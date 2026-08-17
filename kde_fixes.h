@@ -24,6 +24,11 @@
 #include <QSet>
 #include <QTextStream>
 #include <QThread>
+#include <QBuffer>
+#include <QImage>
+#include <QMap>
+#include <algorithm>
+#include <functional>
 
 // ── Shared plumbing ──────────────────────────────────────────────────────────
 
@@ -856,6 +861,794 @@ void MainWindow::on_kdeFixPlasmaCacheApplyButton_clicked() {
     QTimer::singleShot(4000, this, &MainWindow::refreshTweaksStatus);
 }
 
+// ── Issue 5: file-type icons the icon theme hides ────────────────────────────
+//
+// An application registers a custom file type (a MIME type with an <icon>) and
+// drops its icon into ~/.local/share/icons/hicolor or /usr/share/icons/hicolor,
+// exactly as the freedesktop spec says. Dolphin, the desktop and the file
+// dialogs then show the file with the plain "generic document" glyph instead.
+//
+// This is not a cache problem and it is not random. KIconLoader looks up a
+// mimetype icon like "application-x-lutris" theme by theme, and INSIDE each
+// theme it also tries the dash-truncated fallbacks before moving on:
+//
+//     application-x-lutris → application-x-lutris → application → application-x-generic
+//
+// The active theme (Breeze, We10X, Tela, Papirus …) always ships
+// application-x-generic, so the walk ends there — hicolor, which is always the
+// LAST theme in the chain, is never reached. Any icon whose name starts with a
+// media type (application-, text-, image-, video-, audio-, …) and lives only
+// in hicolor is therefore invisible under every theme except hicolor itself.
+// The icon appears to "come and go" only because a Plasma reset switches the
+// theme (or a user copied the icon into one particular theme by hand).
+//
+// Two more traps make hand-fixing fail:
+//   * Themes may declare KDE-Extensions=.svg in index.theme (Breeze does), so
+//     KIconLoader will only ever look for .svg files inside them — copying a
+//     .png into a theme directory does nothing.
+//   * KIconLoader remembers the wrong (generic) resolution per process until it
+//     receives the org.kde.KIconLoader.iconChanged D-Bus signal, so a fix that
+//     just writes files does not show up in the running Dolphin or Plasma.
+//
+// The fix here is theme-side and app-agnostic: for every hidden icon it puts
+// an .svg alias with the EXACT icon name into the mimetype directory of every
+// theme in the active lookup chain (current theme → its parents → Breeze),
+// under the user's own ~/.local/share/icons/<theme>/… overlay (KIconLoader
+// merges theme directories across all XDG data dirs), so no system files are
+// touched. Then it refreshes the caches and tells every running KDE app.
+
+
+struct KdeThemeDirInfo {
+    QString rel;      // "mimetypes/64", "mimes/scalable", "256x256/mimetypes"
+    QString context;  // "MimeTypes", "Applications", ...
+    QString type;     // "Fixed", "Scalable", "Threshold"
+    int size = 0, minSize = 0, maxSize = 0, scale = 1;
+};
+
+struct KdeThemeInfo {
+    QString name;
+    QStringList roots;            // every <xdg icons dir>/<name> that exists, in search order
+    QString indexPath;            // the index.theme KIconTheme would read
+    QStringList inherits;
+    QStringList kdeExtensions;    // KDE-Extensions or the KIconTheme default
+    QList<KdeThemeDirInfo> dirs;  // Directories + ScaledDirectories that exist somewhere
+    QSet<QString> icons;          // basenames present with an allowed extension in a listed dir
+    bool valid = false;
+};
+
+struct KdeMimeIconIssue {
+    QString name;         // icon name, e.g. application-x-lutris
+    QString source;       // real file for it in hicolor (empty = none anywhere)
+    QString resolved;     // what KIconLoader returns for it (kiconfinder), or predicted path
+    QString hitTheme;     // theme in which the (wrong) hit was made
+    QStringList refs;     // who expects it: "MIME application/x-lutris", "launcher foo.desktop"
+    bool shadowed = false;   // a file exists but the theme walk stops on a different icon
+    bool verified = false;   // 'resolved' came from kiconfinder, not from prediction
+};
+
+static const QStringList kKdeIconExts = {".png", ".svgz", ".svg", ".xpm"};
+
+// XDG icon roots in KIconTheme order: ~/.local/share/icons first, then
+// XDG_DATA_DIRS. ~/.icons is the legacy user location, still honoured.
+static QStringList kdeIconRoots() {
+    QStringList roots = QStandardPaths::locateAll(QStandardPaths::GenericDataLocation,
+                                                  QStringLiteral("icons"),
+                                                  QStandardPaths::LocateDirectory);
+    const QString legacy = QDir::homePath() + "/.icons";
+    if (QFileInfo(legacy).isDir() && !roots.contains(legacy)) roots.prepend(legacy);
+    return roots;
+}
+
+static QString kdeUserIconRoot() {
+    return QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/icons";
+}
+
+static QString kdeStripIconExt(const QString &fileName) {
+    for (const QString &e : kKdeIconExts)
+        if (fileName.endsWith(e)) return fileName.left(fileName.size() - e.size());
+    return fileName;
+}
+
+// The icon theme Plasma is using — same source KIconTheme::current() reads.
+static QString kdeCurrentIconTheme() {
+    const auto groups = kdeParseAppletsRc(QDir::homePath() + "/.config/kdeglobals");
+    for (const auto &g : groups)
+        if (g.first == "[Icons]" && g.second.contains("Theme") && !g.second.value("Theme").isEmpty())
+            return g.second.value("Theme");
+    return QStringLiteral("breeze");
+}
+
+static KdeThemeInfo kdeReadTheme(const QString &name) {
+    KdeThemeInfo t;
+    t.name = name;
+    for (const QString &root : kdeIconRoots()) {
+        const QString dir = root + "/" + name;
+        if (!QFileInfo(dir).isDir()) continue;
+        t.roots << dir;
+        if (t.indexPath.isEmpty() && QFileInfo::exists(dir + "/index.theme"))
+            t.indexPath = dir + "/index.theme";
+    }
+    if (t.indexPath.isEmpty()) return t;   // KIconTheme::isValid() == false
+
+    QStringList dirNames;
+    QMap<QString, QMap<QString, QString>> sections;
+    for (const auto &g : kdeParseAppletsRc(t.indexPath)) {
+        QString key = g.first;
+        if (key.startsWith('[') && key.endsWith(']')) key = key.mid(1, key.size() - 2);
+        sections.insert(key, g.second);
+    }
+    const auto head = sections.value("Icon Theme");
+    auto splitList = [](const QString &s) {
+        QStringList out;
+        for (const QString &p : s.split(',', Qt::SkipEmptyParts)) {
+            const QString v = p.trimmed();
+            if (!v.isEmpty()) out << v;
+        }
+        return out;
+    };
+    t.inherits = splitList(head.value("Inherits"));
+    t.kdeExtensions = splitList(head.value("KDE-Extensions"));
+    if (t.kdeExtensions.isEmpty()) t.kdeExtensions = kKdeIconExts;
+    dirNames = splitList(head.value("Directories")) + splitList(head.value("ScaledDirectories"));
+
+    for (const QString &rel : dirNames) {
+        const auto sec = sections.value(rel);
+        KdeThemeDirInfo d;
+        d.rel = rel;
+        d.context = sec.value("Context");
+        d.type = sec.value("Type", "Threshold");
+        d.size = sec.value("Size").toInt();
+        d.scale = sec.value("Scale", "1").toInt();
+        d.minSize = sec.value("MinSize", QString::number(d.size)).toInt();
+        d.maxSize = sec.value("MaxSize", QString::number(d.size)).toInt();
+        if (d.size == 0) continue;   // KIconThemeDir treats Size=0 as invalid
+        t.dirs << d;
+        for (const QString &root : t.roots) {
+            QDir qd(root + "/" + rel);
+            if (!qd.exists()) continue;
+            for (const QString &f : qd.entryList(QDir::Files | QDir::System)) {  // System: dangling symlinks
+                for (const QString &e : t.kdeExtensions)
+                    if (f.endsWith(e)) { t.icons.insert(f.left(f.size() - e.size())); break; }
+            }
+        }
+    }
+    t.valid = true;
+    return t;
+}
+
+// KIconLoaderPrivate::addBaseThemes(): current theme, its inherited themes
+// (depth first, hicolor skipped), then the Qt fallback theme (Breeze under
+// Plasma), then hicolor last. Returned WITHOUT hicolor — callers treat it apart.
+static QList<KdeThemeInfo> kdeIconThemeChain(const QString &current) {
+    QList<KdeThemeInfo> chain;
+    QSet<QString> seen;
+    std::function<void(const QString &)> add = [&](const QString &name) {
+        if (name == "hicolor" || seen.contains(name)) return;
+        seen.insert(name);
+        KdeThemeInfo t = kdeReadTheme(name);
+        if (!t.valid) return;
+        chain << t;
+        for (const QString &parent : t.inherits) add(parent);
+    };
+    add(current);
+    if (chain.isEmpty()) add("breeze");   // KIconTheme::defaultThemeName()
+    add("breeze");                        // QIcon::fallbackThemeName() under Plasma
+    return chain;
+}
+
+// Replicates KIconLoaderPrivate::findMatchingIcon() for ONE theme: returns the
+// icon name the walk stops on inside this theme (the exact name, a truncated
+// prefix, or the <media>-x-generic icon), or empty if this theme yields nothing.
+static QString kdeThemeWalk(const KdeThemeInfo &t, const QString &name) {
+    static const QSet<QString> mediaTypes = {"text", "application", "image", "audio", "inode", "video",
+                                             "message", "model", "multipart", "x-content", "x-epoc"};
+    bool genericFallback = name.endsWith("-x-generic");
+    QString cur = name;
+    while (!cur.isEmpty()) {
+        if (t.icons.contains(cur)) return cur;
+        if (genericFallback) break;
+        const int rindex = cur.lastIndexOf('-');
+        if (rindex > 1) {
+            cur.truncate(rindex);
+            if (cur.endsWith("-x")) cur.chop(2);
+        } else if (mediaTypes.contains(cur)) {
+            cur += "-x-generic";
+            genericFallback = true;
+        } else {
+            break;
+        }
+    }
+    return QString();
+}
+
+// Best real file for an icon name inside hicolor (all roots): prefer scalable
+// SVG, else the largest raster. Empty if hicolor has nothing under that name.
+static QString kdeFindHicolorSource(const QString &name) {
+    QString best;
+    int bestScore = -1;
+    for (const QString &root : kdeIconRoots()) {
+        const QString hi = root + "/hicolor";
+        if (!QFileInfo(hi).isDir()) continue;
+        QDirIterator it(hi, QDir::Files, QDirIterator::Subdirectories);
+        while (it.hasNext()) {
+            it.next();
+            const QString f = it.fileName();
+            if (kdeStripIconExt(f) != name || f == name) continue;
+            int score = 0;
+            if (f.endsWith(".svg") || f.endsWith(".svgz")) score = 100000;
+            else {
+                static const QRegularExpression sz(QStringLiteral("(\\d+)x\\d+"));
+                const auto m = sz.match(it.filePath());
+                score = m.hasMatch() ? m.captured(1).toInt() : 1;
+            }
+            if (score > bestScore) { bestScore = score; best = it.filePath(); }
+        }
+    }
+    return best;
+}
+
+// Ground truth: ask KIconLoader itself. Returns the resolved path, empty when
+// nothing resolves. ok=false when no kiconfinder binary exists on this system.
+static QString kdeKIconFinder(const QString &name, bool *ok = nullptr) {
+    static QString tool;
+    static bool probed = false;
+    if (!probed) {
+        probed = true;
+        for (const QString &c : {QStringLiteral("kiconfinder6"), QStringLiteral("kiconfinder5"), QStringLiteral("kiconfinder")})
+            if (!QStandardPaths::findExecutable(c).isEmpty()) { tool = c; break; }
+    }
+    if (ok) *ok = !tool.isEmpty();
+    if (tool.isEmpty()) return QString();
+    QProcess p;
+    p.start(tool, QStringList() << name);
+    if (!p.waitForFinished(4000)) { p.kill(); return QString(); }
+    return QString::fromUtf8(p.readAllStandardOutput()).trimmed();
+}
+
+// Every icon name something on this machine expects to exist as a FILE-TYPE
+// icon: what hicolor ships in its mimetypes dirs (user + system), plus what the
+// shared-mime-info databases register as <icon>, plus what the user's own
+// launchers reference. Value = human-readable list of who references it.
+static QMap<QString, QStringList> kdeCollectIconCandidates(bool includeLaunchers,
+                                                            QSet<QString> *referenced = nullptr) {
+    QMap<QString, QStringList> out;
+    QMap<QString, int> hicolorHits;
+    for (const QString &root : kdeIconRoots()) {
+        const QString hi = root + "/hicolor";
+        if (!QFileInfo(hi).isDir()) continue;
+        QDirIterator it(hi, QDir::Files, QDirIterator::Subdirectories);
+        while (it.hasNext()) {
+            it.next();
+            if (!it.filePath().contains("/mimetypes/")) continue;
+            const QString n = kdeStripIconExt(it.fileName());
+            if (n == it.fileName()) continue;
+            hicolorHits[n]++;
+        }
+    }
+    for (auto it = hicolorHits.constBegin(); it != hicolorHits.constEnd(); ++it)
+        out[it.key()] << QObject::tr("%n file(s) in hicolor", nullptr, it.value());
+    const QStringList dataDirs = QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation);
+    for (const QString &d : dataDirs) {
+        QFile f(d + "/mime/icons");
+        if (!f.open(QIODevice::ReadOnly | QIODevice::Text)) continue;
+        QTextStream in(&f);
+        while (!in.atEnd()) {
+            const QString line = in.readLine().trimmed();
+            const int c = line.indexOf(':');
+            if (c <= 0) continue;
+            const QString icon = line.mid(c + 1).trimmed();
+            if (icon.isEmpty() || icon.startsWith('/')) continue;
+            out[icon] << QObject::tr("MIME type %1").arg(line.left(c));
+            if (referenced) referenced->insert(icon);
+        }
+    }
+    if (includeLaunchers) {
+        const QString apps = QStandardPaths::writableLocation(QStandardPaths::ApplicationsLocation);
+        QDirIterator it(apps, QStringList() << "*.desktop", QDir::Files);
+        while (it.hasNext()) {
+            it.next();
+            for (const auto &g : kdeParseAppletsRc(it.filePath())) {
+                if (g.first != "[Desktop Entry]") continue;
+                const QString icon = g.second.value("Icon").trimmed();
+                if (icon.isEmpty() || icon.startsWith('/')) break;
+                out[icon] << QObject::tr("launcher %1").arg(it.fileName());
+                if (referenced) referenced->insert(icon);
+                break;
+            }
+        }
+    }
+    return out;
+}
+
+// Predicts what KIconLoader resolves 'name' to, theme by theme. Fills hitTheme
+// and returns the icon NAME the walk stops on (empty = nothing at all).
+static QString kdePredictResolution(const QList<KdeThemeInfo> &chain, const KdeThemeInfo &hicolor,
+                                    const QString &name, QString *hitTheme) {
+    for (const KdeThemeInfo &t : chain) {
+        const QString hit = kdeThemeWalk(t, name);
+        if (!hit.isEmpty()) { if (hitTheme) *hitTheme = t.name; return hit; }
+    }
+    if (hicolor.valid) {
+        const QString hit = kdeThemeWalk(hicolor, name);
+        if (!hit.isEmpty()) { if (hitTheme) *hitTheme = "hicolor"; return hit; }
+    }
+    // KIconLoader::iconPath() last resort: unthemed <icons dir>/<name>.ext and pixmaps
+    QStringList flat = kdeIconRoots();
+    flat += QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, "pixmaps", QStandardPaths::LocateDirectory);
+    for (const QString &d : flat)
+        for (const QString &e : kKdeIconExts)
+            if (QFileInfo::exists(d + "/" + name + e)) { if (hitTheme) *hitTheme = d; return name; }
+    return QString();
+}
+
+static const char *kKdeMimeFixMarker = "<!-- cachyostools-mime-icon-fix -->";
+
+// True if 'path' is an alias this tool wrote: a REGULAR file (never a symlink —
+// icon themes are built from thousands of symlinks and none of them are ours)
+// whose head carries the marker comment.
+static bool kdeIsOurAlias(const QString &path) {
+    if (path.isEmpty()) return false;
+    QFileInfo fi(path);
+    if (fi.isSymLink() || !fi.isFile()) return false;
+    QFile f(path);
+    return f.open(QIODevice::ReadOnly) && f.read(512).contains(kKdeMimeFixMarker);
+}
+
+// The scan. verify=true additionally asks kiconfinder for every candidate
+// (~40 ms each) and trusts its answer over the prediction.
+static QList<KdeMimeIconIssue> kdeScanMimeIcons(bool verify, bool *finderAvailable = nullptr) {
+    QList<KdeMimeIconIssue> issues;
+    const QString current = kdeCurrentIconTheme();
+    const QList<KdeThemeInfo> chain = kdeIconThemeChain(current);
+    const KdeThemeInfo hicolor = kdeReadTheme("hicolor");
+    QSet<QString> referencedNames;
+    const QMap<QString, QStringList> candidates = kdeCollectIconCandidates(true, &referencedNames);
+    bool finderOk = false;
+    if (verify) kdeKIconFinder(QStringLiteral("unknown"), &finderOk);
+    if (finderAvailable) *finderAvailable = finderOk;
+
+    for (auto it = candidates.constBegin(); it != candidates.constEnd(); ++it) {
+        KdeMimeIconIssue is;
+        is.name = it.key();
+        is.refs = it.value();
+        is.refs.removeDuplicates();
+        is.source = kdeFindHicolorSource(is.name);
+
+        QString hitName = kdePredictResolution(chain, hicolor, is.name, &is.hitTheme);
+        if (verify && finderOk) {
+            const QString path = kdeKIconFinder(is.name);
+            is.verified = true;
+            is.resolved = path;
+            hitName = path.isEmpty() ? QString() : kdeStripIconExt(QFileInfo(path).fileName());
+            if (!path.isEmpty()) {
+                is.hitTheme.clear();
+                for (const KdeThemeInfo &t : chain)
+                    for (const QString &r : t.roots)
+                        if (path.startsWith(r + "/")) is.hitTheme = t.name;
+                if (is.hitTheme.isEmpty() && path.contains("/hicolor/")) is.hitTheme = "hicolor";
+            }
+        } else if (!hitName.isEmpty()) {
+            is.resolved = hitName;
+        }
+
+        if (hitName == is.name) {
+            // Resolves — but if only through an alias of ours in the top theme
+            // while a fallback theme in the chain (Breeze after a reset, say)
+            // still lacks it, the fix should propagate the alias there too.
+            const QString via = is.verified ? is.resolved : QString();
+            bool gap = false;
+            if (kdeIsOurAlias(via) && !is.source.isEmpty())
+                for (const KdeThemeInfo &t : chain)
+                    if (!t.icons.contains(is.name) && !kdeThemeWalk(t, is.name).isEmpty()) gap = true;
+            if (!gap) continue;
+            is.shadowed = true;
+            is.refs << QObject::tr("protected in %1 only").arg(is.hitTheme);
+            issues << is;
+            continue;
+        }
+        is.shadowed = !hitName.isEmpty() && !is.source.isEmpty();
+        // Not shadowed and no file of its own: only worth reporting if a MIME
+        // type or a launcher actually asks for it.
+        if (!is.shadowed && !referencedNames.contains(is.name)) continue;
+        issues << is;
+    }
+    return issues;
+}
+
+// The icon-theme Context an icon belongs to, read off the folder hicolor keeps
+// it in ("…/mimetypes/x.png" → MimeTypes, "…/apps/x.png" → Applications).
+static QString kdeContextForSource(const QString &source) {
+    static const QMap<QString, QString> map = {
+        {"mimetypes", "MimeTypes"}, {"apps", "Applications"}, {"actions", "Actions"},
+        {"places", "Places"}, {"devices", "Devices"}, {"categories", "Categories"},
+        {"status", "Status"}, {"emblems", "Emblems"}, {"animations", "Animations"},
+        {"emotes", "Emotes"}, {"intl", "International"},
+    };
+    for (auto it = map.constBegin(); it != map.constEnd(); ++it)
+        if (source.contains("/" + it.key() + "/")) return it.value();
+    return QStringLiteral("MimeTypes");
+}
+
+// Chooses the directory of a theme to overlay an icon into for a Context: a
+// Scalable dir with the widest range, else the largest one; symbolic dirs are
+// never used. Empty if the theme has no directory for that Context.
+static QString kdePickThemeDir(const KdeThemeInfo &t, const QString &context) {
+    // Conventional folder for the context ("apps/…" rather than Breeze's
+    // equally valid "preferences/…"), preferred when several qualify.
+    static const QMap<QString, QString> conventional = {
+        {"MimeTypes", "mime"}, {"Applications", "apps"}, {"Actions", "actions"}, {"Places", "places"},
+        {"Devices", "devices"}, {"Categories", "categories"}, {"Status", "status"}, {"Emblems", "emblems"},
+    };
+    QString best;
+    int bestScore = -1;
+    for (const KdeThemeDirInfo &d : t.dirs) {
+        if (d.context != context || d.scale != 1) continue;
+        if (d.rel.contains("symbolic", Qt::CaseInsensitive)) continue;
+        int score = (d.type == "Scalable") ? 100000 + (d.maxSize - d.minSize) : d.size;
+        const QString folder = d.rel.section('/', 0, 0);
+        if (folder.startsWith(conventional.value(context, "\x01"), Qt::CaseInsensitive)) score += 50000;
+        if (score > bestScore) { bestScore = score; best = d.rel; }
+    }
+    return best;
+}
+
+// Writes <name>.svg into <user root>/<theme>/<dir>/ that shows 'source'.
+// Always a regular file carrying the marker (never a symlink): plain SVG
+// sources are copied with the marker prepended, .svgz is inflated first,
+// rasters are re-encoded (≤256 px) and embedded — so the alias is valid under
+// KDE-Extensions=.svg themes too. Never overwrites anything that is not ours.
+static bool kdeWriteThemeAlias(const QString &theme, const QString &dirRel, const QString &name,
+                               const QString &source, QString *outPath, QString *err) {
+    const QString dir = kdeUserIconRoot() + "/" + theme + "/" + dirRel;
+    if (!QDir().mkpath(dir)) { *err = QObject::tr("cannot create %1").arg(dir); return false; }
+    const QString path = dir + "/" + name + ".svg";
+    if (outPath) *outPath = path;
+
+    const QFileInfo fi(path);
+    if (fi.exists() || fi.isSymLink()) {
+        if (!kdeIsOurAlias(path)) { *err = QObject::tr("%1 exists and is not ours — left alone").arg(path); return false; }
+        QFile::remove(path);
+    }
+
+    QByteArray body;
+    if (source.endsWith(".svg") || source.endsWith(".svgz")) {
+        if (source.endsWith(".svgz")) {
+            QProcess gz;
+            gz.start("gzip", QStringList() << "-dc" << source);
+            if (gz.waitForFinished(10000) && gz.exitCode() == 0) body = gz.readAllStandardOutput();
+        } else {
+            QFile f(source);
+            if (f.open(QIODevice::ReadOnly)) body = f.readAll();
+        }
+        if (!body.contains("<svg")) body.clear();   // not usable as text — fall through to raster
+        else {
+            // Put the marker after the XML declaration if there is one.
+            const int decl = body.indexOf("?>");
+            const int at = (body.startsWith("<?xml") && decl > 0) ? decl + 2 : 0;
+            body.insert(at, QByteArray("\n") + kKdeMimeFixMarker + "\n");
+        }
+    }
+    if (body.isEmpty()) {
+        QImage img(source);
+        if (img.isNull()) { *err = QObject::tr("cannot decode %1").arg(source); return false; }
+        if (img.width() > 256 || img.height() > 256)
+            img = img.scaled(256, 256, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        QByteArray png;
+        QBuffer buf(&png);
+        buf.open(QIODevice::WriteOnly);
+        img.save(&buf, "PNG");
+        body = QString(
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n%1\n"
+            "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" "
+            "width=\"%2\" height=\"%3\" viewBox=\"0 0 %2 %3\">\n"
+            "  <image width=\"%2\" height=\"%3\" xlink:href=\"data:image/png;base64,%4\"/>\n"
+            "</svg>\n").arg(kKdeMimeFixMarker).arg(img.width()).arg(img.height())
+                        .arg(QString::fromLatin1(png.toBase64())).toUtf8();
+    }
+    QFile f(path);
+    if (!f.open(QIODevice::WriteOnly | QIODevice::Truncate)) { *err = QObject::tr("cannot write %1").arg(path); return false; }
+    f.write(body);
+    f.close();
+    return true;
+}
+
+// Removes aliases this tool wrote earlier that no longer serve anything: the
+// hicolor source vanished (the app was updated or removed) or nothing on the
+// system references the name any more. Only marker files are candidates —
+// never symlinks, never anything else — and as a last line of defence the
+// pass refuses to act at all if it would remove an implausible number.
+static QStringList kdePruneOurAliases(const QList<KdeThemeInfo> &chain, const QSet<QString> &wanted) {
+    QStringList doomed;
+    const QString userRoot = kdeUserIconRoot();
+    for (const KdeThemeInfo &t : chain) {
+        for (const KdeThemeDirInfo &d : t.dirs) {
+            QDir qd(userRoot + "/" + t.name + "/" + d.rel);
+            if (!qd.exists()) continue;
+            for (const QString &f : qd.entryList(QStringList() << "*.svg", QDir::Files | QDir::NoSymLinks)) {
+                const QString path = qd.filePath(f);
+                if (!kdeIsOurAlias(path)) continue;
+                const QString name = kdeStripIconExt(f);
+                if (wanted.contains(name) && !kdeFindHicolorSource(name).isEmpty()) continue;
+                doomed << path;
+            }
+        }
+    }
+    if (doomed.size() > 50) return {};   // something is off — leave everything alone
+    QStringList removed;
+    for (const QString &p : doomed)
+        if (kdeIsOurAlias(p) && QFile::remove(p)) removed << p;
+    return removed;
+}
+
+// What the icons KCM does after a theme change: refresh the on-disk caches
+// that exist, then tell every running KIconLoader to drop what it remembers.
+static QStringList kdeRefreshIconLookup(const QStringList &touchedThemes) {
+    QStringList notes;
+    const QString userRoot = kdeUserIconRoot();
+    for (const QString &t : touchedThemes) {
+        const QString dir = userRoot + "/" + t;
+        if (!QFileInfo(dir).isDir()) continue;
+        // Bumping the theme root mtime is what QIconLoader / GTK check before trusting a cache.
+        QFile stamp(dir + "/.cachyostools-touch");
+        if (stamp.open(QIODevice::WriteOnly)) { stamp.close(); QFile::remove(stamp.fileName()); }
+        const QString cache = dir + "/icon-theme.cache";
+        if (QFileInfo::exists(cache)) {
+            if (QProcess::execute("gtk-update-icon-cache", QStringList() << "-f" << "-t" << "-q" << dir) != 0) {
+                QFile::remove(cache);
+                notes << QObject::tr("removed stale %1").arg(cache);
+            } else {
+                notes << QObject::tr("refreshed %1").arg(cache);
+            }
+        }
+    }
+    const QString mime = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/mime";
+    if (QFileInfo(mime + "/packages").isDir())
+        QProcess::execute("update-mime-database", QStringList() << mime);
+    const QString apps = QStandardPaths::writableLocation(QStandardPaths::ApplicationsLocation);
+    if (QFileInfo(apps).isDir())
+        QProcess::execute("update-desktop-database", QStringList() << "-q" << apps);
+    // KF5 kept an on-disk icon cache; KF6 no longer does, but it costs nothing.
+    QFile::remove(QStandardPaths::writableLocation(QStandardPaths::GenericCacheLocation) + "/icon-cache.kcache");
+    // KIconLoader::emitChange() for every group — every KDE app re-resolves icons.
+    bool signalled = false;
+    if (!QStandardPaths::findExecutable("dbus-send").isEmpty()) {
+        signalled = true;
+        for (int g = 0; g < 6; ++g)
+            if (QProcess::execute("dbus-send", QStringList() << "--session" << "--type=signal" << "/KIconLoader"
+                                  << "org.kde.KIconLoader.iconChanged" << QString("int32:%1").arg(g)) != 0)
+                signalled = false;
+    }
+    notes << (signalled ? QObject::tr("notified running KDE applications (org.kde.KIconLoader.iconChanged)")
+                        : QObject::tr("could not send org.kde.KIconLoader.iconChanged — restart Dolphin/Plasma to see the change"));
+    if (QProcess::execute("kbuildsycoca6", QStringList()) != 0)
+        QProcess::execute("kbuildsycoca5", QStringList());
+    return notes;
+}
+
+void MainWindow::checkkdeFixMimeIconsState() {
+    // Prediction only — no processes — so the tab opens instantly.
+    const auto issues = kdeScanMimeIcons(false);
+    int shadowed = 0;
+    for (const auto &i : issues) if (i.shadowed) ++shadowed;
+    if (shadowed > 0)
+        updateTweakStatusLabel(ui->kdeFixMimeIconsStatusLabel, tr("%1 hidden").arg(shadowed), false);
+    else if (!issues.isEmpty())
+        updateTweakStatusLabel(ui->kdeFixMimeIconsStatusLabel, tr("%1 missing").arg(issues.size()), false);
+    else
+        updateTweakStatusLabel(ui->kdeFixMimeIconsStatusLabel, tr("OK"), true);
+}
+
+QStringList MainWindow::kdeScanMimeIconIssues() const {
+    QStringList out;
+    for (const auto &i : kdeScanMimeIcons(true)) {
+        if (i.shadowed)
+            out << tr("%1 — hidden by %2 (KDE shows %3 instead); file: %4; used by: %5")
+                       .arg(i.name, i.hitTheme.isEmpty() ? tr("the icon theme") : i.hitTheme,
+                            i.resolved.isEmpty() ? tr("a generic icon") : QFileInfo(i.resolved).fileName(),
+                            i.source, i.refs.join(", "));
+        else if (!i.resolved.isEmpty())
+            out << tr("%1 — has no icon file of its own (KDE shows %2); used by: %3")
+                       .arg(i.name, QFileInfo(i.resolved).fileName(), i.refs.join(", "));
+        else
+            out << tr("%1 — no icon file found anywhere; used by: %2").arg(i.name, i.refs.join(", "));
+    }
+    return out;
+}
+
+void MainWindow::on_kdeFixMimeIconsToggle_clicked() {
+    showTweakInstructions("File-Type Icons Hidden by the Icon Theme",
+R"(# File-type icons hidden by the icon theme
+# ========================================
+#
+# THE SYMPTOMS
+#   * A file type an application registered (a project file, a save game, a
+#     custom document) shows the plain "generic document" glyph in Dolphin, on
+#     the desktop and in file dialogs — even though the app installed an icon
+#     and the association itself works (double-click opens the right program).
+#   * The icon was there once and disappeared after a Plasma reset, a theme
+#     change, or a login. Or it shows in one icon theme and not in another.
+#   * A launcher in ~/.local/share/applications has Icon= pointing at a name
+#     that no theme provides.
+#
+# WHY IT HAPPENS
+# Applications install file-type icons into the "hicolor" theme, which the
+# freedesktop spec defines as the fallback every other theme inherits. That is
+# correct — and KDE breaks it in a very specific way.
+#
+# KIconLoader resolves an icon theme by theme: your theme first, then the
+# themes it inherits, then Breeze, then hicolor LAST. But inside each theme it
+# also tries the "generic" fallbacks before moving to the next theme:
+#
+#     application-x-lutris  →  application-x-lutris   (not in theme)
+#                           →  application            (not in theme)
+#                           →  application-x-generic  (every theme has this!)
+#
+# The walk stops on the theme's generic-document icon and hicolor is never
+# consulted. Any file-type icon whose name begins with a media type
+# (application-, text-, image-, video-, audio-, …) and lives only in hicolor
+# is invisible under every theme except hicolor itself. Lutris, Linux Studio,
+# emerald themes — anything installed the standard way — are all affected.
+#
+# It looks intermittent because a Plasma reset switches the theme back to
+# Breeze, or because someone copied the icon into one particular theme by
+# hand and then changed theme.
+#
+# Two extra traps defeat manual fixes:
+#   * Themes may set KDE-Extensions=.svg in index.theme (Breeze does). KDE then
+#     only looks for .svg files inside that theme — copying a .png in does nothing.
+#   * Every running KDE program remembers the wrong answer until it receives
+#     the org.kde.KIconLoader.iconChanged D-Bus signal. Writing files alone
+#     changes nothing on screen.
+#
+# WHAT THE SCAN CHECKS
+#   Every icon that something on this system expects as a file-type icon:
+#     - all icons in the mimetypes folders of hicolor (user and system)
+#     - every <icon> registered in the shared-mime-info databases
+#     - Icon= of every launcher in ~/.local/share/applications
+#   For each one it asks KDE's own resolver (kiconfinder6) what it returns.
+#   "Hidden" = a real icon file exists but KDE resolves the name to a different
+#   icon (the same truncation also bites launcher icons: "web-browser-test"
+#   becomes the theme's "web-browser"). "Missing" = nothing provides the icon at all (reported, not fixable
+#   here — the application has to ship one).
+#
+# WHAT THE FIX BUTTON DOES
+#   1. For every hidden icon, writes an .svg alias with the exact icon name into
+#      the matching folder (mimetypes — or apps, for a hidden launcher icon) of
+#      every theme in your active lookup chain (your theme, its parents,
+#      Breeze), inside your own overlay
+#      ~/.local/share/icons/<theme>/… — KDE merges theme folders across all XDG
+#      data dirs, so no system file is touched and no theme package is edited.
+#      SVG sources are copied, PNG sources are embedded (≤256 px), so the alias
+#      is valid under KDE-Extensions=.svg themes. Every alias is a plain file
+#      carrying a marker comment; the tool never creates or touches symlinks.
+#   2. Refreshes the caches: icon-theme.cache of touched user themes,
+#      update-mime-database, update-desktop-database, kbuildsycoca6.
+#   3. Sends org.kde.KIconLoader.iconChanged so Dolphin, Plasma and every other
+#      running KDE app re-resolve their icons immediately (press F5 in an open
+#      Dolphin view if it does not repaint by itself).
+#
+# WHAT IT COSTS
+#   A handful of small files under ~/.local/share/icons. If you switch to a theme
+#   that is not in today's chain, run the fix again — the status turns red.
+#   Aliases are marked so re-running replaces only what this tool wrote.
+#
+# THE RIGHT FIX FOR APPLICATION DEVELOPERS
+#   Give the file-type icon a name KDE cannot truncate into a generic one:
+#   a vendor-prefixed name with no media-type prefix, e.g.
+#       <icon name="linux-studio-2026-project"/>    instead of application-x-…
+#   installed as PNG into hicolor/<size>x<size>/mimetypes/. Then it resolves under
+#   every theme, first try, with no per-theme alias.
+)");
+}
+
+void MainWindow::on_kdeFixMimeIconsApplyButton_clicked() {
+    bool finderOk = false;
+    const auto issues = kdeScanMimeIcons(true, &finderOk);
+    QList<KdeMimeIconIssue> hidden, missing;
+    for (const auto &i : issues) (i.shadowed ? hidden : missing) << i;
+
+    if (hidden.isEmpty()) {
+        QSet<QString> wanted;
+        const auto allCandidates = kdeCollectIconCandidates(true);
+        for (auto it = allCandidates.constBegin(); it != allCandidates.constEnd(); ++it) wanted.insert(it.key());
+        const QStringList pruned = kdePruneOurAliases(kdeIconThemeChain(kdeCurrentIconTheme()), wanted);
+        QString msg = tr("No file-type icon is hidden by the current icon theme.");
+        if (!pruned.isEmpty())
+            msg += tr("\n\nRemoved %1 alias file(s) written earlier that nothing references any more.").arg(pruned.size());
+        if (!missing.isEmpty()) {
+            QStringList m;
+            for (const auto &i : missing) m << QString("  • %1 (%2)").arg(i.name, i.refs.join(", "));
+            msg += tr("\n\n%1 icon name(s) are referenced but no theme provides a file for them — "
+                      "the owning application has to ship one:\n\n%2").arg(missing.size()).arg(m.join("\n"));
+        }
+        if (!finderOk)
+            msg += tr("\n\nNote: kiconfinder6 is not installed, so this is a prediction rather than "
+                      "KDE's own answer.");
+        QMessageBox::information(this, tr("File-Type Icons"), msg);
+        return;
+    }
+
+    const QString current = kdeCurrentIconTheme();
+    const QList<KdeThemeInfo> chain = kdeIconThemeChain(current);
+    QStringList chainNames;
+    for (const auto &t : chain) chainNames << t.name;
+
+    QStringList lines;
+    for (const auto &i : hidden)
+        lines << QString("  • %1 → shows %2").arg(i.name, i.resolved.isEmpty() ? tr("generic")
+                                                                            : QFileInfo(i.resolved).fileName());
+    const int ret = QMessageBox::question(
+        this, tr("Fix Hidden File-Type Icons"),
+        tr("%1 file-type icon(s) exist on disk but are hidden by the icon theme:\n\n%2\n\n"
+           "Write .svg aliases for them into your overlay of these themes:\n  %3\n"
+           "(under %4), refresh the icon caches and notify running KDE applications?")
+            .arg(hidden.size()).arg(lines.join("\n")).arg(chainNames.join(", ")).arg(kdeUserIconRoot()),
+        QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+    if (ret != QMessageBox::Yes) return;
+
+    QStringList written, skipped;
+    QSet<QString> touchedThemes;
+    for (const auto &i : hidden) {
+        for (const KdeThemeInfo &t : chain) {
+            if (t.icons.contains(i.name)) continue;          // this theme already has the real name
+            const QString context = kdeContextForSource(i.source);
+            const QString dirRel = kdePickThemeDir(t, context);
+            if (dirRel.isEmpty()) { skipped << tr("%1: theme %2 has no %3 folder").arg(i.name, t.name, context); continue; }
+            QString path, err;
+            if (kdeWriteThemeAlias(t.name, dirRel, i.name, i.source, &path, &err)) {
+                written << path;
+                touchedThemes.insert(t.name);
+            } else {
+                skipped << QString("%1: %2").arg(i.name, err);
+            }
+        }
+    }
+
+    QSet<QString> wanted;
+    const auto allCandidates = kdeCollectIconCandidates(true);
+    for (auto it = allCandidates.constBegin(); it != allCandidates.constEnd(); ++it) wanted.insert(it.key());
+    const QStringList pruned = kdePruneOurAliases(chain, wanted);
+    for (const QString &p : pruned)
+        for (const KdeThemeInfo &t : chain)
+            if (p.startsWith(kdeUserIconRoot() + "/" + t.name + "/")) touchedThemes.insert(t.name);
+
+    const QStringList notes = kdeRefreshIconLookup(touchedThemes.values());
+
+    // Verify with KDE's resolver now that the aliases are in place.
+    QStringList stillHidden;
+    if (finderOk) {
+        for (const auto &i : hidden) {
+            const QString p = kdeKIconFinder(i.name);
+            if (kdeStripIconExt(QFileInfo(p).fileName()) != i.name)
+                stillHidden << QString("  • %1 → %2").arg(i.name, p.isEmpty() ? tr("nothing") : p);
+        }
+    }
+
+    QString report = tr("Wrote %1 alias file(s) for %2 icon(s).\n").arg(written.size()).arg(hidden.size());
+    if (!written.isEmpty()) report += "\n" + written.join("\n") + "\n";
+    if (!skipped.isEmpty()) report += tr("\nSkipped:\n%1\n").arg(skipped.join("\n"));
+    if (!pruned.isEmpty()) report += tr("\nRemoved %1 alias file(s) that nothing references any more.\n").arg(pruned.size());
+    report += "\n" + notes.join("\n") + "\n";
+    if (finderOk) {
+        report += stillHidden.isEmpty()
+            ? tr("\nVerified: KDE now resolves every one of them to its own icon.")
+            : tr("\nStill not resolving correctly:\n%1").arg(stillHidden.join("\n"));
+    }
+    if (!missing.isEmpty()) {
+        QStringList m;
+        for (const auto &i : missing) m << QString("  • %1 (%2)").arg(i.name, i.refs.join(", "));
+        report += tr("\n\nNot fixable here — referenced but no file exists in any theme:\n%1").arg(m.join("\n"));
+    }
+    report += tr("\n\nOpen Dolphin views may need F5 to repaint.");
+
+    if (stillHidden.isEmpty())
+        QMessageBox::information(this, tr("File-Type Icons Fixed"), report);
+    else
+        QMessageBox::warning(this, tr("File-Type Icons Partly Fixed"), report);
+
+    QTimer::singleShot(1500, this, &MainWindow::refreshTweaksStatus);
+}
+
 // ── Section actions ──────────────────────────────────────────────────────────
 
 void MainWindow::on_kdeRescanIssuesButton_clicked() {
@@ -865,6 +1658,7 @@ void MainWindow::on_kdeRescanIssuesButton_clicked() {
     const QStringList drag = kdeScanFolderDragIssues();
     const QStringList bad  = kdeScanConfigCorruption();
     const int locked = kdeWidgetsLockedState();
+    const QStringList icons = kdeScanMimeIconIssues();
 
     if (!drag.isEmpty())
         report << tr("Folder View drag and drop:\n  • %1").arg(drag.join("\n  • "));
@@ -872,6 +1666,8 @@ void MainWindow::on_kdeRescanIssuesButton_clicked() {
         report << tr("Plasma widgets are locked.");
     if (!bad.isEmpty())
         report << tr("Corrupt groups in desktop-appletsrc:\n  • %1").arg(bad.join("\n  • "));
+    if (!icons.isEmpty())
+        report << tr("File-type icons hidden by the icon theme or missing:\n  • %1").arg(icons.join("\n  • "));
 
     if (report.isEmpty()) {
         QMessageBox::information(this, tr("Scan Complete"),

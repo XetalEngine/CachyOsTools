@@ -548,4 +548,5 @@ void MainWindow::refreshKdeTweaksStatus() {
     checkkdeFixWidgetsLockedState();
     checkkdeFixConfigCorruptState();
     checkkdeFixPlasmaCacheState();
+    checkkdeFixMimeIconsState();
 }

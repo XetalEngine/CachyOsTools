@@ -233,6 +233,8 @@ private slots:
     void on_kdeFixConfigCorruptConfigButton_clicked();
     void on_kdeFixPlasmaCacheToggle_clicked();
     void on_kdeFixPlasmaCacheApplyButton_clicked();
+    void on_kdeFixMimeIconsToggle_clicked();
+    void on_kdeFixMimeIconsApplyButton_clicked();
     void on_kdeRescanIssuesButton_clicked();
     void on_kdeRestartShellButton_clicked();
     void on_kdeRestartKwinButton_clicked();
@@ -563,10 +565,12 @@ private:
     QStringList kdeScanConfigCorruption() const;
     int         kdeWidgetsLockedState() const;   // -1 unknown, 0 unlocked, 1 locked
     qint64      kdePlasmaCacheBytes() const;
+    QStringList kdeScanMimeIconIssues() const;
     void checkkdeFixFolderDragState();
     void checkkdeFixWidgetsLockedState();
     void checkkdeFixConfigCorruptState();
     void checkkdeFixPlasmaCacheState();
+    void checkkdeFixMimeIconsState();
     void checkZramState();
     void checkCpuGovernorState();
     void checkIpv6State();

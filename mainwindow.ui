@@ -3245,6 +3245,51 @@
                         </widget>
                        </item>
                        <item>
+                        <widget class="QGroupBox" name="kdeFixMimeIconsGroupBox">
+                         <property name="title">
+                          <string>File-type icons hidden by the icon theme — custom MIME icons show as generic document</string>
+                         </property>
+                         <layout class="QHBoxLayout" name="kdeFixMimeIconsLayout">
+                          <item>
+                           <widget class="QLabel" name="kdeFixMimeIconsStatusLabel">
+                            <property name="minimumSize">
+                             <size>
+                              <width>100</width>
+                              <height>0</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>100</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="text">
+                             <string>Status</string>
+                            </property>
+                            <property name="alignment">
+                             <set>Qt::AlignCenter</set>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="kdeFixMimeIconsToggle">
+                            <property name="text">
+                             <string>ℹ️ Info</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="kdeFixMimeIconsApplyButton">
+                            <property name="text">
+                             <string>🔧 Fix</string>
+                            </property>
+                           </widget>
+                          </item>
+                         </layout>
+                        </widget>
+                       </item>
+                       <item>
                         <layout class="QHBoxLayout" name="kdeKnownIssuesActionsLayout">
                          <item>
                           <widget class="QPushButton" name="kdeRescanIssuesButton">
