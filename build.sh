@@ -287,10 +287,13 @@ check_runtime_dependencies() {
         missing_runtime_deps+=("zstd")
     fi
     
-    # Optional - only for browsing output folder
-    if ! command_exists dolphin; then
-        optional_missing+=("dolphin")
+    # The live ISO always uses Arch packages, even on another pacman distribution.
+    if [ ! -s /usr/share/pacman/keyrings/archlinux.gpg ]; then
+        missing_runtime_deps+=("archlinux-keyring")
     fi
+    for dep in bsdtar:libarchive file:file pacman-key:pacman xorriso:libisoburn mksquashfs:squashfs-tools mkfs.fat:dosfstools mcopy:mtools; do
+        command_exists "${dep%%:*}" || missing_runtime_deps+=("${dep##*:}")
+    done
     
     if [ ${#missing_runtime_deps[@]} -gt 0 ]; then
         echo ""
@@ -450,4 +453,4 @@ fi
 # Return to original directory
 cd "$SCRIPT_DIR"
 
-print_status "Build script completed" 
+print_status "Build script completed"

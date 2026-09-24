@@ -5,5 +5,11 @@
         <file>images/flag_us.png</file>
         <file>images/flag_br.png</file>
         <file>images/flag_de.png</file>
+        <file>iso/common.sh</file>
+        <file>iso/build.sh</file>
+        <file>iso/installer.sh</file>
+        <file>iso/restore-boot.sh</file>
+        <file>iso/firstboot.sh</file>
+        <file>iso/firstboot.service</file>
     </qresource>
 </RCC>

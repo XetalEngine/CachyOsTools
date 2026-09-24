@@ -94,6 +94,7 @@ Thumbs.db
 *.tmp
 *.temp
 *.log
+__pycache__/
 
 # Backup files
 *.bak

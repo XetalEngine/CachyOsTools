@@ -398,13 +398,15 @@ shellConfigFiles["ksh"] = QStringList()
             ui->isoCompatGpuCheck->setChecked(false);
             ui->isoCompatUserCheck->setChecked(false);
             ui->isoCompatSshCheck->setChecked(false);
+            ui->isoCompatMachineIdCheck->setChecked(false);
         }
     });
     auto compatToggled = [this](bool checked) {
         if (checked) {
             ui->isoExactCloneCheck->setChecked(false);
         } else if (!ui->isoCompatNetworkCheck->isChecked() && !ui->isoCompatGpuCheck->isChecked() &&
-                   !ui->isoCompatUserCheck->isChecked() && !ui->isoCompatSshCheck->isChecked()) {
+                   !ui->isoCompatUserCheck->isChecked() && !ui->isoCompatSshCheck->isChecked() &&
+                   !ui->isoCompatMachineIdCheck->isChecked()) {
             ui->isoExactCloneCheck->setChecked(true); // nothing selected -> back to exact clone
         }
     };
@@ -412,6 +414,7 @@ shellConfigFiles["ksh"] = QStringList()
     connect(ui->isoCompatGpuCheck, &QCheckBox::toggled, this, compatToggled);
     connect(ui->isoCompatUserCheck, &QCheckBox::toggled, this, compatToggled);
     connect(ui->isoCompatSshCheck, &QCheckBox::toggled, this, compatToggled);
+    connect(ui->isoCompatMachineIdCheck, &QCheckBox::toggled, this, compatToggled);
 
     // ISO Creator exclusion panels
     connect(ui->isoRescanButton, &QPushButton::clicked, this, [this]() { startIsoHomeScan(); });

@@ -1,0 +1,27 @@
+name: ISO workflow checks
+on:
+  pull_request:
+  push:
+permissions:
+  contents: read
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Install build and test tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build g++ pkg-config qt6-base-dev qt6-base-dev-tools python3 shellcheck
+      - name: Check ISO shell scripts
+        run: shellcheck -S warning iso/*.sh create_offline_package.sh
+      - name: Test ISO scripts and Qt generator
+        run: |
+          export PATH="/usr/lib/qt6/libexec:/usr/lib/qt6/bin:$PATH"
+          python3 -m unittest discover -s tests -v
+      - name: Build application
+        run: |
+          cmake -S . -B build/ci -G Ninja -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/ci --parallel 2

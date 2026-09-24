@@ -4480,13 +4480,13 @@
                <item>
                 <widget class="QCheckBox" name="isoExactCloneCheck">
                  <property name="text">
-                  <string>1) Exact Clone (default) — restore the system exactly as it is. Flawless on same/similar hardware. ❓</string>
+                  <string>1) Preserve users and identity (default) — restore files without optional first-boot changes ❓</string>
                  </property>
                  <property name="toolTip">
-                  <string>A byte-for-byte restore: same users, same SSH keys, same machine-id.
-Everything bound to the machine identity keeps working — including systemd
-encrypted credentials (e.g. hardened libvirt secret setups).
-The right choice for disaster recovery onto the same or similar hardware.</string>
+                  <string>Keeps users, SSH keys and machine-id. This is a file-based snapshot, not a disk image.
+Installation erases the target and creates unencrypted ext4 plus an EFI partition.
+Boot files are regenerated; source encryption, partition layout and Btrfs snapshots are not preserved.
+Test the ISO in a VM before relying on it for recovery.</string>
                  </property>
                  <property name="checked">
                   <bool>true</bool>
@@ -4503,24 +4503,23 @@ The right choice for disaster recovery onto the same or similar hardware.</strin
                <item>
                 <widget class="QCheckBox" name="isoCompatNetworkCheck">
                  <property name="text">
-                  <string>    a) Auto-detect network cards — repair bridges &amp; adapter bindings on first boot ❓</string>
+                  <string>    a) Remove stale NetworkManager interface bindings on first boot ❓</string>
                  </property>
                  <property name="toolTip">
-                  <string>On first boot, re-detects the network adapters actually present and re-binds
-NetworkManager profiles and bridges (br0 etc.) to them.
-Pick this when the target machine has different network hardware.</string>
+                  <string>Requires an active NetworkManager service. Removes bindings to missing physical interfaces.
+Bridges, VLANs, VPNs and other network services need manual review after moving hardware.</string>
                  </property>
                 </widget>
                </item>
                <item>
                 <widget class="QCheckBox" name="isoCompatGpuCheck">
                  <property name="text">
-                  <string>    b) Auto-detect GPU — NVIDIA: leave untouched; AMD: install drivers + configure X11 &amp; Wayland ❓</string>
+                  <string>    b) Adapt existing graphics drivers and remove stale NVIDIA X11 settings ❓</string>
                  </property>
                  <property name="toolTip">
-                  <string>On first boot, detects the GPU. NVIDIA cards are left untouched (your drivers stay).
-AMD cards get drivers installed and X11 &amp; Wayland configured.
-Pick this when the target machine has a different graphics card.</string>
+                  <string>Uses drivers already included in the source system. Does not install packages or change repositories.
+Missing drivers require your distribution's supported installation procedure.
+Details and failures are saved to /var/log/xetal-firstboot.log.</string>
                  </property>
                 </widget>
                </item>
@@ -4563,7 +4562,7 @@ setups will fail with decryption errors until their credentials are re-created.
 service can regenerate it — but secrets encrypted under the old key are lost.)
 Journald history also splits at the identity change.
 
-Leave OFF for exact restores. Turn ON when the clone will live on the same
+Leave OFF to retain identity. Turn ON when the clone will live on the same
 network as the original long-term (avoids duplicate DHCP/systemd identity).</string>
                  </property>
                 </widget>
@@ -4580,7 +4579,7 @@ network as the original long-term (avoids duplicate DHCP/systemd identity).</str
                <item>
                 <widget class="QRadioButton" name="onlineModeRadio">
                  <property name="text">
-                  <string>Online Mode: Download Required Installation Packages from AUR (4.0GB Download)</string>
+                  <string>Online Mode: Download and verify live installer packages from Arch repositories</string>
                  </property>
                  <property name="checked">
                   <bool>true</bool>
@@ -4590,7 +4589,7 @@ network as the original long-term (avoids duplicate DHCP/systemd identity).</str
                <item>
                 <widget class="QRadioButton" name="offlineModeRadio">
                  <property name="text">
-                  <string>Offline Mode: (DO NOT USE... NEEDS TO BE FIXED) Use existing offline-iso-packages.tar.gz previously downloaded (Must be in the root folder of this program)</string>
+                  <string>Offline Mode: Use an archive exported from a previous online build</string>
                  </property>
                 </widget>
                </item>
@@ -4609,7 +4608,7 @@ network as the original long-term (avoids duplicate DHCP/systemd identity).</str
                  <item>
                   <widget class="QPushButton" name="downloadOfflineButton">
                    <property name="text">
-                    <string>📥 Download Offline Package (3.8GB)</string>
+                    <string>Choose Offline Archive</string>
                    </property>
                    <property name="visible">
                     <bool>false</bool>
@@ -4637,7 +4636,7 @@ network as the original long-term (avoids duplicate DHCP/systemd identity).</str
                <item>
                 <widget class="QLabel" name="isoInfoLabel">
                  <property name="text">
-                  <string>This tool creates a bootable ISO that contains an EXACT clone of your current system. The ISO will include:</string>
+                  <string>Creates a bootable x86_64 ISO containing a file-based snapshot. Restore uses a new unencrypted ext4 filesystem and regenerated boot files.</string>
                  </property>
                  <property name="wordWrap">
                   <bool>true</bool>
@@ -4655,7 +4654,11 @@ network as the original long-term (avoids duplicate DHCP/systemd identity).</str
 
 2. Boot your target machine from the USB (live environment).
 
-3. The XETAL ENGINE installer launches AUTOMATICALLY — pick the target drive with the arrow keys (or mouse) and confirm. No commands needed.
+3. The installer launches automatically. Select an unused disk and type the requested ERASE confirmation.
+
+The target is erased and restored to unencrypted ext4. Disable Secure Boot. BIOS installation requires GRUB in the source; UEFI supports GRUB or a systemd-boot fallback. CPU requirements of the source distribution still apply.
+
+Test build, install, reboot and kernel updates in a VM before relying on this ISO.
 
    (If you ever exit the installer, restart it with: /xetal.sh)
 

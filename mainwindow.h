@@ -624,7 +624,7 @@ private:
     QString restoreDestMountPoint;
     
     // ISO Creator helper functions
-    QString createIsoScript(const QString &isoName, const QString &outputDir, const QString &sudoPassword, bool offlineMode = false,
+    QString createIsoScript(const QString &isoName, const QString &outputDir, bool offlineMode = false,
                             const QStringList &excludePaths = QStringList(),
                             const IsoFirstBootOptions &firstBoot = IsoFirstBootOptions());
     QString formatSize(qint64 bytes);

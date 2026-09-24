@@ -1,0 +1,56 @@
+{
+  "date": "2026-09-24",
+  "unit_tests_passed": 46,
+  "real_vm_markers": {
+    "arch-bios": {
+      "install": true,
+      "boot": true,
+      "updated-boot": true
+    },
+    "fallback-uefi": {
+      "install": true,
+      "boot": true,
+      "updated-boot": true
+    },
+    "manjaro-uefi": {
+      "install": true,
+      "boot": true,
+      "updated-boot": true
+    },
+    "cachyos-uefi": {
+      "install": true,
+      "boot": true,
+      "updated-boot": true
+    },
+    "offline-uefi": {
+      "install": true,
+      "boot": true,
+      "updated-boot": true
+    },
+    "full-bios": {
+      "install": true,
+      "boot": true,
+      "updated-boot": true
+    },
+    "full-uefi": {
+      "install": true,
+      "boot": true,
+      "updated-boot": true
+    }
+  },
+  "iso_source_sha256": {
+    "iso/build.sh": "8f6a66949821d76b60eeba109d3b512f4e5f9862aafc8cecf54a1d5d0348ad68",
+    "iso/common.sh": "40fe3d6f9ac8d66d4c38d07df656a140286e6630124fb415ab9ba4cb576b8533",
+    "iso/firstboot.service": "074981dca02b31042afad45dea921a05680cef94abc9aecf65831cb0d120522e",
+    "iso/firstboot.sh": "218c8192e3d679526edf5d24a1e9afa88b2d6acf5f7170320ea1344e6893241b",
+    "iso/installer.sh": "6310c71214e4501c4bf87505ad21b1606dd7d85f3cb0167cf5692bfae98dca3b",
+    "iso/restore-boot.sh": "1c1142618cdc61013fb5211160fd39e6bdf52e58f7a2e189e72e53aa12a9d9f6"
+  },
+  "explicit_live_packages": 138,
+  "resolved_archives": 508,
+  "note": "Minimal disposable source roots; kernel transaction is a signed reinstall, not a version upgrade.",
+  "tested_iso_sha256": {
+    "full-releng": "cdbcf248fea8bf45410f1769d4ab5ed747620ec59d0cdcc31598fc9c48ecc867",
+    "offline": "981a5fd62aeb76743c36c3ce206abb9947566819797989c5e99b973709efc96f"
+  }
+}

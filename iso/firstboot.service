@@ -1,0 +1,19 @@
+[Unit]
+Description=XETAL ENGINE optional first-boot adaptation
+ConditionPathExists=/etc/xetal-firstboot.conf
+Wants=network.target
+After=network.target systemd-user-sessions.service
+Before=display-manager.service getty@tty1.service sshd.service
+
+[Service]
+Type=oneshot
+StandardInput=tty
+StandardOutput=tty
+TTYPath=/dev/tty1
+TTYReset=yes
+TTYVHangup=yes
+ExecStart=/usr/local/bin/xetal-firstboot.sh
+TimeoutStartSec=0
+
+[Install]
+WantedBy=multi-user.target

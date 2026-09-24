@@ -89,15 +89,15 @@ That's it. The interactive build script handles the choices; if the **System ISO
 ```bash
 sudo pacman -S qt6-base qt6-tools cmake gcc make    # build
 sudo pacman -S udisks2                              # runtime (drive tools)
-sudo pacman -S archiso rsync tar zstd               # ISO creator
+sudo pacman -S archiso archlinux-keyring rsync tar zstd  # ISO creator
 mkdir build && cd build
 cmake .. -DCMAKE_BUILD_TYPE=Release
 make -j$(nproc)
 ```
 
-**Non-interactive ISO deps (CI):** `./build.sh --install-iso-deps`
+**Install missing ISO dependencies during setup:** `./build.sh --install-iso-deps` (build configuration still prompts).
 
-**OS:** CachyOS (tested), Manjaro, EndeavourOS, and other Arch-based distributions.
+**OS:** The application targets CachyOS, Arch, Manjaro and other Arch-based systems. ISO build/restore validation is tracked separately in the [compatibility matrix](docs/ISO_COMPATIBILITY.md).
 
 </details>
 
@@ -111,12 +111,15 @@ make -j$(nproc)
 <tr>
 <td width="55%">
 
-Your system, **exactly as it is right now**, burned into a bootable ISO with a guided installer.
+A file-based snapshot of your system in a bootable ISO with a guided installer. Restore creates a new **unencrypted ext4** filesystem and regenerates boot files.
 
 - **Exclusion panels** — drop huge folders and keep app logins (Discord, browsers) *out* of shareable ISOs
-- **Exact clone** or **first-boot hardware adaptation** — network, GPU drivers, user rename, fresh SSH identity
+- **Preserve users and identity** or opt into first-boot adaptation — network bindings, existing graphics drivers, user rename, fresh SSH identity
 - **XETAL ENGINE TUI installer** launches automatically on boot: pick a disk, confirm, done
-- Multithreaded compression tuned for speed — a full system in one coffee
+- **Packages checked first** — dependencies are resolved, downloaded and signature-verified before the system snapshot starts
+- **Boot fallbacks** — mkinitcpio or dracut; GRUB for supported BIOS/UEFI sources, with systemd-boot as a UEFI fallback
+
+Read the [ISO compatibility limits and release test matrix](docs/ISO_COMPATIBILITY.md) before building or publishing a recovery image. A successful build alone does not verify restored bootability.
 
 *The Dashboard tracks your latest safety ISO and nags you when it gets old. Listen to it.*
 
@@ -126,6 +129,23 @@ Your system, **exactly as it is right now**, burned into a bootable ISO with a g
 </td>
 </tr>
 </table>
+
+<details>
+<summary><b>ISO build order, offline use &amp; verified compatibility</b></summary>
+
+1. **Check the source and prepare packages.** The live installer uses isolated Arch repositories, signing keys, databases and package caches. Missing packages, invalid signatures or incomplete offline archives stop the build before snapshotting. The legacy `broadcom-wl` package is migrated to `broadcom-wl-dkms` with matching kernel headers when needed.
+2. **Create and pack the snapshot.** Once package preparation succeeds, the creator copies the source system with your exclusions. Its installed packages and distribution repositories remain part of the snapshot.
+3. **Build from the verified local packages.** The package set and repository databases are kept locally, so upstream repository changes during the snapshot do not change the live installer's inputs.
+
+Each attempt has its own directory and `build.log` under `~/iso/xiso/builds/`. Failed attempts retain their files for diagnosis; retrying does not delete previous snapshots or output ISOs.
+
+**Offline use:** After an online build, run `./create_offline_package.sh`, then select the resulting archive using **Choose Offline Archive**. Its dependencies and signatures are checked before snapshotting. See the [offline instructions](docs/ISO_COMPATIBILITY.md#offline-use) for choosing a specific build or archive destination.
+
+**Validation recorded on 2026-09-24:** 46 regression tests and the application Release build passed. The complete live package set—138 targets and 508 package archives—built successfully, including the Broadcom DKMS module. Seven disposable VM scenarios passed installation, restored boot, a signed kernel reinstallation and another boot. Coverage included Arch BIOS/UEFI, dracut/systemd-boot, a minimal Manjaro Stable system, and an Arch base with CachyOS's native kernel. Offline ISO creation also passed with networking disabled.
+
+**Restore scope:** x86_64 with Secure Boot disabled; the target becomes a new unencrypted ext4 filesystem. Source encryption, partition layouts and Btrfs snapshot history are not preserved. Full desktop cloning on native Manjaro/CachyOS hosts, upgrades to different kernel versions, and physical GPU/Wi-Fi hardware still need validation. Read the [exact test results and remaining checks](docs/ISO_VALIDATION.md) before making broader compatibility claims.
+
+</details>
 
 ### 🎛️ The Control Panel — Windows nostalgia, Arch power
 

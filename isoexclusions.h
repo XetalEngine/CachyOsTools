@@ -17,10 +17,10 @@ void MainWindow::startIsoHomeScan() {
 
     QString home = QDir::homePath();
     QString script = QString(
-        "du -x -B1 --max-depth=6 '%1' 2>/dev/null; "
+        "du -x -B1 --max-depth=6 -- %1 2>/dev/null; "
         "echo '===FILES==='; "
-        "find '%1' -xdev -type f -size +10M -printf '%s\\t%p\\n' 2>/dev/null"
-    ).arg(home);
+        "find %1 -xdev -type f -size +10M -printf '%s\\t%p\\n' 2>/dev/null"
+    ).arg(shQuote(home));
 
     QProcess *proc = new QProcess(this);
     connect(proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
@@ -173,8 +173,8 @@ void MainWindow::startIsoConfigScan() {
                 proc->deleteLater();
             });
     proc->start("bash", QStringList() << "-c"
-                << QString("du -x -B1 --max-depth=1 '%1' 2>/dev/null; "
-                           "find '%1' -maxdepth 1 -type f -printf '0\\t%p\\n' 2>/dev/null").arg(configDir));
+                << QString("du -x -B1 --max-depth=1 -- %1 2>/dev/null; "
+                           "find %1 -maxdepth 1 -type f -printf '0\\t%p\\n' 2>/dev/null").arg(shQuote(configDir)));
 }
 
 void MainWindow::onIsoExcludeItemChanged(QTreeWidgetItem *item, int column) {
@@ -210,7 +210,7 @@ void MainWindow::refreshIsoExcludedSizes() {
 
 void MainWindow::updateIsoExcludeSummary() {
     if (isoExcludedPaths.isEmpty()) {
-        ui->isoExcludeSummaryLabel->setText(tr("Nothing excluded — the ISO will contain the complete system."));
+        ui->isoExcludeSummaryLabel->setText(tr("No custom exclusions — standard runtime and build folders are still excluded."));
         ui->isoExcludeSummaryLabel->setStyleSheet("");
         return;
     }
