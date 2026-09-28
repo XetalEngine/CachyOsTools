@@ -32,6 +32,28 @@
 #include <QVBoxLayout>
 
 namespace {
+class WindowEnumFilter : public QSortFilterProxyModel {
+public:
+    using QSortFilterProxyModel::QSortFilterProxyModel;
+
+    void setTopmostOnly(bool enabled) {
+        if (topmostOnly == enabled) return;
+        topmostOnly = enabled;
+        invalidate();
+    }
+
+protected:
+    bool filterAcceptsRow(int row, const QModelIndex &parent) const override {
+        if (topmostOnly && !sourceModel()->index(row, 0, parent).data(Qt::UserRole)
+                                .toJsonObject().value("above").toBool())
+            return false;
+        return QSortFilterProxyModel::filterAcceptsRow(row, parent);
+    }
+
+private:
+    bool topmostOnly = false;
+};
+
 struct Column { const char *key; const char *label; int width; };
 const QList<Column> columns{
     {"title", QT_TRANSLATE_NOOP("WindowEnumTab", "Window name"), 260},
@@ -126,6 +148,9 @@ WindowEnumTab::WindowEnumTab(QWidget *parent) : QWidget(parent)
     search = new QLineEdit(this);
     search->setPlaceholderText(tr("Filter any column…"));
     search->setClearButtonEnabled(true);
+    auto *topmostOnly = new QCheckBox(tr("Topmost only"), this);
+    topmostOnly->setObjectName("windowEnumTopmostOnly");
+    topmostOnly->setToolTip(tr("Show only windows reported as always on top."));
     auto *exportButton = new QPushButton(tr("Export…"), this);
     gnomeButton = new QPushButton(tr("Enable GNOME Bridge"), this);
     gnomeButton->setToolTip(tr("Installs this application's GNOME Shell extension for your user and enables it. A new extension may require logging out and back in."));
@@ -134,6 +159,7 @@ WindowEnumTab::WindowEnumTab(QWidget *parent) : QWidget(parent)
     toolbar->addWidget(live);
     toolbar->addWidget(source);
     toolbar->addWidget(search, 1);
+    toolbar->addWidget(topmostOnly);
     toolbar->addWidget(gnomeButton);
     toolbar->addWidget(exportButton);
     layout->addLayout(toolbar);
@@ -148,7 +174,8 @@ WindowEnumTab::WindowEnumTab(QWidget *parent) : QWidget(parent)
     QStringList headers;
     for (const auto &column : columns) headers << tr(column.label);
     model->setHorizontalHeaderLabels(headers);
-    proxy = new QSortFilterProxyModel(this);
+    auto *windowFilter = new WindowEnumFilter(this);
+    proxy = windowFilter;
     proxy->setSourceModel(model);
     proxy->setFilterKeyColumn(-1);
     proxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
@@ -216,7 +243,14 @@ WindowEnumTab::WindowEnumTab(QWidget *parent) : QWidget(parent)
     layout->addWidget(status);
 
     connect(refreshButton, &QPushButton::clicked, this, &WindowEnumTab::refresh);
-    connect(search, &QLineEdit::textChanged, proxy, &QSortFilterProxyModel::setFilterFixedString);
+    const auto updateFilter = [this, windowFilter, topmostOnly]() {
+        windowFilter->setTopmostOnly(topmostOnly->isChecked());
+        windowFilter->setFilterFixedString(search->text());
+        status->setText(tr("%1 windows • %2 matching the filter").arg(rows.size()).arg(proxy->rowCount()));
+        updateSelection();
+    };
+    connect(search, &QLineEdit::textChanged, this, updateFilter);
+    connect(topmostOnly, &QCheckBox::toggled, this, updateFilter);
     connect(exportButton, &QPushButton::clicked, this, &WindowEnumTab::exportRows);
     connect(gnomeButton, &QPushButton::clicked, this, &WindowEnumTab::installGnomeBridge);
     connect(source, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this]() {

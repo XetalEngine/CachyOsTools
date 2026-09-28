@@ -2,8 +2,10 @@
 
 Open **Dashboard → Window Enum**, immediately after **Sensors & Power**.
 Each row represents one window exposed by the selected backend. Every statistic
-has its own sortable column. Filter searches all columns; right-click a column
-header to show/hide columns. Export writes the matching rows to JSON or CSV.
+has its own sortable column. Filter searches all columns. **Topmost only** narrows
+the search results to windows reported as always on top; leave it unchecked to
+include all windows. Right-click a column header to show/hide columns. Export
+writes the matching rows to JSON or CSV.
 Live refresh runs every two seconds while the tab is visible. Selection and
 pending geometry edits survive refreshes. A failed collector clears stale rows
 and pauses Live; Refresh retries.
