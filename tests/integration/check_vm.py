@@ -55,7 +55,7 @@ def main():
             try:
                 deadline = time.monotonic() + args.timeout
                 buffer = b''
-                selected = confirmed = passed = False
+                selected = confirmed = final_confirmed = passed = False
                 with (case / (stage + '.log')).open('wb') as output:
                     while time.monotonic() < deadline:
                         ready, _, _ = select.select([process.stdout], [], [], 1)
@@ -75,8 +75,17 @@ def main():
                                     process.stdin.write(b'\r')
                                     process.stdin.flush()
                                     selected = True
-                                if b"Type exactly 'ERASE /dev/vda' to confirm:" in buffer and not confirmed:
-                                    process.stdin.write(b'ERASE /dev/vda\n')
+                                if b'Confirm Target' in buffer and not confirmed:
+                                    # Both warnings default to No; Tab selects Yes.
+                                    process.stdin.write(b'\t\r')
+                                    process.stdin.flush()
+                                    confirmed = True
+                                if b'FINAL WARNING' in buffer and not final_confirmed:
+                                    process.stdin.write(b'\t\r')
+                                    process.stdin.flush()
+                                    final_confirmed = True
+                                if b"Type 'WIPE' to confirm:" in buffer and not confirmed:
+                                    process.stdin.write(b'WIPE\n')
                                     process.stdin.flush()
                                     confirmed = True
                                 if b'[6/6] Installation complete.' in buffer:

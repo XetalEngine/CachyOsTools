@@ -44,10 +44,28 @@ installer_reset_firstboot() {
     rm -rf -- "$target/var/lib/xetal-firstboot/done"
 }
 
+installer_confirm_disk() {
+    local disk=$1 back='XETAL ENGINE - System Installer' dinfo confirm
+    if command -v dialog >/dev/null 2>&1 && [[ -t 0 ]]; then
+        dinfo=$(lsblk -dno SIZE,MODEL "$disk" | sed 's/  */ /g') || return 1
+        dialog --backtitle "$back" --colors --defaultno --title " Confirm Target " \
+            --yesno "\nInstall the cloned system to:\n\n    $disk  ($dinfo)\n\n\Z1This PERMANENTLY ERASES everything on that disk.\Zn\n\nContinue?" 14 66 \
+            || { clear; echo 'Installation cancelled.'; return 1; }
+        dialog --backtitle "$back" --colors --defaultno --title " FINAL WARNING " \
+            --yesno "\n\Z1LAST CHANCE:\Zn wipe $disk and install the cloned system?" 9 56 \
+            || { clear; echo 'Installation cancelled.'; return 1; }
+        clear
+    else
+        printf "\033[33mType 'WIPE' to confirm: \033[0m\n"
+        read -r confirm || return 1
+        [[ $confirm == WIPE ]] || { printf '\033[31mAborted.\033[0m\n'; return 1; }
+    fi
+}
+
 installer_main() {
     source /opt/clone/common.sh
     [[ $EUID == 0 ]] || { iso_die 'Run the installer as root from the live ISO.'; return 1; }
-    local tool mode uefi=0 disk='' protected identity confirm bytes capacity esp_mib root_uuid loader
+    local tool mode uefi=0 disk='' protected identity bytes capacity esp_mib root_uuid loader
     local key value source_bytes='' supports_uefi=0 supports_bios=0 kernel_count=1 format='' arch=''
     for tool in lsblk findmnt losetup swapon mountpoint parted partprobe udevadm mkfs.fat mkfs.ext4 \
         mount umount genfstab arch-chroot tar zstd sha256sum blkid file; do iso_need "$tool" 'live ISO installer' || return 1; done
@@ -109,9 +127,7 @@ installer_main() {
         iso_die "The target needs at least $((bytes / 1024 / 1024 / 1024 + 1)) GiB for this snapshot."; return 1;
     }
     identity=$(lsblk -dnro MAJ:MIN,SERIAL,WWN "$disk")
-    printf '\nERASE %s (%s) and install the clone?\n' "$disk" "$(lsblk -dnro SIZE,MODEL "$disk")"
-    read -rp "Type exactly 'ERASE $disk' to confirm: " confirm
-    [[ $confirm == "ERASE $disk" ]] || { echo 'Installation cancelled.'; return 1; }
+    installer_confirm_disk "$disk" || return 1
     # Revalidate after the interactive pause, immediately before destructive work.
     [[ $identity == "$(lsblk -dnro MAJ:MIN,SERIAL,WWN "$disk")" ]] || { iso_die 'The selected device changed.'; return 1; }
     iso_validate_disk "$disk" "$protected" || return 1

@@ -67,7 +67,8 @@ and CPU-instruction-set conversion are outside the supported scope.
 The installer checks snapshot integrity and firmware capability before disk
 selection. It excludes identifiable live-media disks, rejects mounted disks,
 active swap, readonly devices and active mapper/RAID/LVM consumers, checks disk
-capacity, and revalidates the selection after a typed erase confirmation. It
+capacity, and revalidates the selection after two Yes/No warning dialogs (or
+the original typed `WIPE` confirmation when the TUI is unavailable). It
 never runs a host-wide `swapoff -a` or unmounts an unrelated `/mnt` tree. If it
 cannot identify the live medium (including some copy-to-RAM arrangements), it
 refuses to erase a disk.
