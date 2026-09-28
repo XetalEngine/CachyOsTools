@@ -11,5 +11,8 @@
         <file>iso/restore-boot.sh</file>
         <file>iso/firstboot.sh</file>
         <file>iso/firstboot.service</file>
+        <file>window_enum/kwin.js</file>
+        <file>window_enum/gnome/metadata.json</file>
+        <file>window_enum/gnome/extension.js</file>
     </qresource>
 </RCC>

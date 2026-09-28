@@ -66,23 +66,23 @@ print_dependencies() {
     case $compiler in
         "GCC")
             print_cyan "Arch/Manjaro:"
-            echo "sudo pacman -S gcc make cmake qt6-base qt6-tools"
+            echo "sudo pacman -S gcc make cmake qt6-base qt6-tools pkgconf libxcb wayland"
             echo ""
             print_cyan "Ubuntu/Debian:"
-            echo "sudo apt install gcc g++ make cmake qt6-base-dev qt6-tools-dev"
+            echo "sudo apt install gcc g++ make cmake qt6-base-dev qt6-tools-dev pkg-config libxcb1-dev libxcb-res0-dev libwayland-dev libwayland-bin"
             echo ""
             print_cyan "Fedora:"
-            echo "sudo dnf install gcc gcc-c++ make cmake qt6-qtbase-devel qt6-qttools-devel"
+            echo "sudo dnf install gcc gcc-c++ make cmake qt6-qtbase-devel qt6-qttools-devel pkgconf-pkg-config libxcb-devel wayland-devel"
             ;;
         "Clang")
             print_cyan "Arch/Manjaro:"
-            echo "sudo pacman -S clang make cmake qt6-base qt6-tools"
+            echo "sudo pacman -S clang make cmake qt6-base qt6-tools pkgconf libxcb wayland"
             echo ""
             print_cyan "Ubuntu/Debian:"
-            echo "sudo apt install clang make cmake qt6-base-dev qt6-tools-dev"
+            echo "sudo apt install clang make cmake qt6-base-dev qt6-tools-dev pkg-config libxcb1-dev libxcb-res0-dev libwayland-dev libwayland-bin"
             echo ""
             print_cyan "Fedora:"
-            echo "sudo dnf install clang make cmake qt6-qtbase-devel qt6-qttools-devel"
+            echo "sudo dnf install clang make cmake qt6-qtbase-devel qt6-qttools-devel pkgconf-pkg-config libxcb-devel wayland-devel"
             ;;
     esac
     

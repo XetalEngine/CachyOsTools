@@ -84,10 +84,10 @@ That's it. The interactive build script handles the choices; if the **System ISO
 
 <br>
 
-**Build requirements:** Qt6 (or Qt5), CMake 3.16+, GCC or Clang with C++17
+**Build requirements:** Qt6 (or Qt5), CMake 3.16+, GCC or Clang with C++17, pkg-config, libxcb (including XRes), and Wayland development tools
 
 ```bash
-sudo pacman -S qt6-base qt6-tools cmake gcc make    # build
+sudo pacman -S qt6-base qt6-tools cmake gcc make pkgconf libxcb wayland # build
 sudo pacman -S udisks2                              # runtime (drive tools)
 sudo pacman -S archiso archlinux-keyring rsync tar zstd  # ISO creator
 mkdir build && cd build
@@ -160,6 +160,7 @@ Eight tools that used to be eight terminal sessions, living as Dashboard sub-tab
 
 - **🔌 Devices** — PCI/USB tree, drivers in use, module info / load / unload / blacklist
 - **🌡️ Sensors & Power** — every hwmon reading live, coloured against each chip's *own* limits (NVIDIA included), plus the switches you reach for when one goes red: power profile, CPU governor, energy preference, battery charge limit that survives a reboot, and the fancontrol service
+- **Window Enum** — a live window table with executable paths, classes, geometry, ownership and state; move/resize and other controls where the desktop exposes them. Includes the full X11 tree, KDE/GNOME compositor access, and foreign-toplevel Wayland protocols. See [desktop coverage and setup](docs/WINDOW_ENUM.md).
 - **👥 Users & Groups** — accounts with avatars, group membership editor (wheel, libvirt, docker...), password & shell changes
 - **🧬 Kernels** — scans `/boot` itself so *custom and source-built kernels show up too*; one-click install of 9 popular kernels including **linux-tkg built from source**; GRUB default picker
 - **🪪 System Properties** — hostname, machine-id, hardware identity — the sysdm.cpl you missed

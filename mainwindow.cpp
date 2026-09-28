@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 #include "includes.h"
+#include "window_enum.h"
 
 #include "mainwindow_d.h"
 #include "drive.h"

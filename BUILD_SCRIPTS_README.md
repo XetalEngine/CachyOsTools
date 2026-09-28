@@ -36,37 +36,37 @@ This project includes multiple build scripts for different compiler and build sy
 ### For build2.sh (GCC + Make):
 ```bash
 # Arch/Manjaro
-sudo pacman -S gcc make cmake qt6-base qt6-tools
+sudo pacman -S gcc make cmake qt6-base qt6-tools pkgconf libxcb wayland
 
 # Ubuntu/Debian
-sudo apt install gcc g++ make cmake qt6-base-dev qt6-tools-dev
+sudo apt install gcc g++ make cmake qt6-base-dev qt6-tools-dev pkg-config libxcb1-dev libxcb-res0-dev libwayland-dev libwayland-bin
 
 # Fedora
-sudo dnf install gcc gcc-c++ make cmake qt6-qtbase-devel qt6-qttools-devel
+sudo dnf install gcc gcc-c++ make cmake qt6-qtbase-devel qt6-qttools-devel pkgconf-pkg-config libxcb-devel wayland-devel
 ```
 
 ### For build3.sh (Clang + Make):
 ```bash
 # Arch/Manjaro
-sudo pacman -S clang make cmake qt6-base qt6-tools
+sudo pacman -S clang make cmake qt6-base qt6-tools pkgconf libxcb wayland
 
 # Ubuntu/Debian
-sudo apt install clang make cmake qt6-base-dev qt6-tools-dev
+sudo apt install clang make cmake qt6-base-dev qt6-tools-dev pkg-config libxcb1-dev libxcb-res0-dev libwayland-dev libwayland-bin
 
 # Fedora
-sudo dnf install clang make cmake qt6-qtbase-devel qt6-qttools-devel
+sudo dnf install clang make cmake qt6-qtbase-devel qt6-qttools-devel pkgconf-pkg-config libxcb-devel wayland-devel
 ```
 
 ### For build4.sh (GCC + Ninja):
 ```bash
 # Arch/Manjaro
-sudo pacman -S gcc ninja cmake qt6-base qt6-tools
+sudo pacman -S gcc ninja cmake qt6-base qt6-tools pkgconf libxcb wayland
 
 # Ubuntu/Debian
-sudo apt install gcc g++ ninja-build cmake qt6-base-dev qt6-tools-dev
+sudo apt install gcc g++ ninja-build cmake qt6-base-dev qt6-tools-dev pkg-config libxcb1-dev libxcb-res0-dev libwayland-dev libwayland-bin
 
 # Fedora
-sudo dnf install gcc gcc-c++ ninja-build cmake qt6-qtbase-devel qt6-qttools-devel
+sudo dnf install gcc gcc-c++ ninja-build cmake qt6-qtbase-devel qt6-qttools-devel pkgconf-pkg-config libxcb-devel wayland-devel
 ```
 
 ## Usage Examples

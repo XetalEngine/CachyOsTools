@@ -121,6 +121,8 @@ void MainWindow::setupControlPanelTabs() {
     // "&&" — a single & in a tab title is eaten as a keyboard mnemonic
     ui->dashSubTabs->insertTab(ui->dashSubTabs->indexOf(ui->deviceManagerSubTab) + 1,
                                sensSubTab, tr("🌡️ Sensors && Power"));
+    ui->dashSubTabs->insertTab(ui->dashSubTabs->indexOf(sensSubTab) + 1,
+                               new WindowEnumTab(ui->dashSubTabs), tr("Window Enum"));
 
     connect(ui->dashSubTabs, &QTabWidget::currentChanged, this, [this](int) {
         QWidget *page = ui->dashSubTabs->currentWidget();

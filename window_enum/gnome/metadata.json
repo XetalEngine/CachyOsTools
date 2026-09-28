@@ -1,0 +1,7 @@
+{
+  "uuid": "window-enum@cachyostools.xetal.net",
+  "name": "CachyOsTools Window Enum",
+  "description": "Window enumeration and explicit window controls for the CachyOsTools Window Enum tab.",
+  "shell-version": ["45", "46", "47", "48", "49", "50", "51"],
+  "version": 1
+}
