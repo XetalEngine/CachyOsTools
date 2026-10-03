@@ -1,6 +1,63 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
+installer_show_logo() {
+    local title='XETAL ENGINE - System Installer'
+    if [[ ! -t 1 || ${TERM:-dumb} == dumb ]]; then
+        printf '%s\n\n' "$title"
+        return 0
+    fi
+
+    local cols rows width height colors=16 available_colors art='' line pad index=0
+    cols=$(tput cols 2>/dev/null) || cols=80
+    rows=$(tput lines 2>/dev/null) || rows=24
+    [[ $cols =~ ^[1-9][0-9]{0,3}$ ]] || cols=80
+    [[ $rows =~ ^[1-9][0-9]{0,3}$ ]] || rows=24
+    # Leave the last column unused to avoid wrapping at the terminal's edge.
+    (( cols > 1 )) && cols=$((cols - 1))
+    width=$cols
+    (( width <= 110 )) || width=110
+    height=$((rows / 3))
+    (( height <= 9 )) || height=9
+    (( height >= 1 )) || height=1
+    available_colors=$(tput colors 2>/dev/null) || available_colors=16
+    if [[ $available_colors =~ ^[0-9]{1,4}$ ]] && (( available_colors >= 256 )); then colors=240; fi
+
+    printf '\033[0m\033[2J\033[H\n'
+    if (( cols >= 40 && rows >= 12 )) && [[ -r /opt/clone/logo.png ]] && command -v chafa >/dev/null 2>&1; then
+        # Use ordinary character cells: graphics overlays and terminal probes can
+        # leave artifacts or stray input behind when dialog takes over the TTY.
+        # Buffer the result so a renderer failure cannot leave half a logo onscreen.
+        art=$(chafa --format symbols --symbols space,block --fg-only --colors "$colors" \
+            --probe off --polite on --animate off --relative off --optimize 0 \
+            --align center --view-size "${cols}x${rows}" --size "${width}x${height}" \
+            /opt/clone/logo.png </dev/null 2>/dev/null) || art=''
+    fi
+    if [[ -n $art ]]; then
+        printf '%s\033[0m\n' "$art"
+    elif (( cols >= 65 && rows >= 12 )); then
+        local -a shades=(31 31 33 32 32)
+        pad=$(((cols - 65) / 2))
+        while IFS= read -r line; do
+            printf '%*s\033[1;%sm%s\033[0m\n' "$pad" '' "${shades[index]}" "$line"
+            index=$((index + 1))
+        done <<'XETAL_TEXT'
+X   X EEEEE TTTTT  AAA  L      EEEEE N   N  GGGG  III N   N EEEEE
+ X X  E       T   A   A L      E     NN  N G       I  NN  N E
+  X   EEEE    T   AAAAA L      EEEE  N N N G  GG   I  N N N EEEE
+ X X  E       T   A   A L      E     N  NN G   G   I  N  NN E
+X   X EEEEE   T   A   A LLLLL  EEEEE N   N  GGGG  III N   N EEEEE
+XETAL_TEXT
+    else
+        line='XETAL ENGINE'
+        line=${line:0:cols}
+        printf '%*s\033[1;32m%s\033[0m\n' "$(((cols - ${#line}) / 2))" '' "$line"
+    fi
+    if (( cols < ${#title} )); then title='System Installer'; fi
+    title=${title:0:cols}
+    printf '\n%*s%s\n\n' "$(((cols - ${#title}) / 2))" '' "$title"
+}
+
 installer_cleanup() {
     local status=$?
     trap - EXIT
@@ -65,6 +122,7 @@ installer_confirm_disk() {
 installer_main() {
     source /opt/clone/common.sh
     [[ $EUID == 0 ]] || { iso_die 'Run the installer as root from the live ISO.'; return 1; }
+    installer_show_logo
     local tool mode uefi=0 disk='' protected identity bytes capacity esp_mib root_uuid loader
     local key value source_bytes='' supports_uefi=0 supports_bios=0 kernel_count=1 format='' arch=''
     for tool in lsblk findmnt losetup swapon mountpoint parted partprobe udevadm mkfs.fat mkfs.ext4 \
@@ -110,7 +168,6 @@ installer_main() {
         fi
     done < <(lsblk -dpnro NAME,TYPE | awk '$2 == "disk" {print $1}')
     (( ${#items[@]} )) || { iso_die 'No unused writable target disks were found.'; return 1; }
-    echo 'XETAL ENGINE — restore a system clone'
     echo 'The target disk will be erased and recreated as unencrypted ext4 plus an EFI partition.'
     echo 'Source encryption, Btrfs snapshots, partition layout and bootloader configuration are not preserved.'
     if command -v dialog >/dev/null 2>&1 && [[ -t 0 ]]; then
@@ -128,6 +185,7 @@ installer_main() {
     }
     identity=$(lsblk -dnro MAJ:MIN,SERIAL,WWN "$disk")
     installer_confirm_disk "$disk" || return 1
+    installer_show_logo
     # Revalidate after the interactive pause, immediately before destructive work.
     [[ $identity == "$(lsblk -dnro MAJ:MIN,SERIAL,WWN "$disk")" ]] || { iso_die 'The selected device changed.'; return 1; }
     iso_validate_disk "$disk" "$protected" || return 1

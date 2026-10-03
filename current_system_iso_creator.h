@@ -275,6 +275,12 @@ QString MainWindow::createIsoScript(const QString &isoName, const QString &outpu
     out << ")\n" << scripts.value("common.sh") << "\n";
     out << "stage_iso_payload() {\n";
     out << "mkdir -p \"$PROFILE/airootfs/usr/local/bin\" \"$PROFILE/airootfs/opt/clone\"\n";
+    // Keep the original installer logo inside each generated build script.
+    QFile logo(":/images/XetalEngine.png");
+    if (logo.open(QIODevice::ReadOnly)) {
+        out << "base64 --decode > \"$PROFILE/airootfs/opt/clone/logo.png\" <<'XETAL_LOGO'\n";
+        out << logo.readAll().toBase64() << "\nXETAL_LOGO\n";
+    }
     const QStringList payloads = {"common.sh", "installer.sh", "restore-boot.sh", "firstboot.sh", "firstboot.service"};
     for (const QString &name : payloads) {
         const QString target = name == "installer.sh" ? "/usr/local/bin/installer.sh" : "/opt/clone/" + name;
