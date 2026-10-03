@@ -42,16 +42,31 @@ public:
         invalidate();
     }
 
+    void setHideEmptyWindowName(bool enabled) {
+        if (hideEmptyWindowName == enabled) return;
+        hideEmptyWindowName = enabled;
+        invalidate();
+    }
+
+    void setHideEmptyClass(bool enabled) {
+        if (hideEmptyClass == enabled) return;
+        hideEmptyClass = enabled;
+        invalidate();
+    }
+
 protected:
     bool filterAcceptsRow(int row, const QModelIndex &parent) const override {
-        if (topmostOnly && !sourceModel()->index(row, 0, parent).data(Qt::UserRole)
-                                .toJsonObject().value("above").toBool())
-            return false;
+        const auto window = sourceModel()->index(row, 0, parent).data(Qt::UserRole).toJsonObject();
+        if (topmostOnly && !window.value("above").toBool()) return false;
+        if (hideEmptyWindowName && window.value("title").toString().trimmed().isEmpty()) return false;
+        if (hideEmptyClass && window.value("class").toString().trimmed().isEmpty()) return false;
         return QSortFilterProxyModel::filterAcceptsRow(row, parent);
     }
 
 private:
     bool topmostOnly = false;
+    bool hideEmptyWindowName = true;
+    bool hideEmptyClass = true;
 };
 
 struct Column { const char *key; const char *label; int width; };
@@ -151,6 +166,14 @@ WindowEnumTab::WindowEnumTab(QWidget *parent) : QWidget(parent)
     auto *topmostOnly = new QCheckBox(tr("Topmost only"), this);
     topmostOnly->setObjectName("windowEnumTopmostOnly");
     topmostOnly->setToolTip(tr("Show only windows reported as always on top."));
+    auto *hideEmptyWindowName = new QCheckBox(tr("Hide Empty window name"), this);
+    hideEmptyWindowName->setObjectName("windowEnumHideEmptyWindowName");
+    hideEmptyWindowName->setChecked(true);
+    hideEmptyWindowName->setToolTip(tr("Hide windows with an empty or unavailable window name."));
+    auto *hideEmptyClass = new QCheckBox(tr("Hide Empty Class"), this);
+    hideEmptyClass->setObjectName("windowEnumHideEmptyClass");
+    hideEmptyClass->setChecked(true);
+    hideEmptyClass->setToolTip(tr("Hide windows with an empty or unavailable class."));
     auto *exportButton = new QPushButton(tr("Export…"), this);
     gnomeButton = new QPushButton(tr("Enable GNOME Bridge"), this);
     gnomeButton->setToolTip(tr("Installs this application's GNOME Shell extension for your user and enables it. A new extension may require logging out and back in."));
@@ -160,6 +183,8 @@ WindowEnumTab::WindowEnumTab(QWidget *parent) : QWidget(parent)
     toolbar->addWidget(source);
     toolbar->addWidget(search, 1);
     toolbar->addWidget(topmostOnly);
+    toolbar->addWidget(hideEmptyWindowName);
+    toolbar->addWidget(hideEmptyClass);
     toolbar->addWidget(gnomeButton);
     toolbar->addWidget(exportButton);
     layout->addLayout(toolbar);
@@ -243,14 +268,18 @@ WindowEnumTab::WindowEnumTab(QWidget *parent) : QWidget(parent)
     layout->addWidget(status);
 
     connect(refreshButton, &QPushButton::clicked, this, &WindowEnumTab::refresh);
-    const auto updateFilter = [this, windowFilter, topmostOnly]() {
+    const auto updateFilter = [this, windowFilter, topmostOnly, hideEmptyWindowName, hideEmptyClass]() {
         windowFilter->setTopmostOnly(topmostOnly->isChecked());
+        windowFilter->setHideEmptyWindowName(hideEmptyWindowName->isChecked());
+        windowFilter->setHideEmptyClass(hideEmptyClass->isChecked());
         windowFilter->setFilterFixedString(search->text());
         status->setText(tr("%1 windows • %2 matching the filter").arg(rows.size()).arg(proxy->rowCount()));
         updateSelection();
     };
     connect(search, &QLineEdit::textChanged, this, updateFilter);
     connect(topmostOnly, &QCheckBox::toggled, this, updateFilter);
+    connect(hideEmptyWindowName, &QCheckBox::toggled, this, updateFilter);
+    connect(hideEmptyClass, &QCheckBox::toggled, this, updateFilter);
     connect(exportButton, &QPushButton::clicked, this, &WindowEnumTab::exportRows);
     connect(gnomeButton, &QPushButton::clicked, this, &WindowEnumTab::installGnomeBridge);
     connect(source, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this]() {

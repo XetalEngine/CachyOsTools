@@ -1,6 +1,7 @@
 #include "window_enum.h"
 #include "window_enum_backend.h"
 #include <QApplication>
+#include <QCheckBox>
 #include <QComboBox>
 #include <QFileInfo>
 #include <QJsonDocument>
@@ -139,6 +140,9 @@ private slots:
         WindowEnumTab tab;
         tab.resize(1560, 760);
         tab.findChild<QComboBox *>()->setCurrentIndex(1);
+        // This test inspects the full tree, including unnamed/classless fixtures.
+        tab.findChild<QCheckBox *>("windowEnumHideEmptyWindowName")->setChecked(false);
+        tab.findChild<QCheckBox *>("windowEnumHideEmptyClass")->setChecked(false);
         tab.show();
         auto *table = tab.findChild<QTableView *>();
         QTRY_VERIFY_WITH_TIMEOUT(table->model()->rowCount() >= 6, 10000);
