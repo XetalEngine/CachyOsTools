@@ -78,14 +78,14 @@ echo CONFIRMED
                 self.assertIn('Installation cancelled.', result.stdout)
                 self.assertNotIn('CONFIRMED', result.stdout)
 
-    def test_text_fallback_accepts_original_wipe_phrase(self):
+    def test_piped_wipe_phrase_cannot_authorize_disk_erasure(self):
         result, dialogs = self.confirm(response='WIPE\n')
-        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertNotEqual(result.returncode, 0)
         self.assertFalse(dialogs)
-        self.assertIn("Type 'WIPE' to confirm:", result.stdout)
-        self.assertIn('CONFIRMED', result.stdout)
+        self.assertIn('interactive', result.stderr.replace('a terminal', 'interactive'))
+        self.assertNotIn('CONFIRMED', result.stdout)
 
-    def test_text_fallback_rejects_other_answers_and_end_of_input(self):
+    def test_without_a_terminal_no_answer_can_authorize_erasure(self):
         for response in ('\n', 'yes\n', 'ERASE /dev/test\n', ''):
             with self.subTest(response=response):
                 result, dialogs = self.confirm(response=response)

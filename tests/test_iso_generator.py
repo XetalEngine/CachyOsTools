@@ -80,7 +80,11 @@ int main(int argc,char **argv) {
             content=content.rsplit('iso_build_main "$@"',1)[0]
             profile=root/'profile'
             content+='\nPROFILE='+shlex.quote(str(profile))+'\nstage_iso_payload\n'
-            staged=subprocess.run(['bash','-c',content],cwd=tmp,env=env,capture_output=True,text=True,timeout=10)
+            # Like production, execute a file: embedded scripts plus the logo
+            # can exceed Linux's per-argument limit for bash -c.
+            staging_script=root/'stage-payload.sh'
+            staging_script.write_text(content)
+            staged=subprocess.run(['bash',str(staging_script)],cwd=tmp,env=env,capture_output=True,text=True,timeout=10)
             self.assertEqual(staged.returncode,0,staged.stderr)
             self.assertFalse(injected.exists())
             for name in ('common.sh','restore-boot.sh','firstboot.sh','firstboot.service'):

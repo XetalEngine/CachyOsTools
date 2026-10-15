@@ -55,7 +55,7 @@ def main():
             try:
                 deadline = time.monotonic() + args.timeout
                 buffer = b''
-                selected = confirmed = final_confirmed = passed = False
+                mode_selected = selected = confirmed = final_confirmed = passed = False
                 with (case / (stage + '.log')).open('wb') as output:
                     while time.monotonic() < deadline:
                         ready, _, _ = select.select([process.stdout], [], [], 1)
@@ -66,11 +66,13 @@ def main():
                             output.flush()
                             buffer = (buffer + chunk)[-20000:]
                             if stage == 'install':
-                                if b'Whole target disk (for example /dev/sda):' in buffer and not selected:
-                                    process.stdin.write(b'/dev/vda\n')
+                                if b'Check snapshot integrity' in buffer and not mode_selected:
+                                    # Full-drive restore is the first/default option.
+                                    # The optional checksum is not run by this path.
+                                    process.stdin.write(b'\r')
                                     process.stdin.flush()
-                                    selected = True
-                                elif b'Select disk to ERASE' in buffer and not selected:
+                                    mode_selected = True
+                                if b'Select disk to ERASE' in buffer and not selected:
                                     # This VM exposes exactly one writable disk.
                                     process.stdin.write(b'\r')
                                     process.stdin.flush()
@@ -84,10 +86,6 @@ def main():
                                     process.stdin.write(b'\t\r')
                                     process.stdin.flush()
                                     final_confirmed = True
-                                if b"Type 'WIPE' to confirm:" in buffer and not confirmed:
-                                    process.stdin.write(b'WIPE\n')
-                                    process.stdin.flush()
-                                    confirmed = True
                                 if b'[6/6] Installation complete.' in buffer:
                                     passed = True
                                     break  # The installer has already unmounted the disk.
