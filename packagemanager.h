@@ -1,3 +1,4 @@
+#include "package_install.h"
 
 // Package Manager tab functions
 
@@ -827,6 +828,37 @@ void MainWindow::on_pacmanReinstallButton_clicked() {
     refreshProcess->start("bash", QStringList() << "-c" << refreshScript);
 }
 
+void MainWindow::installPackageInTerminal(const QString &packageName, const QString &installer,
+                                         const QString &installerName) {
+    QMessageBox confirmation(QMessageBox::Question, tr("Install Package"),
+                             tr("Install '%1' using %2?").arg(packageName, installerName),
+                             QMessageBox::Yes | QMessageBox::No, this);
+    confirmation.setTextFormat(Qt::PlainText);
+    confirmation.setInformativeText(tr("A terminal will show instructions and ask for your password and installation choices."));
+
+    QCheckBox *skipReview = nullptr;
+    if (installer == "yay" || installer == "paru") {
+        skipReview = new QCheckBox(tr("Skip build-file review"), &confirmation);
+        skipReview->setToolTip(tr("Skip viewing or editing AUR build files for this install. Password and installation prompts remain interactive."));
+        confirmation.setCheckBox(skipReview);
+    }
+    if (confirmation.exec() != QMessageBox::Yes) {
+        return;
+    }
+
+    const QString script = PackageInstall::script(installer, installerName, packageName,
+                                                 skipReview && skipReview->isChecked());
+    if (!QProcess::startDetached("konsole", QStringList() << "-e" << "bash" << "-c" << script)) {
+        ui->packageOutputText->setPlainText(tr("Could not open the installation terminal."));
+        QMessageBox::warning(this, tr("Terminal Not Found"),
+                             tr("Could not start Konsole. Please install it and try again."));
+        return;
+    }
+
+    ui->packageOutputText->setPlainText(tr("Installing %1 using %2...\n").arg(packageName, installerName));
+    ui->packageOutputText->append(tr("Installation started in the terminal. Follow the instructions there."));
+}
+
 void MainWindow::on_pacmanAurInstallButton_clicked() {
     int row = ui->pacmanAurTable->currentRow();
     if (row < 0) {
@@ -870,27 +902,7 @@ void MainWindow::on_pacmanAurInstallButton_clicked() {
         installerName = "Pacman";
     }
     
-    QMessageBox::StandardButton reply = QMessageBox::question(this, "Install Package",
-                                                              QString("Install '%1' using %2?\n\n"
-                                                              "This will run in a terminal for interactive prompts.").arg(packageName, installerName),
-                                                              QMessageBox::Yes | QMessageBox::No);
-    if (reply != QMessageBox::Yes) {
-        return;
-    }
-    
-    ui->packageOutputText->setPlainText(QString("Installing %1 using %2...\n").arg(packageName, installerName));
-    
-    // Run in terminal for interactive prompts
-    QString command;
-    if (installer == "pacman") {
-        // Refresh package database first, then install
-        command = QString("sudo pacman -Sy && sudo pacman -S %1").arg(packageName);
-    } else {
-        command = QString("%1 -S %2").arg(installer, packageName);
-    }
-    QProcess::startDetached("konsole", QStringList() << "-e" << "bash" << "-c" << command + "; read -p 'Press Enter to close...'");
-    
-    ui->packageOutputText->append(QString("\n✅ Installation started in terminal using %1. Please check the terminal window.").arg(installerName));
+    installPackageInTerminal(packageName, installer, installerName);
 }
 
 void MainWindow::on_yaySearchButton_clicked() {
@@ -916,20 +928,7 @@ void MainWindow::on_yayInstallPackageButton_clicked() {
     
     QString packageName = ui->yayTable->item(row, 0)->text();
     
-    QMessageBox::StandardButton reply = QMessageBox::question(this, "Install Package",
-                                                              QString("Install '%1' using Yay?\n\n"
-                                                              "This will run in a terminal for interactive prompts.").arg(packageName),
-                                                              QMessageBox::Yes | QMessageBox::No);
-    if (reply != QMessageBox::Yes) {
-        return;
-    }
-    
-    ui->packageOutputText->setPlainText(QString("Installing %1 using Yay...\n").arg(packageName));
-    
-    QString command = QString("yay -S %1").arg(packageName);
-    QProcess::startDetached("konsole", QStringList() << "-e" << "bash" << "-c" << command + "; read -p 'Press Enter to close...'");
-    
-    ui->packageOutputText->append("\n✅ Installation started in terminal. Please check the terminal window.");
+    installPackageInTerminal(packageName, "yay", "Yay");
 }
 
 void MainWindow::on_yayUninstallPackageButton_clicked() {
@@ -980,20 +979,7 @@ void MainWindow::on_paruInstallPackageButton_clicked() {
     
     QString packageName = ui->paruTable->item(row, 0)->text();
     
-    QMessageBox::StandardButton reply = QMessageBox::question(this, "Install Package",
-                                                              QString("Install '%1' using Paru?\n\n"
-                                                              "This will run in a terminal for interactive prompts.").arg(packageName),
-                                                              QMessageBox::Yes | QMessageBox::No);
-    if (reply != QMessageBox::Yes) {
-        return;
-    }
-    
-    ui->packageOutputText->setPlainText(QString("Installing %1 using Paru...\n").arg(packageName));
-    
-    QString command = QString("paru -S %1").arg(packageName);
-    QProcess::startDetached("konsole", QStringList() << "-e" << "bash" << "-c" << command + "; read -p 'Press Enter to close...'");
-    
-    ui->packageOutputText->append("\n✅ Installation started in terminal. Please check the terminal window.");
+    installPackageInTerminal(packageName, "paru", "Paru");
 }
 
 void MainWindow::on_paruUninstallPackageButton_clicked() {

@@ -843,6 +843,8 @@ private:
 
     // Package Manager helper functions
     void checkAurHelpers();
+    void installPackageInTerminal(const QString &packageName, const QString &installer,
+                                  const QString &installerName);
     void refreshPacmanInstalled();
     void searchPacmanAur(const QString &query, int searchMode = 0, int searchType = 0);
     void searchYay(const QString &query, int searchMode = 0, int searchType = 0);

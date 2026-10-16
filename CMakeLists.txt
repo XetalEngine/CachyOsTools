@@ -64,6 +64,7 @@ set(PROJECT_SOURCES
         isoexclusions.h
         cleaner.h
         script_helpers.h
+        package_install.h
         pacman_doctor.h
         sensors_power.h
         network_shares.h
