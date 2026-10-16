@@ -5684,6 +5684,9 @@ PRIVACY
                     <property name="toolTip">
                      <string>Search mode</string>
                     </property>
+                    <property name="currentIndex">
+                     <number>2</number>
+                    </property>
                     <item>
                      <property name="text">
                       <string>Package Name</string>
@@ -5705,6 +5708,9 @@ PRIVACY
                    <widget class="QComboBox" name="pacmanAurSearchType">
                     <property name="toolTip">
                      <string>Search type</string>
+                    </property>
+                    <property name="currentIndex">
+                     <number>1</number>
                     </property>
                     <item>
                      <property name="text">
@@ -5789,6 +5795,9 @@ PRIVACY
                 <property name="toolTip">
                  <string>Search mode</string>
                 </property>
+                <property name="currentIndex">
+                 <number>2</number>
+                </property>
                 <item>
                  <property name="text">
                   <string>Package Name</string>
@@ -5810,6 +5819,9 @@ PRIVACY
                <widget class="QComboBox" name="yaySearchType">
                 <property name="toolTip">
                  <string>Search type</string>
+                </property>
+                <property name="currentIndex">
+                 <number>1</number>
                 </property>
                 <item>
                  <property name="text">
@@ -5897,6 +5909,9 @@ PRIVACY
                 <property name="toolTip">
                  <string>Search mode</string>
                 </property>
+                <property name="currentIndex">
+                 <number>2</number>
+                </property>
                 <item>
                  <property name="text">
                   <string>Package Name</string>
@@ -5918,6 +5933,9 @@ PRIVACY
                <widget class="QComboBox" name="paruSearchType">
                 <property name="toolTip">
                  <string>Search type</string>
+                </property>
+                <property name="currentIndex">
+                 <number>1</number>
                 </property>
                 <item>
                  <property name="text">
