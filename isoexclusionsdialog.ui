@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>IsoExclusionsDialog</class>
+ <widget class="QDialog" name="IsoExclusionsDialog">
+  <property name="windowTitle">
+   <string>Manage Exclusions</string>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>900</width>
+    <height>480</height>
+   </size>
+  </property>
+  <property name="sizeGripEnabled">
+   <bool>true</bool>
+  </property>
+  <layout class="QVBoxLayout" name="isoExclusionsLayout" stretch="0,1,0,0">
+   <property name="spacing">
+    <number>10</number>
+   </property>
+   <item>
+    <widget class="QLabel" name="isoExclusionsHintLabel">
+     <property name="text">
+      <string>Choose what stays out of your ISO. Changes apply immediately; save a profile to reuse this selection later.</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QSplitter" name="isoExcludeSplitter">
+     <property name="orientation">
+      <enum>Qt::Orientation::Horizontal</enum>
+     </property>
+     <property name="childrenCollapsible">
+      <bool>false</bool>
+     </property>
+     <widget class="QGroupBox" name="isoBigFoldersGroup">
+      <property name="title">
+       <string>🗂️ Exclude Big Folders &amp; Files (Home)</string>
+      </property>
+      <layout class="QVBoxLayout" name="isoBigFoldersLayout">
+       <item>
+        <layout class="QHBoxLayout" name="isoBigFiltersLayout">
+         <item>
+          <widget class="QLabel" name="isoFolderSizeLabel">
+           <property name="text">
+            <string>Folders &gt;</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="isoFolderSizeSpin">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>1000000</number>
+           </property>
+           <property name="value">
+            <number>500</number>
+           </property>
+           <property name="suffix">
+            <string> MB</string>
+           </property>
+           <property name="toolTip">
+            <string>Only show folders larger than this</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="isoFileSizeLabel">
+           <property name="text">
+            <string>Files &gt;</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="isoFileSizeSpin">
+           <property name="minimum">
+            <number>10</number>
+           </property>
+           <property name="maximum">
+            <number>1000000</number>
+           </property>
+           <property name="value">
+            <number>100</number>
+           </property>
+           <property name="suffix">
+            <string> MB</string>
+           </property>
+           <property name="toolTip">
+            <string>Only show files larger than this (minimum 10 MB)</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="isoRescanButton">
+           <property name="text">
+            <string>🔄 Rescan</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="isoBigFiltersSpacer">
+           <property name="orientation">
+            <enum>Qt::Orientation::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>10</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QLabel" name="isoScanStatusLabel">
+         <property name="text">
+          <string>Checked = contents excluded from the ISO (the folder itself stays, empty).</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTreeWidget" name="isoBigTree">
+         <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+         <column>
+          <property name="text">
+           <string>Path</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Size</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QGroupBox" name="isoConfigGroup">
+      <property name="title">
+       <string>🕵️ Exclude App Configs (~/.config)</string>
+      </property>
+      <layout class="QVBoxLayout" name="isoConfigLayout">
+       <item>
+        <widget class="QLabel" name="isoConfigInfoLabel">
+         <property name="text">
+          <string>The ISO clones your logins (Discord, Chrome, etc). Check apps to keep their settings/sessions OUT of the ISO — important before sharing it.</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="isoConfigTopLayout">
+         <item>
+          <widget class="QPushButton" name="isoConfigRescanButton">
+           <property name="text">
+            <string>🔄 Refresh</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="isoConfigSpacer">
+           <property name="orientation">
+            <enum>Qt::Orientation::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>10</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QTreeWidget" name="isoConfigTree">
+         <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+         <column>
+          <property name="text">
+           <string>Application</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Size</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="isoExcludeSummaryLabel">
+     <property name="text">
+      <string>No custom exclusions — standard runtime and build folders are still excluded.</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="isoExcludeProfileLayout">
+     <item>
+      <widget class="QPushButton" name="isoSaveExcludeButton">
+       <property name="text">
+        <string>💾 Save Exclusions</string>
+       </property>
+       <property name="toolTip">
+        <string>Save the current exclusion checklist to a profile file</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="isoLoadExcludeButton">
+       <property name="text">
+        <string>📂 Load Exclusions</string>
+       </property>
+       <property name="toolTip">
+        <string>Load a saved exclusion profile (missing paths are skipped safely)</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="isoClearExcludeButton">
+       <property name="text">
+        <string>🧹 Clear All</string>
+       </property>
+       <property name="toolTip">
+        <string>Uncheck every exclusion</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="isoExcludeButtonsSpacer">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="isoExclusionsDoneButton">
+       <property name="text">
+        <string>Done</string>
+       </property>
+       <property name="default">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources />
+ <connections />
+</ui>

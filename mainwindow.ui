@@ -4230,330 +4230,150 @@
        <attribute name="title">
         <string>System ISO</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_iso">
+       <layout class="QVBoxLayout" name="verticalLayout_iso" stretch="0,0,1,0">
+        <property name="spacing">
+         <number>10</number>
+        </property>
         <item>
-         <widget class="QScrollArea" name="isoScrollArea">
-          <property name="widgetResizable">
-           <bool>true</bool>
+         <widget class="QGroupBox" name="isoExclusionsSummaryGroup">
+          <property name="title">
+           <string>Snapshot Exclusions</string>
           </property>
-          <widget class="QWidget" name="isoScrollContent">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>944</width>
-             <height>1495</height>
-            </rect>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_iso_content">
-            <item>
-             <widget class="QSplitter" name="isoExcludeSplitter">
-              <property name="orientation">
-               <enum>Qt::Orientation::Horizontal</enum>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>360</height>
-               </size>
-              </property>
-              <property name="childrenCollapsible">
-               <bool>false</bool>
-              </property>
-              <widget class="QGroupBox" name="isoBigFoldersGroup">
-               <property name="title">
-                <string>🗂️ Exclude Big Folders &amp; Files (Home)</string>
+          <layout class="QHBoxLayout" name="isoExclusionsSummaryLayout" stretch="1,0">
+           <item>
+            <layout class="QVBoxLayout" name="isoExclusionsSummaryTextLayout">
+             <item>
+              <widget class="QLabel" name="isoExcludeSummaryLabel">
+               <property name="text">
+                <string>No custom exclusions — standard runtime and build folders are still excluded.</string>
                </property>
-               <layout class="QVBoxLayout" name="isoBigFoldersLayout">
-                <item>
-                 <layout class="QHBoxLayout" name="isoBigFiltersLayout">
-                  <item>
-                   <widget class="QLabel" name="isoFolderSizeLabel">
-                    <property name="text">
-                     <string>Folders &gt;</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QSpinBox" name="isoFolderSizeSpin">
-                    <property name="minimum">
-                     <number>1</number>
-                    </property>
-                    <property name="maximum">
-                     <number>1000000</number>
-                    </property>
-                    <property name="value">
-                     <number>500</number>
-                    </property>
-                    <property name="suffix">
-                     <string> MB</string>
-                    </property>
-                    <property name="toolTip">
-                     <string>Only show folders larger than this</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="isoFileSizeLabel">
-                    <property name="text">
-                     <string>Files &gt;</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QSpinBox" name="isoFileSizeSpin">
-                    <property name="minimum">
-                     <number>10</number>
-                    </property>
-                    <property name="maximum">
-                     <number>1000000</number>
-                    </property>
-                    <property name="value">
-                     <number>100</number>
-                    </property>
-                    <property name="suffix">
-                     <string> MB</string>
-                    </property>
-                    <property name="toolTip">
-                     <string>Only show files larger than this (minimum 10 MB)</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QPushButton" name="isoRescanButton">
-                    <property name="text">
-                     <string>🔄 Rescan</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <spacer name="isoBigFiltersSpacer">
-                    <property name="orientation">
-                     <enum>Qt::Orientation::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>10</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                 </layout>
-                </item>
-                <item>
-                 <widget class="QLabel" name="isoScanStatusLabel">
-                  <property name="text">
-                   <string>Checked = contents excluded from the ISO (the folder itself stays, empty).</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QTreeWidget" name="isoBigTree">
-                  <property name="alternatingRowColors">
-                   <bool>true</bool>
-                  </property>
-                  <column>
-                   <property name="text">
-                    <string>Path</string>
-                   </property>
-                  </column>
-                  <column>
-                   <property name="text">
-                    <string>Size</string>
-                   </property>
-                  </column>
-                 </widget>
-                </item>
-               </layout>
-              </widget>
-              <widget class="QGroupBox" name="isoConfigGroup">
-               <property name="title">
-                <string>🕵️ Exclude App Configs (~/.config)</string>
+               <property name="wordWrap">
+                <bool>true</bool>
                </property>
-               <layout class="QVBoxLayout" name="isoConfigLayout">
-                <item>
-                 <widget class="QLabel" name="isoConfigInfoLabel">
-                  <property name="text">
-                   <string>The ISO clones your logins (Discord, Chrome, etc). Check apps to keep their settings/sessions OUT of the ISO — important before sharing it.</string>
-                  </property>
-                  <property name="wordWrap">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <layout class="QHBoxLayout" name="isoConfigTopLayout">
-                  <item>
-                   <widget class="QPushButton" name="isoConfigRescanButton">
-                    <property name="text">
-                     <string>🔄 Refresh</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <spacer name="isoConfigSpacer">
-                    <property name="orientation">
-                     <enum>Qt::Orientation::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>10</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                 </layout>
-                </item>
-                <item>
-                 <widget class="QTreeWidget" name="isoConfigTree">
-                  <property name="alternatingRowColors">
-                   <bool>true</bool>
-                  </property>
-                  <column>
-                   <property name="text">
-                    <string>Application</string>
-                   </property>
-                  </column>
-                  <column>
-                   <property name="text">
-                    <string>Size</string>
-                   </property>
-                  </column>
-                 </widget>
-                </item>
-               </layout>
               </widget>
-             </widget>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="isoExcludeProfileLayout">
-              <item>
-               <widget class="QPushButton" name="isoSaveExcludeButton">
-                <property name="text">
-                 <string>💾 Save Exclusions</string>
-                </property>
-                <property name="toolTip">
-                 <string>Save the current exclusion checklist to a profile file</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="isoLoadExcludeButton">
-                <property name="text">
-                 <string>📂 Load Exclusions</string>
-                </property>
-                <property name="toolTip">
-                 <string>Load a saved exclusion profile (missing paths are skipped safely)</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="isoClearExcludeButton">
-                <property name="text">
-                 <string>🧹 Clear All</string>
-                </property>
-                <property name="toolTip">
-                 <string>Uncheck every exclusion</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="isoExcludeSummaryLabel">
-                <property name="text">
-                 <string>Nothing excluded — the ISO will contain the complete system.</string>
-                </property>
-                <property name="wordWrap">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <widget class="QGroupBox" name="isoInstallModeGroup">
-              <property name="title">
-               <string>Installation Mode</string>
-              </property>
-              <layout class="QVBoxLayout" name="isoInstallModeLayout">
-               <item>
-                <widget class="QCheckBox" name="isoExactCloneCheck">
-                 <property name="text">
-                  <string>1) Preserve users and identity (default) — restore files without optional first-boot changes ❓</string>
-                 </property>
-                 <property name="toolTip">
-                  <string>Keeps users, SSH keys and machine-id. This is a file-based snapshot, not a disk image.
+             </item>
+             <item>
+              <widget class="QLabel" name="isoExclusionsPrivacyLabel">
+               <property name="text">
+                <string>The snapshot includes personal files and saved logins. Review exclusions before sharing your ISO.</string>
+               </property>
+               <property name="wordWrap">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QPushButton" name="isoManageExclusionsButton">
+             <property name="text">
+              <string>Manage Exclusions…</string>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>170</width>
+               <height>38</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Open a dedicated window for large folders, files and app settings. Save or load exclusion profiles there.</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="isoModesLayout" stretch="1,1">
+          <property name="spacing">
+           <number>12</number>
+          </property>
+          <item>
+           <widget class="QGroupBox" name="isoInstallModeGroup">
+            <property name="title">
+             <string>Installation Mode</string>
+            </property>
+            <layout class="QVBoxLayout" name="isoInstallModeLayout">
+             <item>
+              <widget class="QCheckBox" name="isoExactCloneCheck">
+               <property name="text">
+                <string>Preserve users and identity (default) ❓</string>
+               </property>
+               <property name="toolTip">
+                <string>Keeps users, SSH keys and machine-id. This is a file-based snapshot, not a disk image.
 Installation erases the target and creates unencrypted ext4 plus an EFI partition.
 Boot files are regenerated; source encryption, partition layout and Btrfs snapshots are not preserved.
 Test the ISO in a VM before relying on it for recovery.</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLabel" name="isoCompatLabel">
-                 <property name="text">
-                  <string>2) Hardware Compatibility Options — first-boot adaptation for DIFFERENT hardware (each optional):</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="isoCompatNetworkCheck">
-                 <property name="text">
-                  <string>    a) Remove stale NetworkManager interface bindings on first boot ❓</string>
-                 </property>
-                 <property name="toolTip">
-                  <string>Requires an active NetworkManager service. Removes bindings to missing physical interfaces.
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="isoCompatLabel">
+               <property name="text">
+                <string>Optional first-boot changes for different hardware:</string>
+               </property>
+               <property name="wordWrap">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="isoCompatNetworkCheck">
+               <property name="text">
+                <string>Remove stale network interface bindings ❓</string>
+               </property>
+               <property name="toolTip">
+                <string>Requires an active NetworkManager service. Removes bindings to missing physical interfaces.
 Bridges, VLANs, VPNs and other network services need manual review after moving hardware.</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="isoCompatGpuCheck">
-                 <property name="text">
-                  <string>    b) Adapt existing graphics drivers and remove stale NVIDIA X11 settings ❓</string>
-                 </property>
-                 <property name="toolTip">
-                  <string>Uses drivers already included in the source system. Does not install packages or change repositories.
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="isoCompatGpuCheck">
+               <property name="text">
+                <string>Adapt graphics drivers and NVIDIA X11 settings ❓</string>
+               </property>
+               <property name="toolTip">
+                <string>Uses drivers already included in the source system. Does not install packages or change repositories.
 Missing drivers require your distribution's supported installation procedure.
 Details and failures are saved to /var/log/xetal-firstboot.log.</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="isoCompatUserCheck">
-                 <property name="text">
-                  <string>    c) Offer username &amp; password change on first boot ❓</string>
-                 </property>
-                 <property name="toolTip">
-                  <string>On first boot, offers to rename the user account and set a new password —
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="isoCompatUserCheck">
+               <property name="text">
+                <string>Offer username and password change ❓</string>
+               </property>
+               <property name="toolTip">
+                <string>On first boot, offers to rename the user account and set a new password —
 useful when handing the cloned system to someone else.
 Home directory and group memberships are migrated to the new name.</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="isoCompatSshCheck">
-                 <property name="text">
-                  <string>    d) Regenerate SSH host keys ❓</string>
-                 </property>
-                 <property name="toolTip">
-                  <string>Deletes /etc/ssh/ssh_host_* and generates fresh keys on first boot, so the clone
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="isoCompatSshCheck">
+               <property name="text">
+                <string>Regenerate SSH host keys ❓</string>
+               </property>
+               <property name="toolTip">
+                <string>Deletes /etc/ssh/ssh_host_* and generates fresh keys on first boot, so the clone
 does not impersonate the original machine over SSH.
-People connecting will see a one-time &quot;host key changed&quot; warning — that is expected.</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="isoCompatMachineIdCheck">
-                 <property name="text">
-                  <string>    e) Regenerate machine-id (new systemd identity) — ⚠ read the tooltip! ❓</string>
-                 </property>
-                 <property name="toolTip">
-                  <string>⚠ Gives the install a brand-new /etc/machine-id — applied during installation.
+People connecting will see a one-time "host key changed" warning — that is expected.</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="isoCompatMachineIdCheck">
+               <property name="text">
+                <string>Regenerate machine-id — read the tooltip ⚠ ❓</string>
+               </property>
+               <property name="toolTip">
+                <string>⚠ Gives the install a brand-new /etc/machine-id — applied during installation.
 
 BREAKS anything bound to the old identity, most notably systemd ENCRYPTED
 CREDENTIALS (LoadCredentialEncrypted): services like hardened libvirt secret
@@ -4564,89 +4384,151 @@ Journald history also splits at the identity change.
 
 Leave OFF to retain identity. Turn ON when the clone will live on the same
 network as the original long-term (avoids duplicate DHCP/systemd identity).</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="isoModeGroup">
+            <property name="title">
+             <string>Download Mode</string>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_mode">
+             <item>
+              <widget class="QRadioButton" name="onlineModeRadio">
+               <property name="text">
+                <string>Online — download and verify packages</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="offlineModeRadio">
+               <property name="text">
+                <string>Offline — use an exported package archive</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="isoDownloadInfoLabel">
+               <property name="text">
+                <string>Live installer packages come from Arch repositories. Offline archives can be exported after an online build.</string>
+               </property>
+               <property name="wordWrap">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="isoDownloadModeSpacer">
+               <property name="orientation">
+                <enum>Qt::Orientation::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>0</width>
+                 <height>0</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QLabel" name="offlineStatusLabel">
+               <property name="text">
+                <string>Checking offline package availability...</string>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">color: #666666;</string>
+               </property>
+               <property name="wordWrap">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_offline_buttons">
+               <item>
+                <widget class="QPushButton" name="downloadOfflineButton">
+                 <property name="text">
+                  <string>Choose Offline Archive</string>
+                 </property>
+                 <property name="visible">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="checkAvailabilityButton">
+                 <property name="text">
+                  <string>🔄 Check Availability</string>
                  </property>
                 </widget>
                </item>
               </layout>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QTabWidget" name="isoActivityTabs">
+          <widget class="QWidget" name="isoBuildOutputTab">
+           <attribute name="title">
+            <string>Build Output</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="isoBuildOutputLayout" stretch="0,1">
+            <item>
+             <widget class="QLabel" name="isoOutputPathLabel">
+              <property name="text">
+               <string>Output: ~/iso/xiso/output</string>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
              </widget>
             </item>
             <item>
-             <widget class="QGroupBox" name="isoModeGroup">
-              <property name="title">
-               <string>Download Mode</string>
+             <widget class="QTextEdit" name="isoStatusLabel">
+              <property name="plainText">
+               <string>Ready to create a system clone ISO. Review your options, then select Create System Clone ISO.</string>
               </property>
-              <layout class="QVBoxLayout" name="verticalLayout_mode">
-               <item>
-                <widget class="QRadioButton" name="onlineModeRadio">
-                 <property name="text">
-                  <string>Online Mode: Download and verify live installer packages from Arch repositories</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QRadioButton" name="offlineModeRadio">
-                 <property name="text">
-                  <string>Offline Mode: Use an archive exported from a previous online build</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLabel" name="offlineStatusLabel">
-                 <property name="text">
-                  <string>Checking offline package availability...</string>
-                 </property>
-                 <property name="styleSheet">
-                  <string notr="true">color: #666666;</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_offline_buttons">
-                 <item>
-                  <widget class="QPushButton" name="downloadOfflineButton">
-                   <property name="text">
-                    <string>Choose Offline Archive</string>
-                   </property>
-                   <property name="visible">
-                    <bool>false</bool>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="checkAvailabilityButton">
-                   <property name="text">
-                    <string>🔄 Check Availability</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-              </layout>
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+              <property name="font">
+               <font>
+                <family>Monospace</family>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="isoRestoreGuideTab">
+           <attribute name="title">
+            <string>Restore Guide</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="isoRestoreGuideLayout" stretch="0,1">
+            <item>
+             <widget class="QLabel" name="isoInfoLabel">
+              <property name="text">
+               <string>Creates a bootable x86_64 ISO containing a file-based snapshot. Restore uses a new unencrypted ext4 filesystem and regenerated boot files.</string>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
              </widget>
             </item>
             <item>
-             <widget class="QGroupBox" name="isoInfoGroup">
-              <property name="title">
-               <string>System Clone Information</string>
-              </property>
-              <layout class="QVBoxLayout" name="verticalLayout_info">
-               <item>
-                <widget class="QLabel" name="isoInfoLabel">
-                 <property name="text">
-                  <string>Creates a bootable x86_64 ISO containing a file-based snapshot. Restore uses a new unencrypted ext4 filesystem and regenerated boot files.</string>
-                 </property>
-                 <property name="wordWrap">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QTextEdit" name="isoInfoText">
-                 <property name="plainText">
-                  <string>After the ISO is ready:
+             <widget class="QTextEdit" name="isoInfoText">
+              <property name="plainText">
+               <string>After the ISO is ready:
 
 1. Burn the ISO to a USB drive using Balena Etcher, Rufus, or Ventoy.
 
@@ -4654,7 +4536,7 @@ network as the original long-term (avoids duplicate DHCP/systemd identity).</str
 
 2. Boot your target machine from the USB (live environment).
 
-3. The installer launches automatically. Select an unused disk and type the requested ERASE confirmation.
+3. The installer launches automatically. Select an unused disk and confirm both erase warnings.
 
 The target is erased and restored to unencrypted ext4. Disable Secure Boot. BIOS installation requires GRUB in the source; UEFI supports GRUB or a systemd-boot fallback. CPU requirements of the source distribution still apply.
 
@@ -4666,134 +4548,77 @@ Test build, install, reboot and kernel updates in a VM before relying on this IS
 PRIVACY
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 • This ISO contains a full clone of your system, including personal data and saved logins (e.g. browser, Discord). Keep it private.
-• Before sharing an ISO, use the exclusion panels above: drop big folders you don't need, and exclude app configs (Discord, browsers...) so your logins don't ship with the ISO.</string>
-                 </property>
-                 <property name="readOnly">
-                  <bool>true</bool>
-                 </property>
-                 <property name="maximumHeight">
-                  <number>200</number>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </item>
-           
-            <item>
-             <widget class="QProgressBar" name="isoProgressBar">
-              <property name="minimum">
-               <number>0</number>
-              </property>
-              <property name="maximum">
-               <number>100</number>
-              </property>
-              <property name="value">
-               <number>0</number>
-              </property>
-              <property name="textVisible">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QTextEdit" name="isoStatusLabel">
-              <property name="plainText">
-               <string>Ready to create system clone ISO. Output will be saved to /home/user/iso/xiso/output/</string>
+• Before sharing an ISO, open Manage Exclusions: drop big folders you don't need, and exclude app configs (Discord, browsers...) so your logins don't ship with the ISO.</string>
               </property>
               <property name="readOnly">
                <bool>true</bool>
               </property>
-              <property name="maximumHeight">
-               <number>90</number>
-              </property>
-              <property name="font">
-               <font>
-                <family>Monospace</family>
-                <pointsize>9</pointsize>
-               </font>
-              </property>
              </widget>
             </item>
-
- <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_iso_buttons">
-              <property name="alignment">
-               <set>Qt::AlignHCenter</set>
-              </property>
-              <item>
-               <spacer name="horizontalSpacer_iso_left">
-                <property name="orientation">
-                 <enum>Qt::Orientation::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QPushButton" name="createIsoButton">
-                <property name="minimumSize">
-                 <size>
-                  <width>110</width>
-                  <height>50</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>10</pointsize>
-                  <bold>true</bold>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>🚀 Create System Clone ISO</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="browseIsoOutputButton">
-                <property name="minimumSize">
-                 <size>
-                  <width>80</width>
-                  <height>50</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>10</pointsize>
-                  <bold>true</bold>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>📁 Browse</string>
-                </property>
-                <property name="toolTip">
-                 <string>Browse to ISO output folder using Dolphin</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_iso_right">
-                <property name="orientation">
-                 <enum>Qt::Orientation::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-
            </layout>
           </widget>
          </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_iso_buttons" stretch="1,0,0">
+          <item>
+           <widget class="QProgressBar" name="isoProgressBar">
+            <property name="minimum">
+             <number>0</number>
+            </property>
+            <property name="maximum">
+             <number>100</number>
+            </property>
+            <property name="value">
+             <number>0</number>
+            </property>
+            <property name="textVisible">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="browseIsoOutputButton">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>📁 Open Output Folder</string>
+            </property>
+            <property name="toolTip">
+             <string>Open the ISO output folder in your default file manager</string>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>80</width>
+              <height>38</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="createIsoButton">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>🚀 Create System Clone ISO</string>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>110</width>
+              <height>38</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>

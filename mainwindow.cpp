@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
+#include "./ui_isoexclusionsdialog.h"
 #include "includes.h"
 #include "window_enum.h"
 
@@ -54,4 +55,3 @@ void MainWindow::runSudoCommandInTerminal(const QString &cmd) {
     }
     QMessageBox::warning(this, tr("Terminal Not Found"), tr("Could not find a suitable terminal emulator. Please install one of: konsole, gnome-terminal, xterm, alacritty, or kitty"));
 }
-

@@ -375,11 +375,6 @@ shellConfigFiles["ksh"] = QStringList()
         if (ui->tabWidget->widget(index) == ui->dashboardTab) {
             refreshDashboard();
         }
-        if (ui->tabWidget->widget(index) == ui->isoCreatorTab) {
-            // Lazy first scan of the exclusion panels
-            if (!isoHomeScanDone) startIsoHomeScan();
-            if (!isoConfigScanDone) startIsoConfigScan();
-        }
     });
 
     // Dashboard: card buttons jump to their tabs, refresh on open and shortly after startup
@@ -416,25 +411,9 @@ shellConfigFiles["ksh"] = QStringList()
     connect(ui->isoCompatSshCheck, &QCheckBox::toggled, this, compatToggled);
     connect(ui->isoCompatMachineIdCheck, &QCheckBox::toggled, this, compatToggled);
 
-    // ISO Creator exclusion panels
-    connect(ui->isoRescanButton, &QPushButton::clicked, this, [this]() { startIsoHomeScan(); });
-    connect(ui->isoConfigRescanButton, &QPushButton::clicked, this, [this]() { startIsoConfigScan(); });
-    connect(ui->isoSaveExcludeButton, &QPushButton::clicked, this, [this]() { saveIsoExcludeProfile(); });
-    connect(ui->isoLoadExcludeButton, &QPushButton::clicked, this, [this]() { loadIsoExcludeProfile(); });
-    connect(ui->isoClearExcludeButton, &QPushButton::clicked, this, [this]() { clearIsoExclusions(); });
-    connect(ui->isoBigTree, &QTreeWidget::itemChanged, this, &MainWindow::onIsoExcludeItemChanged);
-    connect(ui->isoConfigTree, &QTreeWidget::itemChanged, this, &MainWindow::onIsoExcludeItemChanged);
-    // Size filter changes re-filter the cached scan (debounced, no rescan needed)
-    QTimer *isoFilterDebounce = new QTimer(this);
-    isoFilterDebounce->setSingleShot(true);
-    isoFilterDebounce->setInterval(500);
-    connect(isoFilterDebounce, &QTimer::timeout, this, [this]() {
-        if (isoHomeScanDone) rebuildIsoBigTree();
-    });
-    connect(ui->isoFolderSizeSpin, QOverload<int>::of(&QSpinBox::valueChanged),
-            isoFilterDebounce, QOverload<>::of(&QTimer::start));
-    connect(ui->isoFileSizeSpin, QOverload<int>::of(&QSpinBox::valueChanged),
-            isoFilterDebounce, QOverload<>::of(&QTimer::start));
+    // Reuse one exclusion window so selections and scroll positions survive closing it.
+    setupIsoExclusionsDialog();
+    ui->isoOutputPathLabel->setText(tr("Output: %1").arg(QDir::homePath() + "/iso/xiso/output"));
 
     // ISO Creator offline mode setup
     offlinePackagePath = QDir::currentPath() + "/" + OFFLINE_PACKAGE_FILENAME;

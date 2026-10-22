@@ -27,10 +27,13 @@
 #include <QGroupBox>
 #include <QFileSystemWatcher>
 #include <functional>
+#include <memory>
+#include <QDialog>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
+class IsoExclusionsDialog;
 }
 QT_END_NAMESPACE
 
@@ -682,6 +685,10 @@ private:
     QTableWidget *envSysTable = nullptr;
     QTableWidget *envUserTable = nullptr;
     QLabel *spInfoLabel = nullptr;
+    void setupIsoExclusionsDialog();
+    void showIsoExclusionsDialog();
+    QDialog *isoExclusionsDialog = nullptr;
+    std::unique_ptr<Ui::IsoExclusionsDialog> isoExclusionsUi;
     void startIsoHomeScan();
     void startIsoConfigScan();
     void rebuildIsoBigTree();

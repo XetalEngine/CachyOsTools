@@ -96,6 +96,7 @@ void MainWindow::on_createIsoButton_clicked()
 
     // Disable button and show progress
     ui->createIsoButton->setEnabled(false);
+    ui->isoActivityTabs->setCurrentWidget(ui->isoBuildOutputTab);
     ui->isoProgressBar->setValue(0);
     ui->isoStatusLabel->document()->setMaximumBlockCount(5000);
     ui->isoStatusLabel->setPlainText("Starting system clone ISO creation...\n");

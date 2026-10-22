@@ -33,6 +33,7 @@ set(PROJECT_SOURCES
         mainwindow.cpp
         mainwindow.h
         mainwindow.ui
+        isoexclusionsdialog.ui
         # Header files containing implementations
         dual_gpu_kvm.h
         single_gpu_kvm.h

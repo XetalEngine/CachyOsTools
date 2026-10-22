@@ -1,5 +1,5 @@
 
-// ISO Creator exclusion panels: "Exclude Big Folders" (home) and "~/.config filter".
+// Dedicated ISO exclusion window: large home folders/files and app configs.
 // Checked items are excluded from the system snapshot when the ISO is built.
 
 #include <QTreeWidget>
@@ -9,11 +9,67 @@
 #include <QJsonArray>
 #include <algorithm>
 
+void MainWindow::setupIsoExclusionsDialog() {
+    isoExclusionsDialog = new QDialog(this);
+    isoExclusionsUi = std::make_unique<Ui::IsoExclusionsDialog>();
+    isoExclusionsUi->setupUi(isoExclusionsDialog);
+    isoExclusionsDialog->setWindowFlag(Qt::WindowContextHelpButtonHint, false);
+    isoExclusionsDialog->setWindowFlag(Qt::WindowMaximizeButtonHint, true);
+    isoExclusionsDialog->setWindowModality(Qt::WindowModal);
+
+    // Start large, within the current screen; the same dialog retains later resizes.
+    const QSize available = screen()->availableGeometry().size();
+    isoExclusionsDialog->resize(qMin(1400, available.width() * 9 / 10),
+                                qMin(860, available.height() * 9 / 10));
+    isoExclusionsUi->isoExcludeSplitter->setSizes({840, 560});
+    isoExclusionsUi->isoExcludeSplitter->setStretchFactor(0, 3);
+    isoExclusionsUi->isoExcludeSplitter->setStretchFactor(1, 2);
+    for (QTreeWidget *tree : {isoExclusionsUi->isoBigTree, isoExclusionsUi->isoConfigTree}) {
+        tree->header()->setStretchLastSection(false);
+        tree->header()->setSectionResizeMode(0, QHeaderView::Stretch);
+        tree->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+        tree->setTextElideMode(Qt::ElideMiddle);
+    }
+
+    connect(ui->isoManageExclusionsButton, &QPushButton::clicked, this, &MainWindow::showIsoExclusionsDialog);
+    connect(isoExclusionsUi->isoExclusionsDoneButton, &QPushButton::clicked, isoExclusionsDialog, &QDialog::accept);
+    connect(isoExclusionsUi->isoRescanButton, &QPushButton::clicked, this, &MainWindow::startIsoHomeScan);
+    connect(isoExclusionsUi->isoConfigRescanButton, &QPushButton::clicked, this, &MainWindow::startIsoConfigScan);
+    connect(isoExclusionsUi->isoSaveExcludeButton, &QPushButton::clicked, this, &MainWindow::saveIsoExcludeProfile);
+    connect(isoExclusionsUi->isoLoadExcludeButton, &QPushButton::clicked, this, &MainWindow::loadIsoExcludeProfile);
+    connect(isoExclusionsUi->isoClearExcludeButton, &QPushButton::clicked, this, &MainWindow::clearIsoExclusions);
+    connect(isoExclusionsUi->isoBigTree, &QTreeWidget::itemChanged, this, &MainWindow::onIsoExcludeItemChanged);
+    connect(isoExclusionsUi->isoConfigTree, &QTreeWidget::itemChanged, this, &MainWindow::onIsoExcludeItemChanged);
+
+    // Changing filters uses the scan cache and preserves the current exclusions.
+    QTimer *debounce = new QTimer(isoExclusionsDialog);
+    debounce->setSingleShot(true);
+    debounce->setInterval(500);
+    connect(debounce, &QTimer::timeout, this, [this]() {
+        if (isoHomeScanDone) rebuildIsoBigTree();
+    });
+    connect(isoExclusionsUi->isoFolderSizeSpin, QOverload<int>::of(&QSpinBox::valueChanged),
+            debounce, QOverload<>::of(&QTimer::start));
+    connect(isoExclusionsUi->isoFileSizeSpin, QOverload<int>::of(&QSpinBox::valueChanged),
+            debounce, QOverload<>::of(&QTimer::start));
+    updateIsoExcludeSummary();
+}
+
+void MainWindow::showIsoExclusionsDialog() {
+    isoExclusionsDialog->show();
+    isoExclusionsDialog->raise();
+    isoExclusionsDialog->activateWindow();
+    // Only scan when the manager is opened. Reopening during a scan must not
+    // start another process or reset the user's checklist.
+    if (!isoHomeScanDone && isoExclusionsUi->isoRescanButton->isEnabled()) startIsoHomeScan();
+    if (!isoConfigScanDone && isoExclusionsUi->isoConfigRescanButton->isEnabled()) startIsoConfigScan();
+}
+
 // One full scan caches every directory size (du) and every file >= 10 MB (find).
 // Filter changes only re-filter the cache, so the tree refreshes instantly.
 void MainWindow::startIsoHomeScan() {
-    ui->isoScanStatusLabel->setText(tr("⏳ Scanning home folder sizes (first scan can take a minute)..."));
-    ui->isoRescanButton->setEnabled(false);
+    isoExclusionsUi->isoScanStatusLabel->setText(tr("⏳ Scanning home folder sizes (first scan can take a minute)..."));
+    isoExclusionsUi->isoRescanButton->setEnabled(false);
 
     QString home = QDir::homePath();
     QString script = QString(
@@ -46,7 +102,7 @@ void MainWindow::startIsoHomeScan() {
                 }
 
                 isoHomeScanDone = true;
-                ui->isoRescanButton->setEnabled(true);
+                isoExclusionsUi->isoRescanButton->setEnabled(true);
                 rebuildIsoBigTree();
                 refreshIsoExcludedSizes();
                 proc->deleteLater();
@@ -57,17 +113,17 @@ void MainWindow::startIsoHomeScan() {
 // Rebuilds the big-folders tree from the cached scan using the current
 // size filters. Check states survive rebuilds via isoExcludedPaths.
 void MainWindow::rebuildIsoBigTree() {
-    qint64 folderMin = (qint64)ui->isoFolderSizeSpin->value() * 1024 * 1024;
-    qint64 fileMin = (qint64)ui->isoFileSizeSpin->value() * 1024 * 1024;
+    qint64 folderMin = (qint64)isoExclusionsUi->isoFolderSizeSpin->value() * 1024 * 1024;
+    qint64 fileMin = (qint64)isoExclusionsUi->isoFileSizeSpin->value() * 1024 * 1024;
     QString home = QDir::homePath();
 
-    ui->isoBigTree->blockSignals(true);
-    ui->isoBigTree->clear();
+    isoExclusionsUi->isoBigTree->blockSignals(true);
+    isoExclusionsUi->isoBigTree->clear();
     // Path column fills the panel (long paths elide), Size column stays visible
-    ui->isoBigTree->header()->setStretchLastSection(false);
-    ui->isoBigTree->header()->setSectionResizeMode(0, QHeaderView::Stretch);
-    ui->isoBigTree->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
-    ui->isoBigTree->setTextElideMode(Qt::ElideMiddle);
+    isoExclusionsUi->isoBigTree->header()->setStretchLastSection(false);
+    isoExclusionsUi->isoBigTree->header()->setSectionResizeMode(0, QHeaderView::Stretch);
+    isoExclusionsUi->isoBigTree->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+    isoExclusionsUi->isoBigTree->setTextElideMode(Qt::ElideMiddle);
 
     // Qualifying directories, sorted so parents come before children
     QStringList dirs;
@@ -87,7 +143,7 @@ void MainWindow::rebuildIsoBigTree() {
         }
         QString label = parent ? path.mid(parent->data(0, Qt::UserRole).toString().length() + 1)
                                : "~" + path.mid(home.length());
-        QTreeWidgetItem *item = parent ? new QTreeWidgetItem(parent) : new QTreeWidgetItem(ui->isoBigTree);
+        QTreeWidgetItem *item = parent ? new QTreeWidgetItem(parent) : new QTreeWidgetItem(isoExclusionsUi->isoBigTree);
         item->setText(0, (isDir ? "📁 " : "📄 ") + label);
         item->setText(1, formatSize(bytes));
         item->setData(0, Qt::UserRole, path);
@@ -112,10 +168,10 @@ void MainWindow::rebuildIsoBigTree() {
         return a->data(1, Qt::UserRole).toLongLong() > b->data(1, Qt::UserRole).toLongLong();
     };
     QList<QTreeWidgetItem*> top;
-    while (ui->isoBigTree->topLevelItemCount() > 0) top << ui->isoBigTree->takeTopLevelItem(0);
+    while (isoExclusionsUi->isoBigTree->topLevelItemCount() > 0) top << isoExclusionsUi->isoBigTree->takeTopLevelItem(0);
     std::stable_sort(top.begin(), top.end(), bySizeDesc);
     QList<QTreeWidgetItem*> pending = top;
-    for (QTreeWidgetItem *item : top) ui->isoBigTree->addTopLevelItem(item);
+    for (QTreeWidgetItem *item : top) isoExclusionsUi->isoBigTree->addTopLevelItem(item);
     while (!pending.isEmpty()) {
         QTreeWidgetItem *parent = pending.takeLast();
         QList<QTreeWidgetItem*> kids = parent->takeChildren();
@@ -124,17 +180,17 @@ void MainWindow::rebuildIsoBigTree() {
         pending << kids;
     }
 
-    ui->isoBigTree->expandAll();
-    ui->isoBigTree->blockSignals(false);
+    isoExclusionsUi->isoBigTree->expandAll();
+    isoExclusionsUi->isoBigTree->blockSignals(false);
 
-    ui->isoScanStatusLabel->setText(QString("%1 folders and %2 large files shown — checked = contents excluded (folders themselves stay, empty).")
+    isoExclusionsUi->isoScanStatusLabel->setText(QString("%1 folders and %2 large files shown — checked = contents excluded (folders themselves stay, empty).")
                                     .arg(dirs.size())
                                     .arg(std::count_if(isoHomeBigFiles.begin(), isoHomeBigFiles.end(),
                                                        [fileMin](const QPair<QString, qint64> &f) { return f.second >= fileMin; })));
 }
 
 void MainWindow::startIsoConfigScan() {
-    ui->isoConfigRescanButton->setEnabled(false);
+    isoExclusionsUi->isoConfigRescanButton->setEnabled(false);
 
     QString configDir = QDir::homePath() + "/.config";
     QProcess *proc = new QProcess(this);
@@ -154,10 +210,10 @@ void MainWindow::startIsoConfigScan() {
                 std::sort(entries.begin(), entries.end(),
                           [](const QPair<QString, qint64> &a, const QPair<QString, qint64> &b) { return a.second > b.second; });
 
-                ui->isoConfigTree->blockSignals(true);
-                ui->isoConfigTree->clear();
+                isoExclusionsUi->isoConfigTree->blockSignals(true);
+                isoExclusionsUi->isoConfigTree->clear();
                 for (const auto &entry : entries) {
-                    QTreeWidgetItem *item = new QTreeWidgetItem(ui->isoConfigTree);
+                    QTreeWidgetItem *item = new QTreeWidgetItem(isoExclusionsUi->isoConfigTree);
                     item->setText(0, QFileInfo(entry.first).fileName());
                     item->setText(1, formatSize(entry.second));
                     item->setData(0, Qt::UserRole, entry.first);
@@ -165,11 +221,10 @@ void MainWindow::startIsoConfigScan() {
                     item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
                     item->setCheckState(0, isoExcludedPaths.contains(entry.first) ? Qt::Checked : Qt::Unchecked);
                 }
-                ui->isoConfigTree->resizeColumnToContents(0);
-                ui->isoConfigTree->blockSignals(false);
+                isoExclusionsUi->isoConfigTree->blockSignals(false);
 
                 isoConfigScanDone = true;
-                ui->isoConfigRescanButton->setEnabled(true);
+                isoExclusionsUi->isoConfigRescanButton->setEnabled(true);
                 proc->deleteLater();
             });
     proc->start("bash", QStringList() << "-c"
@@ -209,9 +264,14 @@ void MainWindow::refreshIsoExcludedSizes() {
 }
 
 void MainWindow::updateIsoExcludeSummary() {
+    auto setSummary = [this](const QString &text, const QString &style) {
+        for (QLabel *label : {ui->isoExcludeSummaryLabel, isoExclusionsUi->isoExcludeSummaryLabel}) {
+            label->setText(text);
+            label->setStyleSheet(style);
+        }
+    };
     if (isoExcludedPaths.isEmpty()) {
-        ui->isoExcludeSummaryLabel->setText(tr("No custom exclusions — standard runtime and build folders are still excluded."));
-        ui->isoExcludeSummaryLabel->setStyleSheet("");
+        setSummary(tr("No custom exclusions — standard runtime and build folders are still excluded."), "");
         return;
     }
 
@@ -227,9 +287,9 @@ void MainWindow::updateIsoExcludeSummary() {
         if (!ancestorExcluded) total += it.value();
     }
 
-    ui->isoExcludeSummaryLabel->setText(QString("🚫 %1 item(s) excluded from the ISO — about %2 smaller.")
-                                        .arg(isoExcludedPaths.size()).arg(formatSize(total)));
-    ui->isoExcludeSummaryLabel->setStyleSheet("color: #e67e22; font-weight: bold;");
+    setSummary(tr("🚫 %1 item(s) excluded from the ISO — about %2 smaller.")
+                   .arg(isoExcludedPaths.size()).arg(formatSize(total)),
+               "color: #e67e22; font-weight: bold;");
 }
 
 QStringList MainWindow::collectIsoExcludePaths() const {
@@ -241,25 +301,25 @@ QStringList MainWindow::collectIsoExcludePaths() const {
 // Re-applies isoExcludedPaths check states to the ~/.config tree
 // (the big-folders tree gets the same treatment inside rebuildIsoBigTree).
 void MainWindow::syncIsoConfigTreeChecks() {
-    ui->isoConfigTree->blockSignals(true);
-    for (int i = 0; i < ui->isoConfigTree->topLevelItemCount(); ++i) {
-        QTreeWidgetItem *item = ui->isoConfigTree->topLevelItem(i);
+    isoExclusionsUi->isoConfigTree->blockSignals(true);
+    for (int i = 0; i < isoExclusionsUi->isoConfigTree->topLevelItemCount(); ++i) {
+        QTreeWidgetItem *item = isoExclusionsUi->isoConfigTree->topLevelItem(i);
         QString path = item->data(0, Qt::UserRole).toString();
         item->setCheckState(0, isoExcludedPaths.contains(path) ? Qt::Checked : Qt::Unchecked);
     }
-    ui->isoConfigTree->blockSignals(false);
+    isoExclusionsUi->isoConfigTree->blockSignals(false);
 }
 
 void MainWindow::saveIsoExcludeProfile() {
     if (isoExcludedPaths.isEmpty()) {
-        QMessageBox::information(this, tr("Nothing to Save"),
+        QMessageBox::information(isoExclusionsDialog, tr("Nothing to Save"),
                                  tr("No exclusions are checked yet.\nCheck some folders/files first, then save."));
         return;
     }
 
     QString profileDir = QDir::homePath() + "/.config/cachyostools";
     QDir().mkpath(profileDir);
-    QString path = QFileDialog::getSaveFileName(this, "Save Exclusion Profile",
+    QString path = QFileDialog::getSaveFileName(isoExclusionsDialog, "Save Exclusion Profile",
                                                 profileDir + "/my-exclusions.json",
                                                 "Exclusion Profiles (*.json)");
     if (path.isEmpty()) return;
@@ -277,26 +337,26 @@ void MainWindow::saveIsoExcludeProfile() {
 
     QFile file(path);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QMessageBox::warning(this, tr("Save Failed"), tr("Could not write to:\n") + path);
+        QMessageBox::warning(isoExclusionsDialog, tr("Save Failed"), tr("Could not write to:\n") + path);
         return;
     }
     file.write(QJsonDocument(profile).toJson(QJsonDocument::Indented));
     file.close();
 
-    QMessageBox::information(this, "Profile Saved",
+    QMessageBox::information(isoExclusionsDialog, "Profile Saved",
                              QString("Saved %1 exclusion(s) to:\n%2").arg(isoExcludedPaths.size()).arg(path));
 }
 
 void MainWindow::loadIsoExcludeProfile() {
     QString profileDir = QDir::homePath() + "/.config/cachyostools";
-    QString path = QFileDialog::getOpenFileName(this, "Load Exclusion Profile",
+    QString path = QFileDialog::getOpenFileName(isoExclusionsDialog, "Load Exclusion Profile",
                                                 QDir(profileDir).exists() ? profileDir : QDir::homePath(),
                                                 "Exclusion Profiles (*.json)");
     if (path.isEmpty()) return;
 
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QMessageBox::warning(this, tr("Load Failed"), tr("Could not read:\n") + path);
+        QMessageBox::warning(isoExclusionsDialog, tr("Load Failed"), tr("Could not read:\n") + path);
         return;
     }
     QJsonParseError parseError;
@@ -305,7 +365,7 @@ void MainWindow::loadIsoExcludeProfile() {
 
     if (parseError.error != QJsonParseError::NoError || !doc.isObject() ||
         !doc.object().contains("excludedPaths")) {
-        QMessageBox::warning(this, tr("Invalid Profile"),
+        QMessageBox::warning(isoExclusionsDialog, tr("Invalid Profile"),
                              tr("This file is not a valid exclusion profile."));
         return;
     }
@@ -345,7 +405,7 @@ void MainWindow::loadIsoExcludeProfile() {
         report += QString("\n\n%1 path(s) no longer exist on this system and were skipped:\n  %2")
                   .arg(missing.size()).arg(missingList);
     }
-    QMessageBox::information(this, "Profile Loaded", report);
+    QMessageBox::information(isoExclusionsDialog, "Profile Loaded", report);
 }
 
 void MainWindow::clearIsoExclusions() {
