@@ -7,7 +7,10 @@
         <file>images/flag_de.png</file>
         <file>iso/common.sh</file>
         <file>iso/build.sh</file>
+        <file>iso/dummy.sh</file>
         <file>iso/installer.sh</file>
+        <file>iso/installer-ui.py</file>
+        <file>iso/installer-logo.txt</file>
         <file>iso/restore-boot.sh</file>
         <file>iso/firstboot.sh</file>
         <file>iso/firstboot.service</file>

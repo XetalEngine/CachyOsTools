@@ -388,6 +388,7 @@ private slots:
     void handleBackupFinished(int exitCode, QProcess::ExitStatus exitStatus);
     // ISO Creator tab slots
     void on_createIsoButton_clicked();
+    void on_createDummyIsoButton_clicked();
     void on_browseIsoOutputButton_clicked();
     void on_onlineModeRadio_toggled(bool checked);
     void on_offlineModeRadio_toggled(bool checked);
@@ -627,9 +628,10 @@ private:
     QString restoreDestMountPoint;
     
     // ISO Creator helper functions
+    void startIsoCreation(bool dummy);
     QString createIsoScript(const QString &isoName, const QString &outputDir, bool offlineMode = false,
                             const QStringList &excludePaths = QStringList(),
-                            const IsoFirstBootOptions &firstBoot = IsoFirstBootOptions());
+                            const IsoFirstBootOptions &firstBoot = IsoFirstBootOptions(), bool dummy = false);
     QString formatSize(qint64 bytes);
 
     // ISO exclusion panels (big folders / ~/.config)
@@ -868,6 +870,8 @@ private:
     void saveWindowSizeEnabled(bool enabled);
     bool loadAutoSaveEnabled();
     void saveAutoSaveEnabled(bool enabled);
+    bool loadDebugIsoCreatorEnabled();
+    void saveDebugIsoCreatorEnabled(bool enabled);
     void saveWindowGeometry();
     void loadWindowGeometry();
     QMap<QString, bool> tabVisibilityMap; // tab name -> visible

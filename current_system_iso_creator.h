@@ -23,9 +23,21 @@ void MainWindow::on_browseIsoOutputButton_clicked()
 
 void MainWindow::on_createIsoButton_clicked()
 {
+    startIsoCreation(false);
+}
+
+void MainWindow::on_createDummyIsoButton_clicked()
+{
+    startIsoCreation(true);
+}
+
+void MainWindow::startIsoCreation(bool dummy)
+{
     // Use default values
-    QString isoName = "cachyos-system-clone";
+    QString isoName = dummy ? "xetal-dummy" : "cachyos-system-clone";
     QString outputDir = QDir::homePath() + "/iso/xiso/output";
+    const QFileInfo dummyCache(QDir::homePath() + "/iso/xiso/dummy-cache-v1/live-base.iso");
+    const bool reuseDummy = dummy && dummyCache.isFile() && dummyCache.isReadable() && dummyCache.size() > 0;
 
     // Create output directory if it doesn't exist
     if (!QDir().exists(outputDir)) {
@@ -38,11 +50,11 @@ void MainWindow::on_createIsoButton_clicked()
     }
 
     // Gather exclusions from the two panels
-    QStringList excludePaths = collectIsoExcludePaths();
+    QStringList excludePaths = dummy ? QStringList() : collectIsoExcludePaths();
 
     // Gather optional first-boot changes (all off preserves users and identity).
     IsoFirstBootOptions firstBoot;
-    if (!ui->isoExactCloneCheck->isChecked()) {
+    if (!dummy && !ui->isoExactCloneCheck->isChecked()) {
         firstBoot.fixNetwork = ui->isoCompatNetworkCheck->isChecked();
         firstBoot.fixGpu = ui->isoCompatGpuCheck->isChecked();
         firstBoot.changeUser = ui->isoCompatUserCheck->isChecked();
@@ -77,47 +89,53 @@ void MainWindow::on_createIsoButton_clicked()
     "• Take several minutes to complete\n\n"
     "Do you want to continue?").arg(isoName, outputDir, excludeSummary);
 
-    QMessageBox::StandardButton reply = QMessageBox::question(this, "Confirm ISO Creation",
+    if (!dummy) {
+        QMessageBox::StandardButton reply = QMessageBox::question(this, "Confirm ISO Creation",
                                                               message,
                                                               QMessageBox::Yes | QMessageBox::No);
-    if (reply != QMessageBox::Yes) {
-        return;
+        if (reply != QMessageBox::Yes) return;
     }
 
-    // Get sudo password once
-    bool ok;
-    QString sudoPassword = QInputDialog::getText(this, tr("Sudo Password"),
-                                                 tr("Enter your sudo password:"),
-                                                 QLineEdit::Password, "", &ok);
-    if (!ok || sudoPassword.isEmpty()) {
-        ui->createIsoButton->setEnabled(true);
-        return;
+    // Refreshing a cached dummy ISO needs no privileged operations.
+    QString sudoPassword;
+    if (!reuseDummy) {
+        bool ok;
+        sudoPassword = QInputDialog::getText(this, tr("Sudo Password"),
+            dummy ? tr("Enter your sudo password to prepare the Arch live environment.\n"
+                       "No system snapshot is taken. Later dummy builds reuse this environment.")
+                  : tr("Enter your sudo password:"),
+            QLineEdit::Password, "", &ok);
+        if (!ok || sudoPassword.isEmpty()) return;
     }
 
     // Disable button and show progress
     ui->createIsoButton->setEnabled(false);
+    ui->createDummyIsoButton->setEnabled(false);
     ui->isoActivityTabs->setCurrentWidget(ui->isoBuildOutputTab);
     ui->isoProgressBar->setValue(0);
     ui->isoStatusLabel->document()->setMaximumBlockCount(5000);
-    ui->isoStatusLabel->setPlainText("Starting system clone ISO creation...\n");
+    ui->isoStatusLabel->setPlainText(dummy ? tr("Starting dummy ISO creation...\n")
+                                          : tr("Starting system clone ISO creation...\n"));
 
     // Check if offline mode is selected and package is available
     bool offlineMode = ui->offlineModeRadio->isChecked();
-    if (offlineMode) {
+    if (offlineMode && !reuseDummy) {
         QFileInfo fileInfo(offlinePackagePath);
         if (!fileInfo.exists() || !fileInfo.isFile()) {
             QMessageBox::critical(this, "Offline Package Not Found",
                                   QString("Offline mode is selected but the package file '%1' was not found.\n\n"
                                   "Choose an offline archive first or switch to online mode.").arg(OFFLINE_PACKAGE_FILENAME));
             ui->createIsoButton->setEnabled(true);
+            ui->createDummyIsoButton->setEnabled(true);
             return;
         }
     }
 
     // Create and run the ISO creation script
-    QString scriptPath = createIsoScript(isoName, outputDir, offlineMode, excludePaths, firstBoot);
+    QString scriptPath = createIsoScript(isoName, outputDir, offlineMode, excludePaths, firstBoot, dummy);
     if (scriptPath.isEmpty()) {
         ui->createIsoButton->setEnabled(true);
+        ui->createDummyIsoButton->setEnabled(true);
         return;
     }
 
@@ -127,10 +145,12 @@ void MainWindow::on_createIsoButton_clicked()
     // Set up environment for sudo
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
 
-    connect(process, &QProcess::started, [this, process, sudoPassword]() {
+    connect(process, &QProcess::started, [this, process, sudoPassword, dummy]() {
         process->write(sudoPassword.toUtf8() + "\n");
         process->closeWriteChannel();
-        ui->isoStatusLabel->setPlainText("🚀 Starting system clone ISO creation...\n");
+        ui->isoStatusLabel->setPlainText(dummy
+            ? tr("Starting dummy ISO creation — no system files will be copied.\n")
+            : tr("🚀 Starting system clone ISO creation...\n"));
     });
 
     connect(process, &QProcess::readyReadStandardOutput, [this, process]() {
@@ -141,7 +161,7 @@ void MainWindow::on_createIsoButton_clicked()
         fflush(stdout);
 
         // Keep merged output so package errors remain visible in the tab.
-        if (output.contains("Preparing HOME-only build tree")) {
+        if (output.contains("Preparing HOME-only build tree") || output.contains("Preparing dummy ISO")) {
             ui->isoProgressBar->setValue(5);
         } else if (output.contains("Checking live ISO packages")) {
             ui->isoProgressBar->setValue(8);
@@ -151,7 +171,7 @@ void MainWindow::on_createIsoButton_clicked()
             ui->isoProgressBar->setValue(30);
         } else if (output.contains("Cleaning up temporary snapshot directory")) {
             ui->isoProgressBar->setValue(35);
-        } else if (output.contains("Embedding snapshot")) {
+        } else if (output.contains("Embedding snapshot") || output.contains("Refreshing dummy installer payload")) {
             ui->isoProgressBar->setValue(50);
         } else if (output.contains("Building ISO")) {
             ui->isoProgressBar->setValue(70);
@@ -188,16 +208,23 @@ void MainWindow::on_createIsoButton_clicked()
     });
 
     connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-            [this, process, scriptPath](int exitCode, QProcess::ExitStatus exitStatus) {
+            [this, process, scriptPath, dummy](int exitCode, QProcess::ExitStatus exitStatus) {
                 process->deleteLater();
                 ui->createIsoButton->setEnabled(true);
+                ui->createDummyIsoButton->setEnabled(true);
                 //ui->estimateSizeButton->setEnabled(true);
 
                 if (exitStatus == QProcess::NormalExit && exitCode == 0) {
                     ui->isoProgressBar->setValue(100);
-                    ui->isoStatusLabel->setPlainText(ui->isoStatusLabel->toPlainText() + "\n✅ System clone ISO created successfully!");
+                    ui->isoStatusLabel->append(dummy ? tr("✅ Dummy ISO created successfully!")
+                                                    : tr("✅ System clone ISO created successfully!"));
                     QMessageBox::information(this, tr("Success"),
-                                             tr("System clone ISO has been created successfully!\n\n"
+                                             dummy
+                                             ? tr("Dummy ISO is ready in ~/iso/xiso/output.\n\n"
+                                                  "Boot it in a VM to preview the Xetal Engine TUI.\n"
+                                                  "The snapshot is empty; installation is simulated.\n"
+                                                  "Attach an unused virtual disk to explore target selection and confirmations.")
+                                             : tr("System clone ISO has been created successfully!\n\n"
                                              "The ISO contains a file-based system snapshot.\n"
                                              "Test it in a VM before relying on it for recovery."));
                 } else {
@@ -213,8 +240,11 @@ void MainWindow::on_createIsoButton_clicked()
             });
 
     connect(process, &QProcess::errorOccurred, [this, process, scriptPath](QProcess::ProcessError error) {
+        // A crash is reported by finished as well; only handle launch failures here.
+        if (error != QProcess::FailedToStart) return;
         process->deleteLater();
         ui->createIsoButton->setEnabled(true);
+        ui->createDummyIsoButton->setEnabled(true);
         //ui->estimateSizeButton->setEnabled(true);
         ui->isoProgressBar->setValue(0);
         ui->isoStatusLabel->setPlainText(ui->isoStatusLabel->toPlainText() + "\n❌ Process error occurred");
@@ -228,7 +258,7 @@ void MainWindow::on_createIsoButton_clicked()
     process->setProcessEnvironment(env);
 
     // Debug: Show script path
-    ui->isoStatusLabel->setPlainText("Starting system clone ISO creation...\nScript path: " + scriptPath + "\nWaiting for output...\n");
+    ui->isoStatusLabel->setPlainText(tr("Starting ISO creation...\nScript path: %1\nWaiting for output...\n").arg(scriptPath));
 
     process->start("bash", QStringList() << scriptPath);
 }
@@ -239,10 +269,10 @@ void MainWindow::on_createIsoButton_clicked()
 
 // Generate a private script from the embedded, independently testable shell files.
 QString MainWindow::createIsoScript(const QString &isoName, const QString &outputDir, bool offlineMode,
-                                    const QStringList &excludePaths, const IsoFirstBootOptions &firstBoot)
+                                    const QStringList &excludePaths, const IsoFirstBootOptions &firstBoot, bool dummy)
 {
     QMap<QString, QString> scripts;
-    const QStringList names = {"common.sh", "build.sh", "installer.sh", "restore-boot.sh",
+    const QStringList names = {"common.sh", "build.sh", "dummy.sh", "installer.sh", "installer-ui.py", "installer-logo.txt", "restore-boot.sh",
                                "firstboot.sh", "firstboot.service"};
     for (const QString &name : names) {
         QFile resource(":/iso/" + name);
@@ -264,6 +294,8 @@ QString MainWindow::createIsoScript(const QString &isoName, const QString &outpu
     out << "ISO_NAME=" << shQuote(isoName) << "\n";
     out << "RELENG=/usr/share/archiso/configs/releng\n";
     out << "ISO_OFFLINE=" << (offlineMode ? "1" : "0") << "\n";
+    out << "ISO_DUMMY=" << (dummy ? "1" : "0") << "\n";
+    out << "DUMMY_CACHE=\"$BASE/xiso/dummy-cache-v1/live-base.iso\"\n";
     out << "OFFLINE_PACKAGE=" << shQuote(QFileInfo(offlinePackagePath).absoluteFilePath()) << "\n";
     out << "USER_EXCLUDES=(\n";
     for (const QString &path : excludePaths) {
@@ -282,13 +314,16 @@ QString MainWindow::createIsoScript(const QString &isoName, const QString &outpu
         out << "base64 --decode > \"$PROFILE/airootfs/opt/clone/logo.png\" <<'XETAL_LOGO'\n";
         out << logo.readAll().toBase64() << "\nXETAL_LOGO\n";
     }
-    const QStringList payloads = {"common.sh", "installer.sh", "restore-boot.sh", "firstboot.sh", "firstboot.service"};
+    const QStringList payloads = {"common.sh", "installer.sh", "installer-ui.py", "installer-logo.txt", "restore-boot.sh", "firstboot.sh", "firstboot.service"};
     for (const QString &name : payloads) {
         const QString target = name == "installer.sh" ? "/usr/local/bin/installer.sh" : "/opt/clone/" + name;
         out << "cat > \"$PROFILE/airootfs" << target << "\" <<'XETAL_PAYLOAD'\n";
-        out << scripts.value(name) << "\nXETAL_PAYLOAD\n";
+        const QString contents = scripts.value(name);
+        out << contents;
+        if (!contents.endsWith('\n')) out << "\n";
+        out << "XETAL_PAYLOAD\n";
     }
-    if (firstBoot.any()) {
+    if (!dummy && firstBoot.any()) {
         out << "cat > \"$PROFILE/airootfs/opt/clone/firstboot.conf\" <<'XETAL_OPTIONS'\n";
         out << "FIX_NETWORK=" << int(firstBoot.fixNetwork) << "\nFIX_GPU=" << int(firstBoot.fixGpu)
             << "\nCHANGE_USER=" << int(firstBoot.changeUser) << "\nREGEN_SSH=" << int(firstBoot.regenSsh)
@@ -315,7 +350,7 @@ XETAL_LOGIN
 done
 }
 )ISO_STAGE";
-    out << scripts.value("build.sh");
+    out << scripts.value("dummy.sh") << "\n" << scripts.value("build.sh");
     out.flush();
     if (out.status() != QTextStream::Ok || !scriptFile.flush()) return {};
     const QString scriptPath = scriptFile.fileName();

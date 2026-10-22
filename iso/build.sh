@@ -84,7 +84,7 @@ airootfs_image_tool_options=('-comp' 'zstd' '-Xcompression-level' '6' '-b' '1M')
 file_permissions+=(['/xetal.sh']='0:0:755' ['/usr/local/bin/installer.sh']='0:0:755')
 EOF
     for tool in arch-install-scripts bash util-linux coreutils rsync tar zstd grub \
-        efibootmgr parted e2fsprogs dosfstools dialog chafa; do
+        efibootmgr parted e2fsprogs dosfstools dialog chafa python; do
         printf '%s\n' "$tool" >> "$PROFILE/packages.x86_64"
     done
     if (( ISO_OFFLINE )); then
@@ -156,4 +156,9 @@ EOF
     printf '[*] Build log and offline-package inputs: %s\n' "$RUN"
 }
 
-iso_build_main "$@"
+# Run the selected ISO build. Dummy builds never enter the system snapshot path.
+if (( ${ISO_DUMMY:-0} )); then
+    iso_dummy_main "$@"
+else
+    iso_build_main "$@"
+fi

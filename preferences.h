@@ -38,7 +38,7 @@ void MainWindow::showPreferencesDialog() {
     // Create tab widget for different preference categories
     QTabWidget *tabWidget = new QTabWidget(dialog);
     
-    // Tab 1: General (Window size, auto-save)
+    // Tab 1: General (Window size, auto-save, ISO debug tools)
     QWidget *generalTab = new QWidget();
     QVBoxLayout *generalLayout = new QVBoxLayout(generalTab);
     
@@ -55,9 +55,18 @@ void MainWindow::showPreferencesDialog() {
     QCheckBox *autoSaveCheck = new QCheckBox("Auto-save preferences on change", autoSaveGroup);
     autoSaveCheck->setChecked(loadAutoSaveEnabled());
     autoSaveLayout->addWidget(autoSaveCheck);
+
+    QGroupBox *isoDebugGroup = new QGroupBox(tr("System ISO"), generalTab);
+    QVBoxLayout *isoDebugLayout = new QVBoxLayout(isoDebugGroup);
+    QCheckBox *debugIsoCreatorCheck = new QCheckBox(tr("Debug ISO Creator Button"), isoDebugGroup);
+    debugIsoCreatorCheck->setObjectName("debugIsoCreatorCheck");
+    debugIsoCreatorCheck->setToolTip(tr("Show Create Dummy ISO on the System ISO tab to preview the installer without copying your system."));
+    debugIsoCreatorCheck->setChecked(loadDebugIsoCreatorEnabled());
+    isoDebugLayout->addWidget(debugIsoCreatorCheck);
     
     generalLayout->addWidget(windowGroup);
     generalLayout->addWidget(autoSaveGroup);
+    generalLayout->addWidget(isoDebugGroup);
     generalLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
     
     tabWidget->addTab(generalTab, "General");
@@ -145,7 +154,7 @@ void MainWindow::showPreferencesDialog() {
     mainLayout->addLayout(buttonLayout);
     
     // Save function
-    auto savePreferences = [this, dialog, checkboxes, rememberSizeCheck, autoSaveCheck]() {
+    auto savePreferences = [this, dialog, checkboxes, rememberSizeCheck, autoSaveCheck, debugIsoCreatorCheck]() {
         // Save tab visibility
         for (auto it = checkboxes.begin(); it != checkboxes.end(); ++it) {
             QString tabName = it.key();
@@ -161,6 +170,10 @@ void MainWindow::showPreferencesDialog() {
         
         // Save auto-save preference
         saveAutoSaveEnabled(autoSaveCheck->isChecked());
+
+        // Keep the dummy ISO builder available only when explicitly enabled.
+        saveDebugIsoCreatorEnabled(debugIsoCreatorCheck->isChecked());
+        ui->createDummyIsoButton->setVisible(debugIsoCreatorCheck->isChecked());
         
         // Apply tab visibility
         QTimer::singleShot(0, this, [this]() {
@@ -187,6 +200,7 @@ void MainWindow::showPreferencesDialog() {
         }
         connect(rememberSizeCheck, &QCheckBox::toggled, savePreferences);
         connect(autoSaveCheck, &QCheckBox::toggled, savePreferences);
+        connect(debugIsoCreatorCheck, &QCheckBox::toggled, savePreferences);
     }
     
     dialog->exec();
@@ -391,6 +405,7 @@ void MainWindow::saveAllPreferences() {
 
 void MainWindow::loadAllPreferences() {
     loadTabVisibilityPreferences();
+    ui->createDummyIsoButton->setVisible(loadDebugIsoCreatorEnabled());
     if (loadWindowSizeEnabled()) {
         loadWindowGeometry();
     }
@@ -415,6 +430,17 @@ bool MainWindow::loadAutoSaveEnabled() {
 void MainWindow::saveAutoSaveEnabled(bool enabled) {
     QSettings settings("CachyOsTools", "CachyOsTools");
     settings.setValue("preferences/autoSaveEnabled", enabled);
+    settings.sync();
+}
+
+bool MainWindow::loadDebugIsoCreatorEnabled() {
+    QSettings settings("CachyOsTools", "CachyOsTools");
+    return settings.value("preferences/debugIsoCreatorEnabled", false).toBool();
+}
+
+void MainWindow::saveDebugIsoCreatorEnabled(bool enabled) {
+    QSettings settings("CachyOsTools", "CachyOsTools");
+    settings.setValue("preferences/debugIsoCreatorEnabled", enabled);
     settings.sync();
 }
 
