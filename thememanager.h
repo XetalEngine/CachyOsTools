@@ -6,24 +6,7 @@
 #include <QColorDialog>
 #include <functional>
 
-struct ThemePreset {
-    const char *name;
-    const char *accent;
-    const char *background; // empty = system palette
-    const char *text;       // empty = auto from background
-};
-
-static const ThemePreset THEME_PRESETS[] = {
-    {"System Default (XETAL Green)", "#27ae60", "",        ""},
-    {"XETAL Dark",                   "#27ae60", "#1d1f24", ""},
-    {"XETAL Red",                    "#c0392b", "#201a1a", ""},
-    {"Midnight Blue",                "#3498db", "#0f1626", ""},
-    {"Matrix",                       "#00cc44", "#0a0f0a", "#9dffb0"},
-    {"Solar Light",                  "#e67e22", "#f5f1e8", ""},
-    {"Purple Haze",                  "#9b59b6", "#191221", ""},
-    {"Custom",                       "",        "",        ""},
-};
-static const int THEME_PRESET_COUNT = sizeof(THEME_PRESETS) / sizeof(THEME_PRESETS[0]);
+#include "themepresets.h"
 
 void MainWindow::applyAppTheme() {
     QColor accent(themeAccent.isEmpty() ? "#27ae60" : themeAccent);
@@ -113,8 +96,8 @@ void MainWindow::applyAppTheme() {
         .arg(aHex, aRgba(0.25), aRgba(0.40), aRgba(0.18));
 
     // Optional full background/text override (presets beyond "System Default")
-    if (!themeBg.isEmpty()) {
-        QColor bg(themeBg);
+    if (!themeBg.isEmpty() || !themeText.isEmpty()) {
+        QColor bg = themeBg.isEmpty() ? QApplication::palette().color(QPalette::Window) : QColor(themeBg);
         bool dark = bg.lightness() < 128;
         QColor base = dark ? bg.lighter(135) : bg.darker(104);        // inputs/views
         QColor text = themeText.isEmpty() ? (dark ? QColor("#e6e6e6") : QColor("#1c1c1c"))

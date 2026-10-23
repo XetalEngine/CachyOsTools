@@ -1,6 +1,8 @@
 
-// Preferences functions
+// Application preferences and runtime application of saved values.
 
+#include "preferencesdialog.h"
+#include <QSignalBlocker>
 #include <QDialog>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -28,183 +30,81 @@ void MainWindow::on_actionShowHideTabs_triggered() {
 }
 
 void MainWindow::showPreferencesDialog() {
-    // Create comprehensive preferences dialog with tabs
-    QDialog *dialog = new QDialog(this);
-    dialog->setWindowTitle(tr("Preferences"));
-    dialog->setMinimumSize(600, 500);
-    
-    QVBoxLayout *mainLayout = new QVBoxLayout(dialog);
-    
-    // Create tab widget for different preference categories
-    QTabWidget *tabWidget = new QTabWidget(dialog);
-    
-    // Tab 1: General (Window size, auto-save, ISO debug tools)
-    QWidget *generalTab = new QWidget();
-    QVBoxLayout *generalLayout = new QVBoxLayout(generalTab);
-    
-    QGroupBox *windowGroup = new QGroupBox("Window Settings", generalTab);
-    QVBoxLayout *windowLayout = new QVBoxLayout(windowGroup);
-    
-    QCheckBox *rememberSizeCheck = new QCheckBox("Remember window size and position", windowGroup);
-    rememberSizeCheck->setChecked(loadWindowSizeEnabled());
-    windowLayout->addWidget(rememberSizeCheck);
-    
-    QGroupBox *autoSaveGroup = new QGroupBox("Auto Save/Load", generalTab);
-    QVBoxLayout *autoSaveLayout = new QVBoxLayout(autoSaveGroup);
-    
-    QCheckBox *autoSaveCheck = new QCheckBox("Auto-save preferences on change", autoSaveGroup);
-    autoSaveCheck->setChecked(loadAutoSaveEnabled());
-    autoSaveLayout->addWidget(autoSaveCheck);
+    QSettings settings("CachyOsTools", "CachyOsTools");
+    QVariantMap saved = AppPreferences::read(settings);
+    PreferencesDialog dialog(saved, [this, &saved](const QVariantMap &values) {
+        QSettings destination("CachyOsTools", "CachyOsTools");
+        if (!AppPreferences::write(destination, values)) return false;
+        applyPreferenceValues(values, saved);
+        saved = values;
+        if (loadWindowSizeEnabled()) saveWindowGeometry();
+        return true;
+    }, this);
+    dialog.exec();
+}
 
-    QGroupBox *isoDebugGroup = new QGroupBox(tr("System ISO"), generalTab);
-    QVBoxLayout *isoDebugLayout = new QVBoxLayout(isoDebugGroup);
-    QCheckBox *debugIsoCreatorCheck = new QCheckBox(tr("Debug ISO Creator Button"), isoDebugGroup);
-    debugIsoCreatorCheck->setObjectName("debugIsoCreatorCheck");
-    debugIsoCreatorCheck->setToolTip(tr("Show Create Dummy ISO on the System ISO tab to preview the installer without copying your system."));
-    debugIsoCreatorCheck->setChecked(loadDebugIsoCreatorEnabled());
-    isoDebugLayout->addWidget(debugIsoCreatorCheck);
-    
-    generalLayout->addWidget(windowGroup);
-    generalLayout->addWidget(autoSaveGroup);
-    generalLayout->addWidget(isoDebugGroup);
-    generalLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
-    
-    tabWidget->addTab(generalTab, "General");
-    
-    // Tab 2: Tab Visibility (existing functionality)
-    QWidget *tabsTab = new QWidget();
-    QVBoxLayout *tabsLayout = new QVBoxLayout(tabsTab);
-    
-    QLabel *tabsLabel = new QLabel(tr("Select which tabs to show:"), tabsTab);
-    tabsLayout->addWidget(tabsLabel);
-    
-    QMap<QString, QCheckBox*> checkboxes;
-    QMap<QString, QString> tabNames;
-    tabNames["dashboardTab"] = "Dashboard";
-    tabNames["driveToolsTab"] = "Drives";
-    tabNames["shellToolsTab"] = "Shell";
-    tabNames["servicesTab"] = "Services";
-    tabNames["tweaksTab"] = "Tweaks";
-    tabNames["kvmTab"] = "KVM";
-    tabNames["configTab"] = "System Config";
-    tabNames["logsTab"] = "Logs";
-    tabNames["backupTab"] = "Backup";
-    tabNames["restoreTab"] = "Restore";
-    tabNames["isoCreatorTab"] = "System ISO";
-    tabNames["packageManagerTab"] = "PKG Install";
-    tabNames["uninstallTab"] = "PKG Uninstall";
-    tabNames["cleanerTab"] = "Cleaner";
-    tabNames["networkTab"] = "Network";
-    tabNames["themeTab"] = "Theme";
-
-    for (auto it = tabNames.begin(); it != tabNames.end(); ++it) {
-        QCheckBox *checkbox = new QCheckBox(it.value(), tabsTab);
-        checkbox->setChecked(tabVisibilityMap.value(it.key(), true));
-        checkbox->setProperty("tabName", it.key());
-        checkboxes[it.key()] = checkbox;
-        tabsLayout->addWidget(checkbox);
+void MainWindow::applyPreferenceValues(const QVariantMap &values, const QVariantMap &previous) {
+    auto changed = [&](const QString &key) { return !previous.contains(key) || values.value(key) != previous.value(key); };
+    bool tabsChanged = false;
+    for (const auto &tab : AppPreferences::tabs()) {
+        QString key = "tabs/" + tab.id;
+        if (changed(key)) { tabVisibilityMap[tab.id] = values.value(key).toBool(); tabsChanged = true; }
     }
-    
-    tabsLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
-    tabWidget->addTab(tabsTab, "Tab Visibility");
-    
-    // Add more tabs for each main tab's preferences (placeholder for now)
-    // Drive Tools Tab
-    QWidget *driveToolsPrefTab = new QWidget();
-    QVBoxLayout *driveToolsPrefLayout = new QVBoxLayout(driveToolsPrefTab);
-    QLabel *driveToolsLabel = new QLabel(tr("Drive Tools preferences will be added here"), driveToolsPrefTab);
-    driveToolsPrefLayout->addWidget(driveToolsLabel);
-    driveToolsPrefLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
-    tabWidget->addTab(driveToolsPrefTab, "Drive Tools");
-    
-    // Shell Tools Tab
-    QWidget *shellToolsPrefTab = new QWidget();
-    QVBoxLayout *shellToolsPrefLayout = new QVBoxLayout(shellToolsPrefTab);
-    QLabel *shellToolsLabel = new QLabel(tr("Shell Tools preferences will be added here"), shellToolsPrefTab);
-    shellToolsPrefLayout->addWidget(shellToolsLabel);
-    shellToolsPrefLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
-    tabWidget->addTab(shellToolsPrefTab, "Shell Tools");
-    
-    // Package Manager Tab
-    QWidget *packageManagerPrefTab = new QWidget();
-    QVBoxLayout *packageManagerPrefLayout = new QVBoxLayout(packageManagerPrefTab);
-    QLabel *packageManagerLabel = new QLabel(tr("Package Manager preferences will be added here"), packageManagerPrefTab);
-    packageManagerPrefLayout->addWidget(packageManagerLabel);
-    packageManagerPrefLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
-    tabWidget->addTab(packageManagerPrefTab, "Package Manager");
-    
-    // Network Tab
-    QWidget *networkPrefTab = new QWidget();
-    QVBoxLayout *networkPrefLayout = new QVBoxLayout(networkPrefTab);
-    QLabel *networkLabel = new QLabel(tr("Network preferences will be added here"), networkPrefTab);
-    networkPrefLayout->addWidget(networkLabel);
-    networkPrefLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
-    tabWidget->addTab(networkPrefTab, "Network");
-    
-    mainLayout->addWidget(tabWidget);
-    
-    // Buttons
-    QHBoxLayout *buttonLayout = new QHBoxLayout();
-    QPushButton *okButton = new QPushButton(tr("OK"), dialog);
-    QPushButton *cancelButton = new QPushButton(tr("Cancel"), dialog);
-    QPushButton *applyButton = new QPushButton(tr("Apply"), dialog);
-    buttonLayout->addWidget(okButton);
-    buttonLayout->addWidget(cancelButton);
-    buttonLayout->addWidget(applyButton);
-    mainLayout->addLayout(buttonLayout);
-    
-    // Save function
-    auto savePreferences = [this, dialog, checkboxes, rememberSizeCheck, autoSaveCheck, debugIsoCreatorCheck]() {
-        // Save tab visibility
-        for (auto it = checkboxes.begin(); it != checkboxes.end(); ++it) {
-            QString tabName = it.key();
-            QCheckBox *checkbox = it.value();
-            if (checkbox) {
-                bool visible = checkbox->isChecked();
-                tabVisibilityMap[tabName] = visible;
-            }
-        }
-        
-        // Save window size preference
-        saveWindowSizeEnabled(rememberSizeCheck->isChecked());
-        
-        // Save auto-save preference
-        saveAutoSaveEnabled(autoSaveCheck->isChecked());
+    if (tabsChanged) applyTabVisibility();
+    if (changed("preferences/debugIsoCreatorEnabled"))
+        ui->createDummyIsoButton->setVisible(values.value("preferences/debugIsoCreatorEnabled").toBool());
 
-        // Keep the dummy ISO builder available only when explicitly enabled.
-        saveDebugIsoCreatorEnabled(debugIsoCreatorCheck->isChecked());
-        ui->createDummyIsoButton->setVisible(debugIsoCreatorCheck->isChecked());
-        
-        // Apply tab visibility
-        QTimer::singleShot(0, this, [this]() {
-            applyTabVisibility();
-        });
-        
-        // Save all preferences
-        saveAllPreferences();
-    };
-    
-    connect(okButton, &QPushButton::clicked, [savePreferences, dialog]() {
-        savePreferences();
-        dialog->accept();
-    });
-    
-    connect(applyButton, &QPushButton::clicked, savePreferences);
-    
-    connect(cancelButton, &QPushButton::clicked, dialog, &QDialog::reject);
-    
-    // Auto-save on change if enabled
-    if (loadAutoSaveEnabled()) {
-        for (auto it = checkboxes.begin(); it != checkboxes.end(); ++it) {
-            connect(it.value(), &QCheckBox::toggled, savePreferences);
-        }
-        connect(rememberSizeCheck, &QCheckBox::toggled, savePreferences);
-        connect(autoSaveCheck, &QCheckBox::toggled, savePreferences);
-        connect(debugIsoCreatorCheck, &QCheckBox::toggled, savePreferences);
+    if (changed("language/code")) {
+        QSignalBlocker blocker(ui->dashLangCombo);
+        int index = ui->dashLangCombo->findData(values.value("language/code"));
+        if (index >= 0) ui->dashLangCombo->setCurrentIndex(index);
     }
-    
-    dialog->exec();
-    dialog->deleteLater();
+    const QString accent = values.value("theme/accent").toString();
+    const QString background = values.value("theme/background").toString();
+    const QString text = values.value("theme/text").toString();
+    const bool colorsChanged = themeAccent != accent || themeBg != background || themeText != text;
+    themeAccent = accent; themeBg = background; themeText = text;
+    {
+        QSignalBlocker blocker(ui->themePresetCombo);
+        ui->themePresetCombo->setCurrentIndex(values.value("theme/preset").toInt());
+    }
+    updateThemeSwatches();
+    if (colorsChanged) { applyAppTheme(); refreshDashboard(); }
+
+    // Only changed defaults replace a tool's current choices. Saving an
+    // unrelated preference must not reset work in progress in another tab.
+    bool drivesChanged = false;
+    for (auto pair : {qMakePair(QString("defaults/drives/showDisks"), ui->diskFilterCheckBox),
+                      qMakePair(QString("defaults/drives/showPartitions"), ui->partitionFilterCheckBox),
+                      qMakePair(QString("defaults/drives/minimumEnabled"), ui->minSizeFilterCheckBox)}) {
+        if (!changed(pair.first)) continue;
+        QSignalBlocker blocker(pair.second);
+        pair.second->setChecked(values.value(pair.first).toBool());
+        drivesChanged = true;
+    }
+    if (changed("defaults/drives/minimumMB")) {
+        QSignalBlocker blocker(ui->minSizeSpinBox);
+        ui->minSizeSpinBox->setValue(values.value("defaults/drives/minimumMB").toInt());
+        drivesChanged = true;
+    }
+    if (drivesChanged) populateDriveTable();
+    if (changed("defaults/config/editor")) ui->editorComboBox->setCurrentText(values.value("defaults/config/editor").toString());
+    if (changed("defaults/packages/searchMode")) {
+        for (QComboBox *combo : {ui->pacmanAurSearchMode, ui->yaySearchMode, ui->paruSearchMode}) {
+            QSignalBlocker blocker(combo);
+            combo->setCurrentIndex(values.value("defaults/packages/searchMode").toInt());
+        }
+    }
+    if (changed("defaults/packages/searchType")) {
+        for (QComboBox *combo : {ui->pacmanAurSearchType, ui->yaySearchType, ui->paruSearchType}) {
+            QSignalBlocker blocker(combo);
+            combo->setCurrentIndex(values.value("defaults/packages/searchType").toInt());
+        }
+    }
+    if (isoExclusionsUi) {
+        if (changed("defaults/iso/folderMinimumMB")) isoExclusionsUi->isoFolderSizeSpin->setValue(values.value("defaults/iso/folderMinimumMB").toInt());
+        if (changed("defaults/iso/fileMinimumMB")) isoExclusionsUi->isoFileSizeSpin->setValue(values.value("defaults/iso/fileMinimumMB").toInt());
+    }
 }
 
 void MainWindow::on_actionAbout_triggered() {
@@ -232,27 +132,6 @@ void MainWindow::on_actionAbout_triggered() {
     aboutBox.exec();
 }
 
-void MainWindow::loadTabVisibilityPreferences() {
-    QSettings settings("CachyOsTools", "CachyOsTools");
-    
-    // Load visibility for each tab (default to true/visible)
-    QStringList tabNames = {
-        "dashboardTab",
-        "driveToolsTab", "shellToolsTab", "servicesTab", "tweaksTab",
-        "kvmTab", "configTab", "logsTab", "backupTab", "restoreTab",
-        "isoCreatorTab", "packageManagerTab", "uninstallTab", "cleanerTab", "networkTab", "themeTab"
-    };
-    
-    for (const QString &tabName : tabNames) {
-        bool visible = settings.value(QString("tabs/%1").arg(tabName), true).toBool();
-        tabVisibilityMap[tabName] = visible;
-    }
-    
-    // Apply visibility after a short delay to ensure all widgets are initialized
-    QTimer::singleShot(100, this, [this]() {
-        applyTabVisibility();
-    });
-}
 
 void MainWindow::saveTabVisibilityPreferences() {
     QSettings settings("CachyOsTools", "CachyOsTools");
@@ -265,128 +144,38 @@ void MainWindow::saveTabVisibilityPreferences() {
     settings.sync();
 }
 
-void MainWindow::applyTabVisibility() {
-    // Safety check - ensure UI is initialized
-    if (!ui || !ui->tabWidget) {
-        return;
-    }
-    
-    // Apply visibility to each tab
-    QMap<QString, QWidget*> tabs;
-    tabs["dashboardTab"] = ui->dashboardTab;
-    tabs["driveToolsTab"] = ui->driveToolsTab;
-    tabs["shellToolsTab"] = ui->shellToolsTab;
-    tabs["servicesTab"] = ui->servicesTab;
-    tabs["tweaksTab"] = ui->tweaksTab;
-    tabs["kvmTab"] = ui->kvmTab;
-    tabs["configTab"] = ui->configTab;
-    tabs["logsTab"] = ui->logsTab;
-    tabs["backupTab"] = ui->backupTab;
-    tabs["restoreTab"] = ui->restoreTab;
-    tabs["isoCreatorTab"] = ui->isoCreatorTab;
-    tabs["packageManagerTab"] = ui->packageManagerTab;
-    tabs["uninstallTab"] = ui->uninstallTab;
-    tabs["cleanerTab"] = cleanerTab;   // built in code, not in the .ui
-    tabs["networkTab"] = ui->networkTab;
-    tabs["themeTab"] = ui->themeTab;
-    
-    // Verify all tabs exist before proceeding
-    for (auto it = tabs.begin(); it != tabs.end(); ++it) {
-        if (!it.value()) {
-            qWarning() << "Tab widget not found:" << it.key();
-            return; // Don't proceed if any tab is missing
-        }
-    }
-    
-    // Store current tab name (not widget pointer) to restore after visibility changes
-    QString currentTabName;
-    if (ui->tabWidget->count() > 0) {
-        QWidget *currentWidget = ui->tabWidget->currentWidget();
-        if (currentWidget) {
-            for (auto it = tabs.begin(); it != tabs.end(); ++it) {
-                if (it.value() == currentWidget) {
-                    currentTabName = it.key();
-                    break;
-                }
-            }
-        }
-    }
-    
-    // Define tab order and titles
-    QMap<QString, QString> tabTitles;
-    tabTitles["dashboardTab"] = tr("Dashboard");
-    tabTitles["driveToolsTab"] = tr("Drives");
-    tabTitles["shellToolsTab"] = tr("Shell");
-    tabTitles["servicesTab"] = tr("Services");
-    tabTitles["tweaksTab"] = tr("Tweaks");
-    tabTitles["kvmTab"] = tr("KVM");
-    tabTitles["configTab"] = tr("System Config");
-    tabTitles["logsTab"] = tr("Logs");
-    tabTitles["backupTab"] = tr("Backup");
-    tabTitles["restoreTab"] = tr("Restore");
-    tabTitles["isoCreatorTab"] = tr("System ISO");
-    tabTitles["packageManagerTab"] = tr("PKG Install");
-    tabTitles["uninstallTab"] = tr("PKG Uninstall");
-    tabTitles["cleanerTab"] = tr("Cleaner");
-    tabTitles["networkTab"] = tr("Network");
-    tabTitles["themeTab"] = tr("Theme");
+QMap<QString, QWidget *> MainWindow::preferenceTabWidgets() const {
+    return {{"dashboardTab", ui->dashboardTab}, {"driveToolsTab", ui->driveToolsTab},
+            {"shellToolsTab", ui->shellToolsTab}, {"servicesTab", ui->servicesTab},
+            {"tweaksTab", ui->tweaksTab}, {"kvmTab", ui->kvmTab},
+            {"configTab", ui->configTab}, {"logsTab", ui->logsTab},
+            {"backupTab", ui->backupTab}, {"restoreTab", ui->restoreTab},
+            {"isoCreatorTab", ui->isoCreatorTab}, {"packageManagerTab", ui->packageManagerTab},
+            {"uninstallTab", ui->uninstallTab}, {"cleanerTab", cleanerTab},
+            {"networkTab", ui->networkTab}, {"themeTab", ui->themeTab}};
+}
 
-    QStringList tabOrder = {
-        "dashboardTab",
-        "driveToolsTab", "shellToolsTab", "servicesTab", "tweaksTab",
-        "kvmTab", "configTab", "logsTab", "backupTab", "restoreTab",
-        "isoCreatorTab", "packageManagerTab", "uninstallTab", "cleanerTab", "networkTab", "themeTab"
-    };
-    
-    // Store all widgets before removing tabs to prevent deletion
-    // Qt will delete widgets when tabs are removed unless we keep references
-    QList<QWidget*> widgetsToKeep;
-    int tabCount = ui->tabWidget->count();
-    for (int i = 0; i < tabCount; i++) {
-        QWidget *widget = ui->tabWidget->widget(i);
-        if (widget) {
-            // Reparent widgets to main window temporarily to prevent deletion
-            widget->setParent(this);
-            widgetsToKeep.append(widget);
+void MainWindow::applyTabVisibility() {
+    if (!ui || !ui->tabWidget) return;
+    const auto widgets = preferenceTabWidgets();
+    QWidget *current = ui->tabWidget->currentWidget();
+    {
+        // removeTab keeps each page owned by the stack. Block signals throughout
+        // the rebuild so tab handlers never see an intermediate empty selection.
+        QSignalBlocker blocker(ui->tabWidget);
+        while (ui->tabWidget->count()) ui->tabWidget->removeTab(0);
+        for (const auto &tab : AppPreferences::tabs()) {
+            if (widgets.value(tab.id) && tabVisibilityMap.value(tab.id, true))
+                ui->tabWidget->addTab(widgets.value(tab.id), tab.title);
         }
-    }
-    
-    // Remove all tabs (widgets are kept alive because they're reparented)
-    ui->tabWidget->blockSignals(true);
-    while (ui->tabWidget->count() > 0) {
-        ui->tabWidget->removeTab(0);
-    }
-    ui->tabWidget->blockSignals(false);
-    
-    // Re-add tabs in order, only if visible
-    for (const QString &tabName : tabOrder) {
-        if (tabVisibilityMap.value(tabName, true)) {
-            QWidget *tab = tabs.value(tabName);
-            if (tab) {
-                QString title = tabTitles.value(tabName);
-                // Reparent widget back to tab widget
-                tab->setParent(ui->tabWidget);
-                ui->tabWidget->addTab(tab, title);
-            }
+        if (!ui->tabWidget->count()) {
+            tabVisibilityMap["dashboardTab"] = true;
+            ui->tabWidget->addTab(ui->dashboardTab, tr("Dashboard"));
         }
+        if (current && ui->tabWidget->indexOf(current) >= 0) ui->tabWidget->setCurrentWidget(current);
     }
-    
-    // Restore current tab if it's still visible
-    if (!currentTabName.isEmpty() && tabVisibilityMap.value(currentTabName, true)) {
-        QWidget *tabToSelect = tabs.value(currentTabName);
-        if (tabToSelect) {
-            int index = ui->tabWidget->indexOf(tabToSelect);
-            if (index >= 0 && index < ui->tabWidget->count()) {
-                ui->tabWidget->setCurrentIndex(index);
-                return; // Successfully restored
-            }
-        }
-    }
-    
-    // Current tab was hidden or not found, switch to first visible tab
-    if (ui->tabWidget->count() > 0) {
-        ui->tabWidget->setCurrentIndex(0);
-    }
+    if (current != ui->tabWidget->currentWidget())
+        emit ui->tabWidget->currentChanged(ui->tabWidget->currentIndex());
 }
 
 void MainWindow::saveAllPreferences() {
@@ -404,11 +193,12 @@ void MainWindow::saveAllPreferences() {
 }
 
 void MainWindow::loadAllPreferences() {
-    loadTabVisibilityPreferences();
-    ui->createDummyIsoButton->setVisible(loadDebugIsoCreatorEnabled());
-    if (loadWindowSizeEnabled()) {
-        loadWindowGeometry();
-    }
+    QSettings settings("CachyOsTools", "CachyOsTools");
+    const auto values = AppPreferences::read(settings);
+    applyPreferenceValues(values, {});
+    QWidget *startup = preferenceTabWidgets().value(values.value("preferences/startupTab").toString());
+    if (startup && ui->tabWidget->indexOf(startup) >= 0) ui->tabWidget->setCurrentWidget(startup);
+    if (loadWindowSizeEnabled()) loadWindowGeometry();
 }
 
 bool MainWindow::loadWindowSizeEnabled() {
@@ -416,32 +206,9 @@ bool MainWindow::loadWindowSizeEnabled() {
     return settings.value("preferences/windowSizeEnabled", true).toBool();
 }
 
-void MainWindow::saveWindowSizeEnabled(bool enabled) {
-    QSettings settings("CachyOsTools", "CachyOsTools");
-    settings.setValue("preferences/windowSizeEnabled", enabled);
-    settings.sync();
-}
-
 bool MainWindow::loadAutoSaveEnabled() {
     QSettings settings("CachyOsTools", "CachyOsTools");
     return settings.value("preferences/autoSaveEnabled", true).toBool();
-}
-
-void MainWindow::saveAutoSaveEnabled(bool enabled) {
-    QSettings settings("CachyOsTools", "CachyOsTools");
-    settings.setValue("preferences/autoSaveEnabled", enabled);
-    settings.sync();
-}
-
-bool MainWindow::loadDebugIsoCreatorEnabled() {
-    QSettings settings("CachyOsTools", "CachyOsTools");
-    return settings.value("preferences/debugIsoCreatorEnabled", false).toBool();
-}
-
-void MainWindow::saveDebugIsoCreatorEnabled(bool enabled) {
-    QSettings settings("CachyOsTools", "CachyOsTools");
-    settings.setValue("preferences/debugIsoCreatorEnabled", enabled);
-    settings.sync();
 }
 
 void MainWindow::saveWindowGeometry() {
@@ -489,32 +256,25 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     QMainWindow::closeEvent(event);
 }
 
+void MainWindow::scheduleWindowGeometrySave() {
+    if (!loadWindowSizeEnabled() || !loadAutoSaveEnabled()) return;
+    if (!preferencesGeometryTimer) {
+        preferencesGeometryTimer = new QTimer(this);
+        preferencesGeometryTimer->setSingleShot(true);
+        preferencesGeometryTimer->setInterval(500);
+        connect(preferencesGeometryTimer, &QTimer::timeout, this, [this]() {
+            if (loadWindowSizeEnabled() && loadAutoSaveEnabled()) saveWindowGeometry();
+        });
+    }
+    preferencesGeometryTimer->start();
+}
+
 void MainWindow::resizeEvent(QResizeEvent *event) {
     QMainWindow::resizeEvent(event);
-    if (loadWindowSizeEnabled() && loadAutoSaveEnabled()) {
-        // Debounce saves to avoid too many writes
-        static QTimer *saveTimer = nullptr;
-        if (!saveTimer) {
-            saveTimer = new QTimer(this);
-            saveTimer->setSingleShot(true);
-            saveTimer->setInterval(500); // Wait 500ms after last resize
-            connect(saveTimer, &QTimer::timeout, this, &MainWindow::saveWindowGeometry);
-        }
-        saveTimer->start();
-    }
+    scheduleWindowGeometrySave();
 }
 
 void MainWindow::moveEvent(QMoveEvent *event) {
     QMainWindow::moveEvent(event);
-    if (loadWindowSizeEnabled() && loadAutoSaveEnabled()) {
-        // Debounce saves to avoid too many writes
-        static QTimer *saveTimer = nullptr;
-        if (!saveTimer) {
-            saveTimer = new QTimer(this);
-            saveTimer->setSingleShot(true);
-            saveTimer->setInterval(500); // Wait 500ms after last move
-            connect(saveTimer, &QTimer::timeout, this, &MainWindow::saveWindowGeometry);
-        }
-        saveTimer->start();
-    }
+    scheduleWindowGeometrySave();
 }

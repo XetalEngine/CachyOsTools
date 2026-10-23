@@ -11,6 +11,7 @@
 #include <QPushButton>
 #include <QTimer>
 #include <QMap>
+#include <QVariantMap>
 #include <QPair>
 #include <QFileSystemModel>
 #include <QNetworkAccessManager>
@@ -860,18 +861,17 @@ private:
     void searchParu(const QString &query, int searchMode = 0, int searchType = 0);
     
     // Preferences functions
-    void loadTabVisibilityPreferences();
+    void applyPreferenceValues(const QVariantMap &values, const QVariantMap &previous);
+    QMap<QString, QWidget *> preferenceTabWidgets() const;
     void saveTabVisibilityPreferences();
     void applyTabVisibility();
     void showPreferencesDialog();
     void saveAllPreferences();
     void loadAllPreferences();
     bool loadWindowSizeEnabled();
-    void saveWindowSizeEnabled(bool enabled);
     bool loadAutoSaveEnabled();
-    void saveAutoSaveEnabled(bool enabled);
-    bool loadDebugIsoCreatorEnabled();
-    void saveDebugIsoCreatorEnabled(bool enabled);
+    void scheduleWindowGeometrySave();
+    QTimer *preferencesGeometryTimer = nullptr;
     void saveWindowGeometry();
     void loadWindowGeometry();
     QMap<QString, bool> tabVisibilityMap; // tab name -> visible

@@ -6349,7 +6349,13 @@ PRIVACY
   </action>
   <action name="actionShowHideTabs">
    <property name="text">
-    <string>Show/Hide Tabs</string>
+    <string>Preferences…</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+,</string>
+   </property>
+   <property name="toolTip">
+    <string>Appearance, workspace and application defaults</string>
    </property>
   </action>
  </widget>

@@ -61,6 +61,10 @@ set(PROJECT_SOURCES
         uninstalltab.h
         tabupgrades.h
         thememanager.h
+        themepresets.h
+        preferences.h
+        preferencesdialog.h
+        preferencesdialog.cpp
         dashboard.h
         isoexclusions.h
         cleaner.h
@@ -139,6 +143,18 @@ if(BUILD_WINDOW_ENUM_TESTS)
     add_test(NAME window_enum_wayland COMMAND "${Python3_EXECUTABLE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/tests/run_window_enum_wayland_tests.py"
         $<TARGET_FILE:CachyOsTools> $<TARGET_FILE:window_enum_wayland_fixture>)
+endif()
+
+option(BUILD_PREFERENCES_TESTS "Build preferences dialog and persistence tests" OFF)
+if(BUILD_PREFERENCES_TESTS)
+    enable_testing()
+    find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Test)
+    add_executable(preferences_dialog_tests tests/preferences_dialog_tests.cpp
+        preferencesdialog.cpp preferencesdialog.h themepresets.h)
+    target_include_directories(preferences_dialog_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+    target_link_libraries(preferences_dialog_tests PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Test)
+    add_test(NAME preferences_dialog COMMAND preferences_dialog_tests)
+    set_tests_properties(preferences_dialog PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 endif()
 
 # GUI translations (pt_BR, de). Skipped gracefully when LinguistTools is not

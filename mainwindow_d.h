@@ -31,12 +31,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) , ui(new Ui::MainW
     // Set current tab first before applying visibility preferences
     ui->tabWidget->setCurrentWidget(ui->dashboardTab);
     
-    // Load all preferences after UI is fully set up and all connections are made
-    // Use a longer delay to ensure all signal connections are established before modifying tabs
-    QTimer::singleShot(500, this, [this]() {
-        loadAllPreferences();
-    });
-    
     //hellow world 
     qDebug() << "Hello World";
 
@@ -434,6 +428,9 @@ shellConfigFiles["ksh"] = QStringList()
     ui->offlineStatusLabel->setStyleSheet("color: #666666;");
     ui->downloadOfflineButton->setVisible(false);
     ui->checkAvailabilityButton->setVisible(false);
+
+    // All tools now exist. Apply saved defaults before the window is shown.
+    loadAllPreferences();
 }
 
 MainWindow::~MainWindow()
