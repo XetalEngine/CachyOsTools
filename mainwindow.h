@@ -147,6 +147,7 @@ protected:
 
 private slots:
     void on_refreshButton_clicked();
+    void on_setDriveLabelButton_clicked();
     void on_mountButton_clicked();
     void on_forceMountButton_clicked();
     void on_unmountButton_clicked();

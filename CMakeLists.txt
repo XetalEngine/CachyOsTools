@@ -45,6 +45,8 @@ set(PROJECT_SOURCES
         env_editor.h
         system_properties.h
         drive.h
+        drivelabel.h
+        drivelabel.cpp
         mainwindow_d.h
         systembackup.h
         systemrestore.h
@@ -155,6 +157,18 @@ if(BUILD_PREFERENCES_TESTS)
     target_link_libraries(preferences_dialog_tests PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Test)
     add_test(NAME preferences_dialog COMMAND preferences_dialog_tests)
     set_tests_properties(preferences_dialog PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+endif()
+
+option(BUILD_DRIVE_LABEL_TESTS "Build isolated volume label tests" OFF)
+if(BUILD_DRIVE_LABEL_TESTS)
+    enable_testing()
+    find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Test)
+    add_executable(drive_label_tests tests/drive_label_tests.cpp drivelabel.cpp drivelabel.h)
+    target_include_directories(drive_label_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+    target_link_libraries(drive_label_tests PRIVATE Qt${QT_VERSION_MAJOR}::Widgets
+        Qt${QT_VERSION_MAJOR}::DBus Qt${QT_VERSION_MAJOR}::Test)
+    add_test(NAME drive_label COMMAND drive_label_tests)
+    set_tests_properties(drive_label PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 endif()
 
 # GUI translations (pt_BR, de). Skipped gracefully when LinguistTools is not

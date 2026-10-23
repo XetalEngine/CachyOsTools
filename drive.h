@@ -19,6 +19,8 @@
 #include <QMessageBox>
 #include <QTableWidgetItem>
 #include <QFileInfo>
+#include <QSignalBlocker>
+#include "drivelabel.h"
 #include <unistd.h>
 
 void MainWindow::setupDriveTable()
@@ -32,6 +34,8 @@ void MainWindow::setupDriveTable()
     // Set table properties
     ui->drivesTable->setAlternatingRowColors(true);
     ui->drivesTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->drivesTable->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->drivesTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->drivesTable->setSortingEnabled(true);
     ui->drivesTable->horizontalHeader()->setStretchLastSection(false);
     ui->drivesTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
@@ -55,7 +59,7 @@ void MainWindow::refreshDrives()
     logMessage("🔄 Refreshing drive list...");
 
     QStringList lsblkArgs;
-    lsblkArgs << "-o" << "NAME,SIZE,TYPE,LABEL,MOUNTPOINT,MODEL,SERIAL" << "--noheadings" << "--pairs";
+    lsblkArgs << "-o" << "NAME,SIZE,TYPE,LABEL,MOUNTPOINT,MODEL,SERIAL,UUID,FSTYPE" << "--noheadings" << "--pairs";
 
     // Unprivileged lsblk depends on udev's cached metadata, which can be missing
     // labels after boot. Root lsblk reads filesystem superblocks directly, so use
@@ -73,6 +77,24 @@ void MainWindow::refreshDrives()
 void MainWindow::on_refreshButton_clicked()
 {
     refreshDrives();
+}
+
+void MainWindow::on_setDriveLabelButton_clicked()
+{
+    const QString device = getSelectedDrive();
+    if (device.isEmpty()) return;
+    DriveLabelDialog dialog(device, this);
+    bool refreshNeeded = false;
+    connect(&dialog, &DriveLabelDialog::refreshRequested, &dialog, [&refreshNeeded]() { refreshNeeded = true; });
+    connect(&dialog, &DriveLabelDialog::labelChanged, this, [this, device, &refreshNeeded](const QString &label) {
+        refreshNeeded = true;
+        logMessage(label.isEmpty() ? tr("✅ Removed volume label from %1").arg(device)
+                                   : tr("✅ Volume label for %1 is now: %2").arg(device, label.toHtmlEscaped()));
+        for (auto &drive : drivesList) if (drive.device == device) drive.label = label;
+        populateDriveTable();
+    });
+    dialog.exec();
+    if (refreshNeeded) refreshDrives();
 }
 
 void MainWindow::on_mountButton_clicked()
@@ -135,7 +157,7 @@ QList<DriveInfo> MainWindow::parseDriveList(const QString &output)
         while (i.hasNext()) {
             QRegularExpressionMatch match = i.next();
             QString key = match.captured(1);
-            QString value = match.captured(2);
+            QString value = DriveLabel::decodeLsblkValue(match.captured(2));
             
             if (key == "NAME") devName = value;
             else if (key == "SIZE") drive.size = value;
@@ -144,25 +166,12 @@ QList<DriveInfo> MainWindow::parseDriveList(const QString &output)
             else if (key == "MOUNTPOINT") drive.mountPoint = value;
             else if (key == "MODEL") drive.model = value;
             else if (key == "SERIAL") drive.serial = value;
+            else if (key == "UUID") drive.uuid = value;
+            else if (key == "FSTYPE") drive.filesystem = value;
         }
         if (!devName.isEmpty()) {
             drive.device = "/dev/" + devName;
             drive.isMounted = !drive.mountPoint.isEmpty();
-            
-            // Get additional info using blkid if available
-            QProcess blkidProc;
-            blkidProc.start("blkid", QStringList() << "-o" << "value" << "-s" << "UUID" << "-s" << "TYPE" << drive.device);
-            blkidProc.waitForFinished();
-            if (blkidProc.exitCode() == 0) {
-                QString blkidOutput = QString::fromUtf8(blkidProc.readAllStandardOutput()).trimmed();
-                QStringList blkidParts = blkidOutput.split('\n', Qt::SkipEmptyParts);
-                if (blkidParts.size() >= 2) {
-                    drive.uuid = blkidParts[0];
-                    drive.filesystem = blkidParts[1];
-                } else if (blkidParts.size() == 1) {
-                    drive.uuid = blkidParts[0];
-                }
-            }
             
             // Get disk ID from /dev/disk/by-id/ symlinks (matches system format)
             if (drive.type == "disk") {
@@ -260,6 +269,12 @@ qint64 MainWindow::parseSizeToMB(const QString &sizeStr)
 
 void MainWindow::populateDriveTable()
 {
+    const QString selectedDevice = getSelectedDrive();
+    const bool sorting = ui->drivesTable->isSortingEnabled();
+    const QSignalBlocker selectionBlocker(ui->drivesTable->selectionModel());
+    // Sorting while inserting individual cells can move a half-built row and
+    // associate a label with the wrong device. Restore sorting after all cells.
+    ui->drivesTable->setSortingEnabled(false);
     ui->drivesTable->setRowCount(0);
     
     bool showDisks = ui->diskFilterCheckBox->isChecked();
@@ -350,6 +365,14 @@ void MainWindow::populateDriveTable()
         diskIdItem->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter);
         ui->drivesTable->setItem(row, 7, diskIdItem);
     }
+    ui->drivesTable->setSortingEnabled(sorting);
+    for (int row = 0; row < ui->drivesTable->rowCount(); ++row) {
+        if (ui->drivesTable->item(row, 1)->text() == selectedDevice) {
+            ui->drivesTable->selectRow(row);
+            break;
+        }
+    }
+    updateButtonStates();
 }
 
 QString MainWindow::getSelectedDrive()
@@ -564,6 +587,7 @@ void MainWindow::updateButtonStates()
     ui->smartInfoButton->setEnabled(hasSelection);
     ui->mount777Button->setEnabled(hasSelection);
     ui->takeOwnershipButton->setEnabled(hasSelection);
+    ui->setDriveLabelButton->setEnabled(hasSelection);
 }
 
 void MainWindow::logMessage(const QString &message)

@@ -260,7 +260,7 @@ Three sub-tabs, from "read this first" to "click and done":
 
 | | |
 |---|---|
-| **💾 Drives** | Mount, format, SMART health checks, take-ownership, **burn ISO → USB** with triple-checked device confirmation |
+| **💾 Drives** | Mount, **set volume labels**, format, SMART health checks, take-ownership, **burn ISO → USB** with triple-checked device confirmation |
 | **🌐 Network** | Interfaces, bridges (with one-click *fix bridge on new hardware*), libvirt networks, Wi-Fi, saved connections, open ports — and the **🛡️ Firewall manager** (ufw/firewalld rules) right next to them |
 | **📁 Shares** | Mount SMB/NFS from anything on your LAN, and export your own folders over Samba — *detailed above* |
 | **🔧 Tweaks** | ZRAM, CPU governor, gaming optimizations (`vm.max_map_count`), mitigations, TRIM, swappiness, I/O schedulers, pacman candy — each with Info, Apply, Backup, and Edit Config |
@@ -275,6 +275,14 @@ Three sub-tabs, from "read this first" to "click and done":
 ### Preferences
 
 Open **Preferences → Preferences…** or press **Ctrl+,**. The searchable sidebar contains General, Appearance, Workspace, Tool defaults, and System ISO. Choose a startup tab and language, preview theme presets and custom colors, select visible tabs, and save defaults for drive filters, the configuration editor, package searches, and exclusion size filters. Existing preferences are preserved. Auto-save applies valid changes immediately; switch it off to use **Apply** or **Save & Close**, while **Cancel** discards unsaved edits. **Reset page** stages that page’s defaults for review before saving. Language and startup-tab changes apply on the next launch.
+
+### Volume labels
+
+In **Drives**, select a volume and click **Set Label** beside **Load Labels**. Add a name, change the existing name, or leave the field empty to remove it. The dialog displays the target device, filesystem, current label, and naming limits. Supported filesystems are NTFS, FAT, exFAT, ext2/3/4, XFS, and Btrfs. Windows-compatible filesystem labels also appear in Windows.
+
+Unmount the volume first. Read-only devices, locked encrypted volumes, and devices without a supported filesystem are refused. The app checks the device identity and mount state again before calling UDisks' label-only operation, then verifies the resulting label. It never forces a rename, formats a drive, changes its UUID, or repairs a dirty filesystem. If Windows hibernation or Fast Startup locks an NTFS volume, fully shut down Windows first. A label referenced by `/etc/fstab` requires acknowledgment that its mount entry must be updated; UUID-based entries remain valid.
+
+UDisks handles administrator authentication through the desktop's Polkit agent. Install the relevant filesystem package using **PKG Install** if the dialog reports a missing utility: `ntfs-3g`, `dosfstools`, `exfatprogs`, `e2fsprogs`, `xfsprogs`, or `btrfs-progs`. No packages are installed automatically.
 
 ## 📸 Gallery
 
