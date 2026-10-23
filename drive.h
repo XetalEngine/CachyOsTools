@@ -20,6 +20,12 @@
 #include <QTableWidgetItem>
 #include <QFileInfo>
 #include <QSignalBlocker>
+#include <QMenu>
+#include <QWidgetAction>
+#include <QStyle>
+#include <QStorageInfo>
+#include <QPainter>
+#include <algorithm>
 #include "drivelabel.h"
 #include <unistd.h>
 
@@ -52,6 +58,156 @@ void MainWindow::setupDriveTable()
     
     // Enable word wrap for long text
     ui->drivesTable->setWordWrap(true);
+    ui->drivesTable->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->drivesTable, &QTableWidget::customContextMenuRequested,
+            this, &MainWindow::showDriveContextMenu);
+    ui->openDriveButton->setIcon(QIcon::fromTheme("system-file-manager",
+                                                style()->standardIcon(QStyle::SP_DirOpenIcon)));
+}
+
+void MainWindow::showDriveContextMenu(const QPoint &position)
+{
+    const auto index = ui->drivesTable->indexAt(position);
+    if (!index.isValid()) return;
+    ui->drivesTable->setCurrentCell(index.row(), index.column());
+    ui->drivesTable->selectRow(index.row());
+    updateButtonStates();
+
+    const QString device = getSelectedDrive();
+    const auto found = std::find_if(drivesList.cbegin(), drivesList.cend(),
+                                   [&device](const DriveInfo &drive) { return drive.device == device; });
+    if (found == drivesList.cend()) return;
+    const DriveInfo drive = *found;
+
+    QMenu menu(this);
+    menu.setObjectName("driveContextMenu");
+    menu.setAttribute(Qt::WA_TranslucentBackground);
+    menu.setToolTipsVisible(true);
+    menu.setMinimumWidth(310);
+    const QColor accent(themeAccent.isEmpty() ? "#27ae60" : themeAccent);
+    const QColor background = themeBg.isEmpty() ? palette().color(QPalette::Window) : QColor(themeBg);
+    const bool dark = background.lightness() < 128;
+    const QColor surface = dark ? background.lighter(120) : background.darker(102);
+    const QColor text = themeText.isEmpty() ? (dark ? QColor("#eeeeee") : QColor("#202124")) : QColor(themeText);
+    const QString muted = dark ? "#a5acb8" : "#646b75";
+    const QString tint = QString("rgba(%1,%2,%3,0.20)").arg(accent.red()).arg(accent.green()).arg(accent.blue());
+    menu.setStyleSheet(QString(
+        "QMenu#driveContextMenu { background: %1; color: %2; border: 1px solid rgba(127,127,127,0.4);"
+        " border-radius: 10px; padding: 6px; }"
+        "QMenu#driveContextMenu::item { padding: 10px 22px 10px 38px; margin: 2px 4px; border-radius: 6px; }"
+        "QMenu#driveContextMenu::item:selected { background: %3; }"
+        "QMenu#driveContextMenu::item:disabled { color: %4; }"
+        "QMenu#driveContextMenu::icon { left: 12px; }"
+        "QMenu#driveContextMenu::separator { height: 1px; background: rgba(127,127,127,0.25); margin: 5px 12px; }")
+        .arg(surface.name(), text.name(), tint, dark ? "#666d77" : "#a0a5ac"));
+
+    auto *header = new QWidget(&menu);
+    auto *layout = new QVBoxLayout(header);
+    layout->setContentsMargins(14, 10, 14, 10);
+    layout->setSpacing(6);
+    auto *title = new QLabel(header);
+    title->setTextFormat(Qt::PlainText);
+    const QString name = drive.label.isEmpty() ? QFileInfo(device).fileName() : drive.label;
+    QFont titleFont = title->font();
+    titleFont.setBold(true);
+    titleFont.setPointSize(titleFont.pointSize() + 1);
+    title->setFont(titleFont);
+    title->setText(title->fontMetrics().elidedText(name, Qt::ElideRight, 330));
+    title->setToolTip(name);
+    title->setStyleSheet(QString("color: %1; background: transparent;").arg(text.name()));
+    layout->addWidget(title);
+    QStringList details{device};
+    if (!drive.size.isEmpty()) details << drive.size;
+    if (!drive.filesystem.isEmpty()) details << drive.filesystem.toUpper();
+    auto *subtitle = new QLabel(header);
+    subtitle->setTextFormat(Qt::PlainText);
+    subtitle->setText(subtitle->fontMetrics().elidedText(details.join("  ·  "), Qt::ElideRight, 330));
+    subtitle->setToolTip(details.join("  ·  "));
+    subtitle->setStyleSheet(QString("color: %1; background: transparent;").arg(muted));
+    layout->addWidget(subtitle);
+    auto *status = new QLabel(drive.isMounted ? tr("Mounted") : tr("Not mounted"), header);
+    status->setToolTip(drive.mountPoint);
+    status->setStyleSheet(QString("color: %1; background: %2; border-radius: 8px; padding: 3px 8px;")
+        .arg(drive.isMounted ? accent.name() : muted, drive.isMounted ? tint : "rgba(127,127,127,0.12)"));
+    layout->addWidget(status, 0, Qt::AlignLeft);
+    auto *heading = new QWidgetAction(&menu);
+    heading->setDefaultWidget(header);
+    heading->setEnabled(false);
+    menu.addAction(heading);
+    menu.addSeparator();
+
+    auto *open = menu.addAction(ui->openDriveButton->icon(), tr("Open in Dolphin"));
+    open->setEnabled(ui->openDriveButton->isEnabled());
+    open->setToolTip(open->isEnabled() ? drive.mountPoint : tr("Mount this partition to browse its files."));
+    menu.addSeparator();
+    auto *mount = menu.addAction(QIcon::fromTheme("media-mount", style()->standardIcon(QStyle::SP_DriveHDIcon)), tr("Mount"));
+    QPixmap ejectIcon(18, 18);
+    ejectIcon.fill(Qt::transparent);
+    QPainter painter(&ejectIcon);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(text);
+    painter.drawPolygon(QPolygon{QPoint(9, 3), QPoint(15, 11), QPoint(3, 11)});
+    painter.drawRoundedRect(QRect(3, 13, 12, 2), 1, 1);
+    painter.end();
+    auto *unmount = menu.addAction(QIcon::fromTheme("media-eject", QIcon(ejectIcon)), tr("Unmount"));
+    mount->setEnabled(ui->mountButton->isEnabled());
+    unmount->setEnabled(ui->unmountButton->isEnabled());
+    menu.setDefaultAction(open->isEnabled() ? open : mount);
+
+    const auto *chosen = menu.exec(ui->drivesTable->viewport()->mapToGlobal(position));
+    if (!chosen) return;
+    if (chosen == open) {
+        openDriveInDolphin(device);
+        return;
+    }
+    // A refresh or sort can run while the menu is open. Find the same device
+    // again instead of operating on whichever partition inherited its row.
+    for (int row = 0; row < ui->drivesTable->rowCount(); ++row) {
+        if (ui->drivesTable->item(row, 1)->text() != device) continue;
+        ui->drivesTable->setCurrentCell(row, 1);
+        ui->drivesTable->selectRow(row);
+        updateButtonStates();
+        if (chosen == mount) ui->mountButton->click();
+        else if (chosen == unmount) ui->unmountButton->click();
+        break;
+    }
+}
+
+void MainWindow::on_openDriveButton_clicked()
+{
+    openDriveInDolphin(getSelectedDrive());
+}
+
+void MainWindow::openDriveInDolphin(const QString &device)
+{
+    if (device.isEmpty()) return;
+    const auto devicePath = [](const QString &path) {
+        const QString canonical = QFileInfo(path).canonicalFilePath();
+        return canonical.isEmpty() ? path : canonical;
+    };
+    const QString canonicalDevice = devicePath(device);
+    // Read the live mount table: the partition may have been unmounted outside
+    // this app since the last refresh. Never open its now-empty mount folder.
+    QString mountPoint;
+    for (const auto &volume : QStorageInfo::mountedVolumes()) {
+        if (volume.isReady() && devicePath(QString::fromLocal8Bit(volume.device())) == canonicalDevice) {
+            mountPoint = volume.rootPath();
+            break;
+        }
+    }
+    if (mountPoint.isEmpty()) {
+        QMessageBox::information(this, tr("Not Mounted"), tr("Mount the selected partition before opening it in Dolphin."));
+        refreshDrives();
+        return;
+    }
+    // Pass the path as one argument, preserving spaces and special characters.
+    if (!QProcess::startDetached("dolphin", QStringList{"--", mountPoint})) {
+        QMessageBox::warning(this, tr("Could Not Open Dolphin"),
+                             tr("Dolphin could not be started. Make sure it is installed, then try again."));
+        return;
+    }
+    logMessage(tr("📂 Opened %1 in Dolphin").arg(mountPoint.toHtmlEscaped()));
 }
 
 void MainWindow::refreshDrives()
@@ -578,10 +734,14 @@ void MainWindow::updateButtonStates()
 {
     QString selectedDrive = getSelectedDrive();
     bool hasSelection = !selectedDrive.isEmpty();
+    const auto drive = std::find_if(drivesList.cbegin(), drivesList.cend(),
+                                   [&selectedDrive](const DriveInfo &item) { return item.device == selectedDrive; });
+    const bool mounted = drive != drivesList.cend() && drive->isMounted;
     
-    ui->mountButton->setEnabled(hasSelection);
+    ui->mountButton->setEnabled(hasSelection && !mounted);
     ui->forceMountButton->setEnabled(hasSelection);
-    ui->unmountButton->setEnabled(hasSelection);
+    ui->unmountButton->setEnabled(hasSelection && mounted);
+    ui->openDriveButton->setEnabled(hasSelection && mounted && !drive->mountPoint.isEmpty() && drive->mountPoint != "[SWAP]");
     ui->ejectButton->setEnabled(hasSelection);
     ui->formatButton->setEnabled(hasSelection);
     ui->smartInfoButton->setEnabled(hasSelection);

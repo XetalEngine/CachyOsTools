@@ -151,6 +151,7 @@ private slots:
     void on_mountButton_clicked();
     void on_forceMountButton_clicked();
     void on_unmountButton_clicked();
+    void on_openDriveButton_clicked();
     void on_mount777Button_clicked();
     void on_takeOwnershipButton_clicked();
     void on_ejectButton_clicked();
@@ -493,6 +494,8 @@ private:
     QProcess *currentProcess;
     
     void setupDriveTable();
+    void showDriveContextMenu(const QPoint &position);
+    void openDriveInDolphin(const QString &device);
     void populateDriveTable();
     void logMessage(const QString &message);
     void showTweakInstructions(const QString &title, const QString &instructions);

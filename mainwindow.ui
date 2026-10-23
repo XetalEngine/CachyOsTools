@@ -409,203 +409,247 @@
         </item>
         <item>
          <widget class="QWidget" name="actionsWidget">
-          <layout class="QHBoxLayout" name="horizontalLayout">
+          <layout class="QVBoxLayout" name="driveActionsLayout">
            <item>
-            <spacer name="leftSpacer">
-             <property name="orientation">
-              <enum>Qt::Orientation::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-             <property name="sizeType">
-              <enum>QSizePolicy::Expanding</enum>
-             </property>
-            </spacer>
+            <layout class="QHBoxLayout" name="horizontalLayout">
+             <item>
+              <spacer name="leftSpacer">
+               <property name="orientation">
+                <enum>Qt::Orientation::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="refreshButton">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>35</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>🔄 Refresh</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="loadLabelsButton">
+               <property name="minimumSize">
+                <size>
+                 <width>110</width>
+                 <height>35</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>🏷️ Load Labels</string>
+               </property>
+               <property name="toolTip">
+                <string>Read partition labels directly from the filesystems (asks for sudo once). Use when the Label column shows dashes.</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="setDriveLabelButton">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>35</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>🏷️ Set Label</string>
+               </property>
+               <property name="toolTip">
+                <string>Add, change or remove the selected volume's filesystem label. Unmount the volume first.</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="mountButton">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>35</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>📁 Mount</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="unmountButton">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>35</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>📤 Unmount</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="openDriveButton">
+               <property name="minimumSize">
+                <size>
+                 <width>150</width>
+                 <height>35</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Open in Dolphin</string>
+               </property>
+               <property name="toolTip">
+                <string>Browse the selected mounted partition in Dolphin.</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="ejectButton">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>35</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>⏏️ Eject</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="rightSpacer">
+               <property name="orientation">
+                <enum>Qt::Orientation::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
            </item>
            <item>
-           <widget class="QPushButton" name="refreshButton">
-            <property name="minimumSize">
-             <size>
-              <width>100</width>
-              <height>35</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>🔄 Refresh</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="loadLabelsButton">
-            <property name="minimumSize">
-             <size>
-              <width>110</width>
-              <height>35</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>🏷️ Load Labels</string>
-            </property>
-            <property name="toolTip">
-             <string>Read partition labels directly from the filesystems (asks for sudo once). Use when the Label column shows dashes.</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="setDriveLabelButton">
-            <property name="minimumSize">
-             <size>
-              <width>100</width>
-              <height>35</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>🏷️ Set Label</string>
-            </property>
-            <property name="toolTip">
-             <string>Add, change or remove the selected volume's filesystem label. Unmount the volume first.</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="mountButton">
-            <property name="minimumSize">
-             <size>
-              <width>100</width>
-              <height>35</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>📁 Mount</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="forceMountButton">
-            <property name="minimumSize">
-             <size>
-              <width>120</width>
-              <height>35</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>⚡ Force Mount</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="unmountButton">
-            <property name="minimumSize">
-             <size>
-              <width>100</width>
-              <height>35</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>📤 Unmount</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="mount777Button">
-            <property name="minimumSize">
-             <size>
-              <width>100</width>
-              <height>35</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Mount 777</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="takeOwnershipButton">
-            <property name="minimumSize">
-             <size>
-              <width>100</width>
-              <height>35</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Take Ownership</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="ejectButton">
-            <property name="minimumSize">
-             <size>
-              <width>100</width>
-              <height>35</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>⏏️ Eject</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="formatButton">
-            <property name="minimumSize">
-             <size>
-              <width>100</width>
-              <height>35</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>🔧 Format</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="smartInfoButton">
-            <property name="minimumSize">
-             <size>
-              <width>120</width>
-              <height>35</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>📊 SMART Info</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="driveHealthButton">
-            <property name="text">
-             <string>❤️ Health Check</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="burnIsoButton">
-            <property name="text">
-             <string>🔥 Burn ISO → USB</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="rightSpacer">
-            <property name="orientation">
-             <enum>Qt::Orientation::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Expanding</enum>
-            </property>
-           </spacer>
-          </item>
-         </layout>
+            <layout class="QHBoxLayout" name="advancedDriveActionsLayout">
+             <item>
+              <spacer name="leftAdvancedDriveSpacer">
+               <property name="orientation">
+                <enum>Qt::Orientation::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="forceMountButton">
+               <property name="minimumSize">
+                <size>
+                 <width>120</width>
+                 <height>35</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>⚡ Force Mount</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="mount777Button">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>35</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Mount 777</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="takeOwnershipButton">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>35</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Take Ownership</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="formatButton">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>35</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>🔧 Format</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="smartInfoButton">
+               <property name="minimumSize">
+                <size>
+                 <width>120</width>
+                 <height>35</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>📊 SMART Info</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="driveHealthButton">
+               <property name="text">
+                <string>❤️ Health Check</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="burnIsoButton">
+               <property name="text">
+                <string>🔥 Burn ISO → USB</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="rightAdvancedDriveSpacer">
+               <property name="orientation">
+                <enum>Qt::Orientation::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+          </layout>
          </widget>
         </item>
         <item>
