@@ -40,6 +40,8 @@ iso_dummy_live_base() {
         iso_die 'Install archiso and archlinux-keyring to prepare the dummy live environment.'; return 1;
     }
     echo '[*] Building the dummy Arch live environment for the first time (no system snapshot)...'
+    # SUDO_PASS is consumed by run_sudo in iso/build.sh.
+    # shellcheck disable=SC2034
     IFS= read -r -s SUDO_PASS || { iso_die 'No sudo credentials received.'; return 1; }
     run_sudo true
     PROFILE="$RUN/profile"; WORK="$RUN/work"

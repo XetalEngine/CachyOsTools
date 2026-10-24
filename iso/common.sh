@@ -270,6 +270,8 @@ iso_unmount_tree() {
 # ---------------------------------------------------------------------------
 
 # iso_sbctl_ready [ROOT] - true if ROOT (default /) has sbctl and a db signing key.
+# ROOT is optional; omitting it checks the current system.
+# shellcheck disable=SC2120
 iso_sbctl_ready() {
     local root=${1:-}
     # XETAL_NO_SIGN=1 turns off all Secure Boot signing and Limine hash pinning.
