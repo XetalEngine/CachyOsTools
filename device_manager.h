@@ -8,6 +8,7 @@
 #include <QMenu>
 #include <QLineEdit>
 #include <QTextBrowser>
+#include "file_manager.h"
 
 // Every field the collector emits lands in this map, stored on the tree item.
 static QVariantMap devMgrProps(QTreeWidgetItem *item) {
@@ -85,8 +86,8 @@ void MainWindow::setupDeviceManagerTab() {
         menu.addAction(tr("🔩 Motherboard BIOS (SPI flash)..."), this, [this]() { dumpFirmware("bios"); });
         menu.exec(fwDumpBtn->mapToGlobal(QPoint(0, fwDumpBtn->height())));
     });
-    connect(dumpsBtn, &QPushButton::clicked, this, []() {
-        QDesktopServices::openUrl(QUrl::fromLocalFile(xetalDumpsDir()));
+    connect(dumpsBtn, &QPushButton::clicked, this, [this]() {
+        FileManager::openFolder(this, xetalDumpsDir());
     });
     connect(refreshBtn, &QPushButton::clicked, this, &MainWindow::refreshDeviceManager);
     connect(propsBtn, &QPushButton::clicked, this, [this]() { showDeviceProperties(devMgrTree->currentItem()); });

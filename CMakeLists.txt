@@ -71,6 +71,7 @@ set(PROJECT_SOURCES
         isoexclusions.h
         cleaner.h
         script_helpers.h
+        file_manager.h
         package_install.h
         pacman_doctor.h
         sensors_power.h
@@ -169,6 +170,23 @@ if(BUILD_DRIVE_LABEL_TESTS)
         Qt${QT_VERSION_MAJOR}::DBus Qt${QT_VERSION_MAJOR}::Test)
     add_test(NAME drive_label COMMAND drive_label_tests)
     set_tests_properties(drive_label PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+endif()
+
+option(BUILD_FILE_MANAGER_TESTS "Build isolated folder-opening tests" OFF)
+if(BUILD_FILE_MANAGER_TESTS)
+    enable_testing()
+    find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Test)
+    find_program(DBUS_RUN_SESSION dbus-run-session REQUIRED)
+    add_executable(file_manager_tests tests/file_manager_tests.cpp file_manager.h)
+    target_include_directories(file_manager_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+    target_link_libraries(file_manager_tests PRIVATE Qt${QT_VERSION_MAJOR}::Widgets
+        Qt${QT_VERSION_MAJOR}::DBus Qt${QT_VERSION_MAJOR}::Test)
+    add_test(NAME file_manager COMMAND "${DBUS_RUN_SESSION}"
+        "--config-file=${CMAKE_CURRENT_SOURCE_DIR}/tests/file_manager_bus.conf"
+        -- $<TARGET_FILE:file_manager_tests>)
+    set_tests_properties(file_manager PROPERTIES
+        ENVIRONMENT "CACHY_FILE_MANAGER_TEST_BUS=1;QT_QPA_PLATFORM=offscreen;QT_QPA_PLATFORMTHEME="
+        TIMEOUT 30)
 endif()
 
 # GUI translations (pt_BR, de). Skipped gracefully when LinguistTools is not

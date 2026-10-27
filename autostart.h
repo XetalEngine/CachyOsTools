@@ -16,6 +16,7 @@
 #include <QFormLayout>
 #include <QDialogButtonBox>
 #include <QSpinBox>
+#include "file_manager.h"
 #include "script_helpers.h"
 
 static const char *AUTOSTART_MARKER = "X-CachyOsTools-Created";
@@ -210,7 +211,7 @@ void MainWindow::setupAutostartTab() {
     connect(folderBtn, &QPushButton::clicked, this, [this]() {
         const QString dir = QDir::homePath() + "/.config/autostart";
         QDir().mkpath(dir);
-        QDesktopServices::openUrl(QUrl::fromLocalFile(dir));
+        FileManager::openFolder(this, dir);
     });
 
     connect(runBtn, &QPushButton::clicked, this, [this]() {

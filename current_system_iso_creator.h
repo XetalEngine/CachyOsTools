@@ -1,4 +1,5 @@
 #include <QTemporaryFile>
+#include "file_manager.h"
 #include "script_helpers.h"
 
 // ISO Creator tab functions
@@ -17,8 +18,7 @@ void MainWindow::on_browseIsoOutputButton_clicked()
         }
     }
 
-    // Use the desktop's default file manager.
-    QDesktopServices::openUrl(QUrl::fromLocalFile(outputDir));
+    FileManager::openFolder(this, outputDir);
 }
 
 void MainWindow::on_createIsoButton_clicked()

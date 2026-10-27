@@ -17,6 +17,7 @@
 #include <QFileInfo>
 #include <QTextStream>
 #include <QStandardPaths>
+#include "file_manager.h"
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -500,7 +501,7 @@ void MainWindow::on_kdePanelFloatingBackupButton_clicked() {
 
 void MainWindow::on_kdeOpenEnvFolderButton_clicked() {
     QDir().mkpath(kdeEnvDir());
-    QProcess::startDetached("xdg-open", QStringList() << kdeEnvDir());
+    FileManager::openFolder(this, kdeEnvDir());
 }
 
 void MainWindow::on_kdeDisableAllButton_clicked() {

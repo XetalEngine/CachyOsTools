@@ -1,3 +1,5 @@
+#include "file_manager.h"
+
 // KVM VM tab slots
 void MainWindow::on_multiGpuXorgToggle_clicked() {
     QString instructions = R"(
@@ -492,5 +494,5 @@ void MainWindow::on_hugePagesBackupButton_clicked() {
 void MainWindow::on_openKvmBackupFolderButton_clicked() {
     QString backupDir = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/CachyOsTools/backups/kvm";
     QDir().mkpath(backupDir);
-    QProcess::startDetached("xdg-open", QStringList() << backupDir);
+    FileManager::openFolder(this, backupDir);
 }

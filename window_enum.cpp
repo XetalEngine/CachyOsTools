@@ -1,11 +1,11 @@
 #include "window_enum.h"
 #include "window_enum_backend.h"
+#include "file_manager.h"
 
 #include <QApplication>
 #include <QCheckBox>
 #include <QClipboard>
 #include <QComboBox>
-#include <QDesktopServices>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QDir>
@@ -28,7 +28,6 @@
 #include <QStandardPaths>
 #include <QTableView>
 #include <QTextStream>
-#include <QUrl>
 #include <QVBoxLayout>
 
 namespace {
@@ -500,8 +499,8 @@ void WindowEnumTab::actionMenu()
     });
     auto *path = menu.addAction(tr("Open executable folder"));
     path->setEnabled(!row["executable"].toString().isEmpty());
-    connect(path, &QAction::triggered, this, [row]() {
-        QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(row["executable"].toString()).absolutePath()));
+    connect(path, &QAction::triggered, this, [this, row]() {
+        FileManager::openFolder(this, QFileInfo(row["executable"].toString()).absolutePath());
     });
     menu.addSeparator();
     add(tr("Close window"), "close");
