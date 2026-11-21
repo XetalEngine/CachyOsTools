@@ -40,6 +40,26 @@
 
 ## 🆕 Fresh in this build
 
+CachyOsTools remains a standalone Qt system manager. Its existing tabs now share
+roomier cards, consistent controls, light/dark palette support, and layouts that
+adapt to the selected tool. Tweaks adds search within each category; Network groups
+connections, diagnostics, virtual networks, firewall and shares into clear sections.
+
+- **GRUB Editor:** inspect and edit the current boot menu, detect systems on other
+  drives, and preview a custom boot screen. Six CachyOsTools palettes and your own
+  pictures are supported. Changes are validated, backed up, and reviewed before
+  saving; recovery instructions and undo are included.
+- **Drives and Cleaner:** a grouped disk/partition tree preserves the existing
+  filters and actions. Cleaner adds an interactive disk usage map alongside its
+  existing cleanup tools.
+- **Wayland Window Enum:** native Hyprland window and layer discovery joins the
+  existing X11, KWin, GNOME and generic Wayland backends. Untitled overlays are
+  included by default. Coverage and available controls depend on the compositor;
+  see [Window Enum](docs/WINDOW_ENUM.md).
+
+Build, dependencies, verification and compatibility limits are documented in
+[the interface upgrade notes](docs/INTERFACE_UPGRADE.md).
+
 |   |   |   |
 |---|---|---|
 | 🌡️ | **Sensors & Power** | Every hwmon reading, live — coloured against each chip's *own* limits, NVIDIA included. Plus the knobs you reach for when one goes red |
@@ -89,6 +109,7 @@ That's it. The interactive build script handles the choices; if the **System ISO
 ```bash
 sudo pacman -S qt6-base qt6-tools cmake gcc make pkgconf libxcb wayland # build
 sudo pacman -S udisks2                              # runtime (drive tools)
+sudo pacman -S python python-pillow grub polkit       # GRUB editor and previews
 sudo pacman -S archiso archlinux-keyring rsync tar zstd  # ISO creator
 mkdir build && cd build
 cmake .. -DCMAKE_BUILD_TYPE=Release

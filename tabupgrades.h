@@ -45,8 +45,7 @@ void MainWindow::on_driveHealthButton_clicked() {
         QMessageBox::warning(this, tr("No Drive Selected"), tr("Please select a disk to health-check."));
         return;
     }
-    int row = ui->drivesTable->currentRow();
-    if (ui->drivesTable->item(row, 3) && ui->drivesTable->item(row, 3)->text() != "disk") {
+    if (ui->drivesTable->selectedType() != "disk") {
         QMessageBox::warning(this, tr("Invalid Selection"), tr("Health check works on disks, not partitions. Select the disk itself."));
         return;
     }
@@ -144,8 +143,7 @@ void MainWindow::on_burnIsoButton_clicked() {
         QMessageBox::warning(this, tr("No Drive Selected"), tr("Select the USB disk to burn to (the disk, not a partition)."));
         return;
     }
-    int row = ui->drivesTable->currentRow();
-    if (ui->drivesTable->item(row, 3) && ui->drivesTable->item(row, 3)->text() != "disk") {
+    if (ui->drivesTable->selectedType() != "disk") {
         QMessageBox::warning(this, tr("Invalid Selection"), tr("Select the whole disk (type 'disk'), not a partition."));
         return;
     }

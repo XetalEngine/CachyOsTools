@@ -1,8 +1,9 @@
 void MainWindow::executeCommand(const QString &command, const QStringList &arguments)
 {
     if (currentProcess) {
+        currentProcess->disconnect(this);
         currentProcess->kill();
-        delete currentProcess;
+        currentProcess->deleteLater();
     }
     
     currentProcess = new QProcess(this);
@@ -17,12 +18,17 @@ void MainWindow::executeCommand(const QString &command, const QStringList &argum
 
 void MainWindow::onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
-    QString output = QString::fromUtf8(currentProcess->readAllStandardOutput());
-    QString error = QString::fromUtf8(currentProcess->readAllStandardError());
+    Q_UNUSED(exitStatus);
+    auto *process = qobject_cast<QProcess *>(sender());
+    if (!process || process != currentProcess) return;
+    currentProcess = nullptr;
+    process->disconnect(this);
+    QString output = QString::fromUtf8(process->readAllStandardOutput());
+    QString error = QString::fromUtf8(process->readAllStandardError());
     
     if (exitCode == 0) {
-        bool isLsblk = (currentProcess->program() == "lsblk") ||
-                       (currentProcess->program() == "sudo" && currentProcess->arguments().contains("lsblk"));
+        bool isLsblk = (process->program() == "lsblk") ||
+                       (process->program() == "sudo" && process->arguments().contains("lsblk"));
         if (isLsblk) {
             logMessage("lsblk output:\n" + output); // Log raw output for debugging
             drivesList = parseDriveList(output);
@@ -40,12 +46,15 @@ void MainWindow::onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus
         }
     }
     
-    delete currentProcess;
-    currentProcess = nullptr;
+    process->deleteLater();
 }
 
 void MainWindow::onProcessError(QProcess::ProcessError error)
 {
+    auto *process = qobject_cast<QProcess *>(sender());
+    if (!process || process != currentProcess) return;
+    currentProcess = nullptr;
+    process->disconnect(this);
     QString errorMsg;
     switch (error) {
         case QProcess::FailedToStart:
@@ -69,6 +78,6 @@ void MainWindow::onProcessError(QProcess::ProcessError error)
     }
     
     logMessage("❌ Process error: " + errorMsg);
-    delete currentProcess;
-    currentProcess = nullptr;
+    process->kill();
+    process->deleteLater();
 }

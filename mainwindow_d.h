@@ -75,8 +75,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) , ui(new Ui::MainW
             this, &MainWindow::updateButtonStates);
     
     // Connect drive filter checkboxes
-    connect(ui->diskFilterCheckBox, &QCheckBox::stateChanged, this, &MainWindow::on_diskFilterCheckBox_stateChanged);
-    connect(ui->partitionFilterCheckBox, &QCheckBox::stateChanged, this, &MainWindow::on_partitionFilterCheckBox_stateChanged);
     connect(ui->minSizeFilterCheckBox, &QCheckBox::stateChanged, this, &MainWindow::on_minSizeFilterCheckBox_stateChanged);
     connect(ui->minSizeSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &MainWindow::on_minSizeSpinBox_valueChanged);
     
@@ -429,6 +427,8 @@ shellConfigFiles["ksh"] = QStringList()
     ui->downloadOfflineButton->setVisible(false);
     ui->checkAvailabilityButton->setVisible(false);
 
+    setupModernInterface();
+
     // All tools now exist. Apply saved defaults before the window is shown.
     loadAllPreferences();
 }
@@ -436,6 +436,7 @@ shellConfigFiles["ksh"] = QStringList()
 MainWindow::~MainWindow()
 {
     if (currentProcess) {
+        currentProcess->disconnect(this);
         currentProcess->kill();
         delete currentProcess;
     }

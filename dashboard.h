@@ -110,23 +110,6 @@ void MainWindow::refreshDashboard() {
         ui->dashGrid->setHorizontalSpacing(14);
         ui->dashGrid->setVerticalSpacing(14);
 
-        // Promo banner for Linux Studio 2026 (our IDE)
-        ui->dashPromoLabel->setTextFormat(Qt::RichText);
-        ui->dashPromoLabel->setStyleSheet(
-            "QLabel {"
-            "  background: rgba(192,57,43,0.10);"
-            "  border: 1px solid rgba(192,57,43,0.35);"
-            "  border-left: 3px solid #c0392b;"
-            "  border-right: 3px solid #27ae60;"
-            "  border-radius: 10px;"
-            "  padding: 10px;"
-            "  font-size: 14px;"
-            "}");
-        ui->dashPromoLabel->setText(
-            "🚀 <b>Love C++?</b> Meet <span style='color:#c0392b; font-weight:bold;'>LINUX</span> "
-            "<span style='color:#27ae60; font-weight:bold;'>STUDIO 2026</span> — "
-            "the brand-new IDE built <i>for Linux, on Linux</i>, from the same dev that made this app. "
-            "&nbsp;<a href='https://www.xetal.net' style='color:#3498db; font-weight:bold;'>Grab it at xetal.net →</a>");
     }
 
     // ---- 🧠 System card ----

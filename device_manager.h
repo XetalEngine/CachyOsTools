@@ -658,15 +658,15 @@ static VbiosScan scanVbios(const QByteArray &d) {
     VbiosScan s;
     qint64 off = 0;
     while (off + 0x1a < d.size() && s.images < 16) {
-        if (static_cast<unsigned char>(d[off]) != 0x55 || static_cast<unsigned char>(d[off + 1]) != 0xAA) break;
-        const quint16 pcirOff = static_cast<unsigned char>(d[off + 0x18])
-                              | (static_cast<unsigned char>(d[off + 0x19]) << 8);
+        if (static_cast<unsigned char>(d.constData()[off]) != 0x55 || static_cast<unsigned char>(d.constData()[off + 1]) != 0xAA) break;
+        const quint16 pcirOff = static_cast<unsigned char>(d.constData()[off + 0x18])
+                              | (static_cast<unsigned char>(d.constData()[off + 0x19]) << 8);
         const qint64 p = off + pcirOff;
         if (p + 0x16 > d.size() || d.mid(p, 4) != "PCIR") break;
-        const quint16 lenBlocks = static_cast<unsigned char>(d[p + 0x10])
-                                | (static_cast<unsigned char>(d[p + 0x11]) << 8);
-        const quint8 codeType  = static_cast<unsigned char>(d[p + 0x14]);
-        const quint8 indicator = static_cast<unsigned char>(d[p + 0x15]);
+        const quint16 lenBlocks = static_cast<unsigned char>(d.constData()[p + 0x10])
+                                | (static_cast<unsigned char>(d.constData()[p + 0x11]) << 8);
+        const quint8 codeType  = static_cast<unsigned char>(d.constData()[p + 0x14]);
+        const quint8 indicator = static_cast<unsigned char>(d.constData()[p + 0x15]);
         const qint64 imgLen = static_cast<qint64>(lenBlocks) * 512;
         if (imgLen <= 0) break;
         if (codeType == 0x00) s.hasLegacy = true;

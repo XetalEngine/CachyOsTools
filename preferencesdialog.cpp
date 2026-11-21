@@ -34,6 +34,7 @@ QList<AppPreferences::Tab> AppPreferences::tabs() {
     return {
         {"dashboardTab", translated("Dashboard"), translated("Overview and system tools")},
         {"driveToolsTab", translated("Drives"), translated("Disks, partitions and mounts")},
+        {"grubEditorTab", translated("GRUB Editor"), translated("Boot entries, appearance and recovery backups")},
         {"shellToolsTab", translated("Shell"), translated("Aliases and shell configuration")},
         {"servicesTab", translated("Services"), translated("Services and startup applications")},
         {"tweaksTab", translated("Tweaks"), translated("Performance and desktop settings")},
@@ -57,7 +58,7 @@ QVariantMap AppPreferences::defaults() {
         {"preferences/debugIsoCreatorEnabled", false}, {"preferences/startupTab", "dashboardTab"},
         {"language/code", "en"}, {"theme/preset", 0}, {"theme/accent", "#27ae60"},
         {"theme/background", ""}, {"theme/text", ""},
-        {"defaults/drives/showDisks", false}, {"defaults/drives/showPartitions", true},
+        {"defaults/drives/showDisks", true}, {"defaults/drives/showPartitions", true},
         {"defaults/drives/minimumEnabled", true}, {"defaults/drives/minimumMB", 500},
         {"defaults/config/editor", "nano"}, {"defaults/packages/searchMode", 2},
         {"defaults/packages/searchType", 1},

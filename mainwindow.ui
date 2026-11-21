@@ -16,7 +16,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QTabWidget" name="tabWidget">
+     <widget class="PanelTabs" name="tabWidget">
       <property name="currentIndex">
        <number>8</number>
       </property>
@@ -26,7 +26,7 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_dashOuter">
         <item>
-         <widget class="QTabWidget" name="dashSubTabs">
+         <widget class="PanelTabs" name="dashSubTabs">
           <widget class="QWidget" name="welcomeSubTab">
            <attribute name="title">
             <string>🏠 Welcome</string>
@@ -249,23 +249,7 @@
         </layout>
         </item>
         <item>
-         <widget class="QLabel" name="dashPromoLabel">
-          <property name="text">
-           <string>Loading...</string>
-          </property>
-          <property name="openExternalLinks">
-           <bool>true</bool>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>52</height>
-           </size>
-          </property>
-         </widget>
+         <widget class="HyperFusionBanner" name="dashPromoLabel"/>
         </item>
        </layout>
           </widget>
@@ -323,7 +307,7 @@
              <string>Disk</string>
             </property>
             <property name="checked">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -392,7 +376,7 @@
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_drives">
            <item>
-            <widget class="QTableWidget" name="drivesTable">
+            <widget class="DriveTree" name="drivesTable">
           <property name="alternatingRowColors">
            <bool>true</bool>
           </property>
@@ -947,7 +931,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QTabWidget" name="tweaksTabWidget">
+         <widget class="PanelTabs" name="tweaksTabWidget">
           <property name="currentIndex">
            <number>0</number>
           </property>
@@ -3459,7 +3443,7 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_kvmOuter">
         <item>
-         <widget class="QTabWidget" name="kvmSubTabs">
+         <widget class="PanelTabs" name="kvmSubTabs">
           <widget class="QWidget" name="dualGpuSubTab">
            <attribute name="title">
             <string>🖥️ Dual GPU</string>
@@ -4536,7 +4520,7 @@ network as the original long-term (avoids duplicate DHCP/systemd identity).</str
          </layout>
         </item>
         <item>
-         <widget class="QTabWidget" name="isoActivityTabs">
+         <widget class="PanelTabs" name="isoActivityTabs">
           <widget class="QWidget" name="isoBuildOutputTab">
            <attribute name="title">
             <string>Build Output</string>
@@ -4707,7 +4691,7 @@ PRIVACY
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_network">
         <item>
-         <widget class="QTabWidget" name="networkTabWidget">
+         <widget class="PanelTabs" name="networkTabWidget">
           <property name="currentIndex">
            <number>0</number>
           </property>
@@ -5492,14 +5476,14 @@ PRIVACY
          </layout>
         </item>
         <item>
-         <widget class="QTabWidget" name="packageManagerTabWidget">
+         <widget class="PanelTabs" name="packageManagerTabWidget">
           <widget class="QWidget" name="pacmanTab">
            <attribute name="title">
             <string>📦 Pacman</string>
            </attribute>
            <layout class="QVBoxLayout" name="verticalLayout_pacman">
             <item>
-             <widget class="QTabWidget" name="pacmanTabWidget">
+             <widget class="PanelTabs" name="pacmanTabWidget">
               <widget class="QWidget" name="pacmanInstalledTab">
                <attribute name="title">
                 <string>Installed Packages</string>
@@ -6419,6 +6403,24 @@ PRIVACY
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>HyperFusionBanner</class>
+   <extends>QLabel</extends>
+   <header>ui_components/hyper_fusion_banner.h</header>
+  </customwidget>
+  <customwidget>
+   <class>PanelTabs</class>
+   <extends>QTabWidget</extends>
+   <header>ui_components/panel_widgets.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>DriveTree</class>
+   <extends>QTreeWidget</extends>
+   <header>drive_tree.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

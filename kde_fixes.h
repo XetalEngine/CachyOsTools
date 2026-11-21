@@ -1698,7 +1698,10 @@ void MainWindow::on_kdeRestartShellButton_clicked() {
 }
 
 void MainWindow::on_kdeRestartKwinButton_clicked() {
-    const bool wayland = qgetenv("XDG_SESSION_TYPE").toLower() == "wayland";
+    const auto session = qEnvironmentVariable("XDG_SESSION_TYPE").toLower();
+    const bool wayland = session == "wayland" ||
+        (session.isEmpty() && (!qEnvironmentVariable("WAYLAND_DISPLAY").isEmpty() ||
+                              QGuiApplication::platformName().startsWith("wayland")));
     if (wayland) {
         QMessageBox::information(
             this, tr("Restart KWin"),

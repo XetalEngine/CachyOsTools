@@ -10,6 +10,8 @@
 // reachable from this tab, by construction.
 
 #include <QTreeWidget>
+#include "ui_components/panel_widgets.h"
+#include "ui_components/disk_visualizer.h"
 #include <QTreeWidgetItem>
 #include <QSplitter>
 #include <QCheckBox>
@@ -259,7 +261,15 @@ bool MainWindow::isCleanablePath(const QString &path) const {
 void MainWindow::setupCleanerTab() {
     cleanerTab = new QWidget();
     cleanerTab->setObjectName("cleanerTab");
-    QVBoxLayout *root = new QVBoxLayout(cleanerTab);
+    auto *outer = new QVBoxLayout(cleanerTab);
+    outer->setContentsMargins(0, 0, 0, 0);
+    auto *tabs = new PanelTabs(cleanerTab);
+    tabs->setObjectName("cleanerSubTabs");
+    outer->addWidget(tabs);
+    auto *cleanup = new QWidget(tabs);
+    tabs->addTab(cleanup, tr("Clean up"));
+    tabs->addTab(new DiskVisualizer([this] { return authenticateSudo(); }, tabs), tr("Disk Visualizer"));
+    QVBoxLayout *root = new QVBoxLayout(cleanup);
 
     // --- top bar ---------------------------------------------------------
     QHBoxLayout *bar = new QHBoxLayout();

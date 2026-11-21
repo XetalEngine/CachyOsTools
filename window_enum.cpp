@@ -64,8 +64,8 @@ protected:
 
 private:
     bool topmostOnly = false;
-    bool hideEmptyWindowName = true;
-    bool hideEmptyClass = true;
+    bool hideEmptyWindowName = false;
+    bool hideEmptyClass = false;
 };
 
 struct Column { const char *key; const char *label; int width; };
@@ -159,6 +159,7 @@ WindowEnumTab::WindowEnumTab(QWidget *parent) : QWidget(parent)
     source->addItem(tr("KDE — compositor windows"), "kwin");
     source->addItem(tr("GNOME — compositor windows"), "gnome");
     source->addItem(tr("Wayland — foreign toplevels"), "wayland");
+    source->addItem(tr("Hyprland — windows and surfaces"), "hyprland");
     search = new QLineEdit(this);
     search->setPlaceholderText(tr("Filter any column…"));
     search->setClearButtonEnabled(true);
@@ -167,11 +168,11 @@ WindowEnumTab::WindowEnumTab(QWidget *parent) : QWidget(parent)
     topmostOnly->setToolTip(tr("Show only windows reported as always on top."));
     auto *hideEmptyWindowName = new QCheckBox(tr("Hide Empty window name"), this);
     hideEmptyWindowName->setObjectName("windowEnumHideEmptyWindowName");
-    hideEmptyWindowName->setChecked(true);
+    hideEmptyWindowName->setChecked(false);
     hideEmptyWindowName->setToolTip(tr("Hide windows with an empty or unavailable window name."));
     auto *hideEmptyClass = new QCheckBox(tr("Hide Empty Class"), this);
     hideEmptyClass->setObjectName("windowEnumHideEmptyClass");
-    hideEmptyClass->setChecked(true);
+    hideEmptyClass->setChecked(false);
     hideEmptyClass->setToolTip(tr("Hide windows with an empty or unavailable class."));
     auto *exportButton = new QPushButton(tr("Export…"), this);
     gnomeButton = new QPushButton(tr("Enable GNOME Bridge"), this);

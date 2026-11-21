@@ -1,11 +1,10 @@
 # Window Enum
 
 Open **Dashboard → Window Enum**, immediately after **Sensors & Power**.
-Each row represents one window exposed by the selected backend. Every statistic
+Each row represents one window or desktop surface exposed by the selected backend. Every statistic
 has its own sortable column. Filter searches all columns. **Hide Empty window name**
-and **Hide Empty Class** are both enabled by default; each hides windows whose
-corresponding field is blank or unavailable. Uncheck either filter to include
-those windows. **Topmost only** further narrows the results to windows reported
+and **Hide Empty Class** are both off by default, so untitled overlays and surfaces remain visible.
+Enable either filter to hide rows whose corresponding field is blank or unavailable. **Topmost only** further narrows the results to windows reported
 as always on top. Right-click a column header to show/hide columns. Export writes
 the matching rows to JSON or CSV.
 Live refresh runs every two seconds while the tab is visible. Selection and
@@ -24,6 +23,7 @@ does not mean false or zero.
 | Session / backend | Discovery | Controls |
 | --- | --- | --- |
 | X11 on KDE, Xfce, MATE, GNOME and other EWMH window managers | Recursively walks every screen's full X window tree, including root, child, unmapped, input-only and override-redirect windows | Move, resize, raise/lower, focus, topmost/below, minimize/maximize, fullscreen, workspace, opacity, title and graceful close as supported |
+| Hyprland Wayland | Native windows across workspaces, XWayland clients, and background/bottom/top/overlay desktop layers; optional compositor extensions can add popup menus and child surfaces | Capability-based focus, graceful close, floating-window geometry and stacking; layers and child surfaces are read-only |
 | KDE Wayland, or explicit KDE backend | KWin workspace and stacking lists, including the popups, panels and overlays those APIs expose | Native move/resize, focus/raise, topmost/below, minimize/maximize, fullscreen, workspace, opacity, decorations and graceful close |
 | GNOME Wayland, or explicit GNOME backend | Mutter window list through the included GNOME Shell extension; includes override-redirect windows where exposed | Native geometry, focus/raise/lower, topmost, minimize/maximize, fullscreen, workspace, actor opacity and graceful close as supported |
 | Other Wayland compositors, including Xfce/MATE used with a compatible compositor | wlr-foreign-toplevel-management; falls back to ext-foreign-toplevel-list | wlr supports advertised state controls, activation and close; ext is read-only |
@@ -138,3 +138,24 @@ game/overlay applications still require desktop-specific checks.
 - [EWMH window management](https://specifications.freedesktop.org/wm/latest/)
 - [wlr foreign toplevel protocol](https://gitlab.freedesktop.org/wlroots/wlr-protocols/-/blob/master/unstable/wlr-foreign-toplevel-management-unstable-v1.xml)
 - [ext foreign toplevel protocol](https://gitlab.freedesktop.org/wayland/wayland-protocols/-/blob/main/staging/ext-foreign-toplevel-list/ext-foreign-toplevel-list-v1.xml)
+
+## Hyprland compatibility
+
+Automatic detection uses the active session, desktop and Hyprland instance.
+X11 sessions keep their X11 backend even if they inherited a Hyprland environment
+variable. The inspector uses `hyprctl` JSON, with a read-only capability probe to
+choose legacy or Lua dispatch syntax when an action is requested.
+
+Top and overlay layers are marked above ordinary windows. A floating window is
+not automatically labelled topmost. Standard Hyprland does not report every
+popup or subsurface; optional `xetal-inspector-surfaces` and `xetal-windows`
+queries are used when supported and are not required. The coverage message
+states what was available. Unsupported queries do not hide ordinary windows.
+
+Window actions address the selected surface, check its current identity and
+owner, and respect its advertised capabilities. Application titles are never
+inserted into shell commands. Legacy and current dispatcher forms are tested
+with command fixtures, following the official [hyprctl](https://wiki.hypr.land/configuring/core/advanced-configuration/using-hyprctl/)
+and [dispatcher](https://wiki.hypr.land/configuring/core/dispatchers/) interfaces.
+Live compositor behavior still needs a session-level check on each supported
+desktop; fixture tests do not establish universal overlay coverage.

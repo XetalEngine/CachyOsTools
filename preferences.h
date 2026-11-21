@@ -146,6 +146,7 @@ void MainWindow::saveTabVisibilityPreferences() {
 
 QMap<QString, QWidget *> MainWindow::preferenceTabWidgets() const {
     return {{"dashboardTab", ui->dashboardTab}, {"driveToolsTab", ui->driveToolsTab},
+            {"grubEditorTab", grubEditorTab},
             {"shellToolsTab", ui->shellToolsTab}, {"servicesTab", ui->servicesTab},
             {"tweaksTab", ui->tweaksTab}, {"kvmTab", ui->kvmTab},
             {"configTab", ui->configTab}, {"logsTab", ui->logsTab},

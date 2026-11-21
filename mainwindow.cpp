@@ -39,6 +39,7 @@
 #include "sensors_power.h"
 #include "network_shares.h"
 #include "autostart.h"
+#include "modern_interface.h"
 
 void MainWindow::setNumlockSetting(bool enabled) {
     QString value = enabled ? "1" : "0";

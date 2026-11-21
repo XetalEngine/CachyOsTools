@@ -28,6 +28,10 @@ foreach(protocol wlr-foreign-toplevel-management-unstable-v1 ext-foreign-topleve
     list(APPEND WINDOW_ENUM_PROTOCOLS "${header}" "${code}")
 endforeach()
 
+include(GNUInstallDirs)
+add_compile_definitions(CACHYOSTOOLS_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
+    CACHYOSTOOLS_DATA_DIR="${CMAKE_INSTALL_FULL_DATADIR}/cachyostools")
+
 set(PROJECT_SOURCES
         main.cpp
         mainwindow.cpp
@@ -45,6 +49,16 @@ set(PROJECT_SOURCES
         env_editor.h
         system_properties.h
         drive.h
+        modern_interface.h
+        drive_tree.cpp drive_tree.h volume_commands.h
+        ui_components/panel_widgets.h
+        ui_components/hyper_fusion_banner.h
+        ui_components/presentation.cpp ui_components/presentation.h
+        ui_components/network_page.cpp ui_components/network_page.h ui_components/network_status.h
+        ui_components/grub_editor.cpp ui_components/grub_editor.h
+        ui_components/grub_appearance.cpp ui_components/grub_appearance.h
+        ui_components/disk_visualizer.cpp ui_components/disk_visualizer.h ui_components/disk_layout.h
+        window_enum_hyprland.cpp window_enum_hyprland.h
         drivelabel.h
         drivelabel.cpp
         mainwindow_d.h
@@ -116,7 +130,7 @@ endif()
 
 target_link_libraries(CachyOsTools PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network Qt${QT_VERSION_MAJOR}::DBus)
 target_link_libraries(CachyOsTools PRIVATE PkgConfig::WINDOW_ENUM_X11 PkgConfig::WINDOW_ENUM_WAYLAND)
-target_include_directories(CachyOsTools PRIVATE "${WINDOW_ENUM_PROTOCOL_DIR}")
+target_include_directories(CachyOsTools PRIVATE "${WINDOW_ENUM_PROTOCOL_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/ui_components")
 
 option(BUILD_WINDOW_ENUM_TESTS "Build isolated window enumeration tests" OFF)
 if(BUILD_WINDOW_ENUM_TESTS)
@@ -124,7 +138,7 @@ if(BUILD_WINDOW_ENUM_TESTS)
     find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Test)
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
     add_executable(window_enum_tests tests/window_enum_tests.cpp window_enum.h
-        window_enum.cpp window_enum_controller.cpp window_enum_backend.cpp window_enum_x11.cpp resources.qrc)
+        window_enum.cpp window_enum_controller.cpp window_enum_backend.cpp window_enum_x11.cpp window_enum_hyprland.cpp resources.qrc)
     target_include_directories(window_enum_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
     target_link_libraries(window_enum_tests PRIVATE Qt${QT_VERSION_MAJOR}::Widgets
         Qt${QT_VERSION_MAJOR}::DBus Qt${QT_VERSION_MAJOR}::Test PkgConfig::WINDOW_ENUM_X11)
@@ -214,7 +228,6 @@ set_target_properties(CachyOsTools PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
-include(GNUInstallDirs)
 install(TARGETS CachyOsTools
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -223,4 +236,45 @@ install(TARGETS CachyOsTools
 
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(CachyOsTools)
+endif()
+
+install(DIRECTORY tools/ DESTINATION ${CMAKE_INSTALL_DATADIR}/cachyostools/tools FILES_MATCHING PATTERN "*.py" PATTERN "__pycache__" EXCLUDE)
+install(DIRECTORY assets/fonts/ DESTINATION ${CMAKE_INSTALL_DATADIR}/cachyostools/assets/fonts)
+
+option(BUILD_MODERN_UI_TESTS "Build standalone GRUB, drive, network, disk and Hyprland tests" OFF)
+if(BUILD_MODERN_UI_TESTS)
+    enable_testing()
+    find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Test)
+    find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    foreach(test drive_tree network_page grub_editor disk_visualizer hyprland)
+        if(test STREQUAL "drive_tree")
+            set(extra_sources drive_tree.cpp drivelabel.cpp)
+        elseif(test STREQUAL "network_page")
+            set(extra_sources ui_components/network_page.cpp)
+        elseif(test STREQUAL "grub_editor")
+            set(extra_sources ui_components/grub_editor.cpp ui_components/grub_appearance.cpp)
+        elseif(test STREQUAL "disk_visualizer")
+            set(extra_sources ui_components/disk_visualizer.cpp)
+        else()
+            set(extra_sources window_enum_hyprland.cpp window_enum.cpp window_enum_controller.cpp window_enum_backend.cpp)
+        endif()
+        add_executable(${test}_tests tests/${test}_tests.cpp ${extra_sources}
+            ui_components/presentation.cpp ui_components/panel_widgets.h)
+        target_include_directories(${test}_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/ui_components")
+        target_link_libraries(${test}_tests PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::DBus Qt${QT_VERSION_MAJOR}::Test)
+        add_test(NAME ${test} COMMAND ${test}_tests)
+        set_tests_properties(${test} PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen;QT_QPA_PLATFORMTHEME=" TIMEOUT 120)
+    endforeach()
+    set(SMOKE_SOURCES ${PROJECT_SOURCES})
+    list(REMOVE_ITEM SMOKE_SOURCES main.cpp)
+    add_executable(mainwindow_smoke tests/mainwindow_smoke.cpp ${SMOKE_SOURCES})
+    target_include_directories(mainwindow_smoke PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/ui_components" "${WINDOW_ENUM_PROTOCOL_DIR}")
+    target_link_libraries(mainwindow_smoke PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network
+        Qt${QT_VERSION_MAJOR}::DBus Qt${QT_VERSION_MAJOR}::Test PkgConfig::WINDOW_ENUM_X11 PkgConfig::WINDOW_ENUM_WAYLAND)
+    add_test(NAME mainwindow_smoke COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/run_mainwindow_smoke.py" $<TARGET_FILE:mainwindow_smoke>)
+    set_tests_properties(mainwindow_smoke PROPERTIES TIMEOUT 120)
+    foreach(helper grub_editor grub_appearance disk_scan)
+        add_test(NAME ${helper}_helper COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_${helper}.py")
+        set_tests_properties(${helper}_helper PROPERTIES TIMEOUT 240)
+    endforeach()
 endif()

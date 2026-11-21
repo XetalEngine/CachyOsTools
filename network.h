@@ -29,6 +29,7 @@
 #include <QFile>
 #include <QDir>
 #include <QCoreApplication>
+#include "ui_components/network_status.h"
 
 void MainWindow::refreshNetworkInfo() {
     // Clear and setup IP address table
@@ -118,12 +119,16 @@ void MainWindow::refreshNetworkInfo() {
         ui->dnsValueLabel->setText(tr("Cannot read"));
     }
     
-    // Get public IP (async)
+    // Keep repeated page visits from stacking public-address requests.
+    if (property("networkPublicIpPending").toBool()) return;
+    setProperty("networkPublicIpPending", true);
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
     QNetworkRequest request(QUrl("https://api.ipify.org"));
+    request.setTransferTimeout(5000);
     QNetworkReply *reply = manager->get(request);
     
-    connect(reply, &QNetworkReply::finished, [this, reply, manager]() {
+    connect(reply, &QNetworkReply::finished, this, [this, reply, manager]() {
+        setProperty("networkPublicIpPending", false);
         if (reply->error() == QNetworkReply::NoError) {
             QString publicIp = QString::fromUtf8(reply->readAll()).trimmed();
             ui->publicIpValueLabel->setText(publicIp);
@@ -598,15 +603,12 @@ void MainWindow::refreshLibvirtNetworks() {
                 
                 // Get network type
                 QProcess infoProc;
-                infoProc.start("virsh", QStringList() << "net-info" << name);
-                infoProc.waitForFinished();
-                QString infoOutput = QString::fromUtf8(infoProc.readAllStandardOutput());
-                QString type = "NAT";
-                if (infoOutput.contains("bridge")) {
-                    type = "Bridge";
-                } else if (infoOutput.contains("routed")) {
-                    type = "Routed";
-                }
+                infoProc.start("virsh", QStringList() << "net-dumpxml" << name);
+                const bool infoFinished = infoProc.waitForFinished(5000);
+                QString type = "Not reported";
+                if (infoFinished && infoProc.exitCode() == 0)
+                    type = NetworkStatus::virtualNetworkMode(QString::fromUtf8(infoProc.readAllStandardOutput()));
+                else { infoProc.kill(); infoProc.waitForFinished(1000); }
                 
                 int row = ui->libvirtNetworkTable->rowCount();
                 ui->libvirtNetworkTable->insertRow(row);
@@ -722,10 +724,7 @@ void MainWindow::refreshInterfaceConfig() {
             continue;
         }
         
-        QString interfaceName = interface.humanReadableName();
-        if (interfaceName.isEmpty()) {
-            interfaceName = interface.name();
-        }
+        QString interfaceName = interface.name();
         
         QNetworkInterface::InterfaceFlags flags = interface.flags();
         QString status = (flags.testFlag(QNetworkInterface::IsUp) && flags.testFlag(QNetworkInterface::IsRunning)) ? "Up" : "Down";
@@ -746,25 +745,26 @@ void MainWindow::refreshInterfaceConfig() {
         
         // Check if using NetworkManager or systemd-networkd
         QProcess nmProc;
-        nmProc.start("nmcli", QStringList() << "device" << "show" << interfaceName);
-        nmProc.waitForFinished();
+        nmProc.start("nmcli", {"-t", "-f", "GENERAL.CON-UUID,IP4.GATEWAY", "device", "show", interfaceName});
+        const bool nmFinished = nmProc.waitForFinished(3000);
+        if (!nmFinished) { nmProc.kill(); nmProc.waitForFinished(1000); }
         
-        if (nmProc.exitCode() == 0) {
+        if (nmFinished && nmProc.exitCode() == 0) {
             QString nmOutput = QString::fromUtf8(nmProc.readAllStandardOutput());
-            if (nmOutput.contains("IP4.ADDRESS")) {
-                // Check if DHCP or manual
-                if (nmOutput.contains("IP4.METHOD:auto") || nmOutput.contains("IP4.METHOD:dhcp")) {
-                    configType = "AUTOMATIC (DHCP)";
-                } else {
-                    configType = "MANUAL (Static)";
-                }
-                
-                // Extract gateway
-                QRegularExpression gwRe("IP4\\.GATEWAY:\\s+(\\S+)");
-                QRegularExpressionMatch gwMatch = gwRe.match(nmOutput);
-                if (gwMatch.hasMatch()) {
-                    gateway = gwMatch.captured(1);
-                }
+            QString uuid;
+            for (const auto &line : nmOutput.split('\n', Qt::SkipEmptyParts)) {
+                const auto parts = splitNmcliLine(line);
+                if (parts.size() < 2) continue;
+                if (parts[0] == "GENERAL.CON-UUID") uuid = parts[1];
+                if (parts[0] == "IP4.GATEWAY" && !parts[1].isEmpty()) gateway = parts[1];
+            }
+            configType = "Not reported";
+            if (!uuid.isEmpty() && uuid != "--") {
+                QProcess profile;
+                profile.start("nmcli", {"-g", "ipv4.method", "connection", "show", "uuid", uuid});
+                if (profile.waitForFinished(3000) && profile.exitCode() == 0)
+                    configType = NetworkStatus::addressingLabel(QString::fromUtf8(profile.readAllStandardOutput()));
+                else { profile.kill(); profile.waitForFinished(1000); }
             }
         } else {
             // Check systemd-networkd
@@ -777,13 +777,13 @@ void MainWindow::refreshInterfaceConfig() {
                     QString line = in.readLine().trimmed();
                     if (line.startsWith("DHCP=")) {
                         if (line.contains("yes") || line.contains("ipv4")) {
-                            configType = "AUTOMATIC (DHCP)";
+                            configType = "Automatic";
                             foundDhcp = true;
                         } else {
-                            configType = "MANUAL (Static)";
+                            configType = "Manual";
                         }
                     } else if (line.startsWith("Address=") && !foundDhcp) {
-                        configType = "MANUAL (Static)";
+                        configType = "Manual";
                     } else if (line.startsWith("Gateway=")) {
                         QStringList parts = line.split("=");
                         if (parts.size() >= 2) {
@@ -796,9 +796,10 @@ void MainWindow::refreshInterfaceConfig() {
                 // Check if using dhcpcd
                 QProcess dhcpcdProc;
                 dhcpcdProc.start("dhcpcd", QStringList() << "-U" << interfaceName);
-                dhcpcdProc.waitForFinished();
-                if (dhcpcdProc.exitCode() == 0) {
-                    configType = "AUTOMATIC (DHCP)";
+                const bool leaseFinished = dhcpcdProc.waitForFinished(3000);
+                if (!leaseFinished) { dhcpcdProc.kill(); dhcpcdProc.waitForFinished(1000); }
+                if (leaseFinished && dhcpcdProc.exitCode() == 0) {
+                    configType = "Automatic";
                 } else {
                     configType = "Not configured";
                 }
@@ -833,16 +834,16 @@ void MainWindow::on_configureInterfaceButton_clicked() {
 
 void MainWindow::configureInterface(const QString &interfaceName) {
     QDialog *dialog = new QDialog(this);
-    dialog->setWindowTitle(QString("Configure Interface: %1").arg(interfaceName));
+    dialog->setWindowTitle(QString("IP & DNS · %1").arg(interfaceName));
     dialog->setMinimumWidth(500);
     
     QVBoxLayout *layout = new QVBoxLayout(dialog);
     
     // Configuration type (AUTOMATIC/MANUAL)
-    QGroupBox *configTypeGroup = new QGroupBox("Configuration Type", dialog);
+    QGroupBox *configTypeGroup = new QGroupBox("IPv4 addressing", dialog);
     QVBoxLayout *configTypeLayout = new QVBoxLayout(configTypeGroup);
-    QRadioButton *automaticRadio = new QRadioButton("AUTOMATIC (DHCP)", configTypeGroup);
-    QRadioButton *manualRadio = new QRadioButton("MANUAL (Static IP)", configTypeGroup);
+    QRadioButton *automaticRadio = new QRadioButton("Automatic · get settings from the network", configTypeGroup);
+    QRadioButton *manualRadio = new QRadioButton("Manual · use a fixed address", configTypeGroup);
     configTypeLayout->addWidget(automaticRadio);
     configTypeLayout->addWidget(manualRadio);
     automaticRadio->setChecked(true);
@@ -885,7 +886,7 @@ void MainWindow::configureInterface(const QString &interfaceName) {
     
     // Buttons
     QHBoxLayout *buttonLayout = new QHBoxLayout();
-    QPushButton *okButton = new QPushButton(tr("Apply"), dialog);
+    QPushButton *okButton = new QPushButton(tr("Save && reconnect"), dialog);
     QPushButton *cancelButton = new QPushButton(tr("Cancel"), dialog);
     buttonLayout->addWidget(okButton);
     buttonLayout->addWidget(cancelButton);
@@ -1086,7 +1087,7 @@ void MainWindow::refreshWifiNetworks(bool rescan) {
     radioProc.start("nmcli", QStringList() << "radio" << "wifi");
     radioProc.waitForFinished(10000);
     QString radioState = QString::fromUtf8(radioProc.readAllStandardOutput()).trimmed();
-    ui->wifiRadioToggleButton->setText(radioState == "enabled" ? "📶 Turn Wi-Fi Off" : "📶 Turn Wi-Fi On");
+    ui->wifiRadioToggleButton->setText(radioState == "enabled" ? "Turn Wi-Fi off" : "Turn Wi-Fi on");
     if (radioState != "enabled") {
         ui->wifiStatusLabel->setText(QString("Wi-Fi is turned off (device %1).").arg(wifiDev));
         return;
@@ -1100,9 +1101,7 @@ void MainWindow::refreshWifiNetworks(bool rescan) {
     QStringList args;
     args << "-t" << "-f" << "IN-USE,SSID,SIGNAL,SECURITY,CHAN,RATE"
          << "device" << "wifi" << "list" << "ifname" << wifiDev;
-    if (rescan) {
-        args << "--rescan" << "yes";
-    }
+    args << "--rescan" << (rescan ? "yes" : "no");
     QProcess proc;
     proc.start("nmcli", args);
     proc.waitForFinished(rescan ? 30000 : 10000);

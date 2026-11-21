@@ -38,19 +38,7 @@ class IsoExclusionsDialog;
 }
 QT_END_NAMESPACE
 
-struct DriveInfo {
-    QString device;
-    QString size;
-    QString type;
-    QString mountPoint;
-    bool isMounted;
-    QString label;
-    QString diskId;
-    QString filesystem;
-    QString uuid;
-    QString model;
-    QString serial;
-};
+#include "drive_tree.h"
 
 // One row of the Cleaner catalogue. paths are bash patterns (globs allowed,
 // $H = home); sizeCmd/cleanCmd override the default du/rm handling when the
@@ -157,11 +145,8 @@ private slots:
     void on_ejectButton_clicked();
     void on_formatButton_clicked();
     void on_smartInfoButton_clicked();
-    void on_diskFilterCheckBox_stateChanged(int state);
-    void on_partitionFilterCheckBox_stateChanged(int state);
     void on_minSizeFilterCheckBox_stateChanged(int state);
     void on_minSizeSpinBox_valueChanged(int value);
-    qint64 parseSizeToMB(const QString &sizeStr);
     void on_reloadAliasButton_clicked();
     void on_addAliasButton_clicked();
     void on_editAliasButton_clicked();
@@ -494,6 +479,9 @@ private:
     QProcess *currentProcess;
     
     void setupDriveTable();
+    void setupModernInterface();
+    QWidget *grubEditorTab = nullptr;
+    QLabel *driveSummary = nullptr;
     void showDriveContextMenu(const QPoint &position);
     void openDriveInDolphin(const QString &device);
     void populateDriveTable();

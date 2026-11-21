@@ -1,5 +1,6 @@
 #include "window_enum.h"
 #include "window_enum_backend.h"
+#include "window_enum_hyprland.h"
 #include <QCoreApplication>
 #include <QDBusConnection>
 #include <QDBusMessage>
@@ -105,11 +106,9 @@ void WindowEnumController::request(QJsonObject request)
     m_token = QUuid::createUuid().toString(QUuid::WithoutBraces);
     QString backend = m_backend;
     if (backend == "auto") {
-        const bool wayland = qEnvironmentVariable("XDG_SESSION_TYPE") == "wayland" ||
-            !qEnvironmentVariableIsEmpty("WAYLAND_DISPLAY");
-        const QString desktop = qEnvironmentVariable("XDG_CURRENT_DESKTOP").toLower();
-        backend = !wayland ? "x11" : desktop.contains("kde") ? "kwin" :
-            desktop.contains("gnome") ? "gnome" : "wayland";
+        backend = windowEnumAutomaticBackend(qEnvironmentVariable("XDG_SESSION_TYPE"),
+            qEnvironmentVariable("WAYLAND_DISPLAY"), qEnvironmentVariable("XDG_CURRENT_DESKTOP"),
+            qEnvironmentVariable("HYPRLAND_INSTANCE_SIGNATURE"));
     }
     if (m_activeBackend != backend && m_process) {
         // Only the foreign-toplevel helper persists between requests.
@@ -178,7 +177,8 @@ void WindowEnumController::helper(const QJsonObject &request, bool wayland)
     });
     QStringList arguments;
     if (wayland) arguments << "--window-enum-wayland";
-    else arguments << "--window-enum-x11" << QString::fromUtf8(QJsonDocument(request).toJson(QJsonDocument::Compact));
+    else arguments << (m_activeBackend == "hyprland" ? "--window-enum-hyprland" : "--window-enum-x11")
+                   << QString::fromUtf8(QJsonDocument(request).toJson(QJsonDocument::Compact));
     process->start(QCoreApplication::applicationFilePath(), arguments);
 }
 

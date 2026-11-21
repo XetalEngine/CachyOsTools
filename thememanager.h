@@ -7,8 +7,10 @@
 #include <functional>
 
 #include "themepresets.h"
+#include "ui_components/presentation.h"
 
 void MainWindow::applyAppTheme() {
+    static const QPalette systemPalette = QApplication::palette();
     QColor accent(themeAccent.isEmpty() ? "#27ae60" : themeAccent);
     QString aHex = accent.name();
     auto aRgba = [&accent](double alpha) {
@@ -97,7 +99,7 @@ void MainWindow::applyAppTheme() {
 
     // Optional full background/text override (presets beyond "System Default")
     if (!themeBg.isEmpty() || !themeText.isEmpty()) {
-        QColor bg = themeBg.isEmpty() ? QApplication::palette().color(QPalette::Window) : QColor(themeBg);
+        QColor bg = themeBg.isEmpty() ? systemPalette.color(QPalette::Window) : QColor(themeBg);
         bool dark = bg.lightness() < 128;
         QColor base = dark ? bg.lighter(135) : bg.darker(104);        // inputs/views
         QColor text = themeText.isEmpty() ? (dark ? QColor("#e6e6e6") : QColor("#1c1c1c"))
@@ -117,7 +119,10 @@ void MainWindow::applyAppTheme() {
             .arg(bg.name(), text.name(), aRgba(0.35), base.name());
     }
 
-    setStyleSheet(style);
+    const auto colors = CachyUi::palette(systemPalette, accent, themeBg, themeText);
+    QApplication::setPalette(colors);
+    setPalette(colors);
+    setStyleSheet(style + CachyUi::stylesheet());
 }
 
 void MainWindow::loadThemeSettings() {
